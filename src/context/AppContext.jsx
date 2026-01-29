@@ -29,11 +29,11 @@ export function AppProvider({ children }) {
   // ============ PROFILES ============
   const profiles = useMemo(() => data.profiles || [], [data.profiles])
 
-  const addProfile = useCallback((name) => {
+  const addProfile = useCallback((name, color) => {
     const newProfile = {
       id: generateId(),
       name,
-      color: generateAvatarColor(name),
+      color: color || generateAvatarColor(name),
       createdAt: new Date().toISOString(),
     }
     updateData((prev) => ({

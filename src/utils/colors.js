@@ -13,7 +13,7 @@ export const LABEL_COLORS = {
 export const LABEL_COLOR_OPTIONS = Object.keys(LABEL_COLORS)
 
 // Avatar colors for profiles
-const AVATAR_COLORS = [
+export const AVATAR_COLORS = [
   '#3B82F6', // blue
   '#10B981', // emerald
   '#F59E0B', // amber
