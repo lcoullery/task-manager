@@ -20,7 +20,8 @@ export function TaskForm({ task, onSubmit, onCancel }) {
     status: columns[0]?.id || '',
     priority: 'medium',
     assignedTo: '',
-    dueDate: '',
+    startDate: '',
+    endDate: '',
     labels: [],
   })
 
@@ -32,7 +33,8 @@ export function TaskForm({ task, onSubmit, onCancel }) {
         status: task.status || columns[0]?.id || '',
         priority: task.priority || 'medium',
         assignedTo: task.assignedTo || '',
-        dueDate: task.dueDate || '',
+        startDate: task.startDate || '',
+        endDate: task.endDate || '',
         labels: task.labels || [],
       })
     }
@@ -54,7 +56,8 @@ export function TaskForm({ task, onSubmit, onCancel }) {
       ...formData,
       title: formData.title.trim(),
       assignedTo: formData.assignedTo || null,
-      dueDate: formData.dueDate || null,
+      startDate: formData.startDate || null,
+      endDate: formData.endDate || null,
     })
   }
 
@@ -96,20 +99,27 @@ export function TaskForm({ task, onSubmit, onCancel }) {
         />
       </div>
 
+      <Select
+        label="Assignee"
+        value={formData.assignedTo}
+        onChange={handleChange('assignedTo')}
+        options={profileOptions}
+        placeholder="Unassigned"
+      />
+
       <div className="grid grid-cols-2 gap-4">
-        <Select
-          label="Assignee"
-          value={formData.assignedTo}
-          onChange={handleChange('assignedTo')}
-          options={profileOptions}
-          placeholder="Unassigned"
+        <Input
+          label="Start Date"
+          type="date"
+          value={formData.startDate}
+          onChange={handleChange('startDate')}
         />
 
         <Input
-          label="Due Date"
+          label="End Date"
           type="date"
-          value={formData.dueDate}
-          onChange={handleChange('dueDate')}
+          value={formData.endDate}
+          onChange={handleChange('endDate')}
         />
       </div>
 

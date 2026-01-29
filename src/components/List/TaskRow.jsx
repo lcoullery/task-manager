@@ -11,8 +11,8 @@ export function TaskRow({ task, onClick }) {
   const assignee = task.assignedTo ? getProfile(task.assignedTo) : null
   const priorityColors = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.medium
   const isOverdue =
-    task.dueDate &&
-    new Date(task.dueDate) < new Date() &&
+    task.endDate &&
+    new Date(task.endDate) < new Date() &&
     task.status !== 'col-done'
 
   const handleArchiveToggle = (e) => {
@@ -90,9 +90,9 @@ export function TaskRow({ task, onClick }) {
         )}
       </td>
 
-      {/* Due Date */}
+      {/* End Date */}
       <td className="px-3 py-3">
-        {task.dueDate ? (
+        {task.endDate ? (
           <span
             className={`inline-flex items-center gap-1 text-xs ${
               isOverdue
@@ -101,7 +101,7 @@ export function TaskRow({ task, onClick }) {
             }`}
           >
             <Calendar className="w-3 h-3" />
-            {new Date(task.dueDate).toLocaleDateString()}
+            {new Date(task.endDate).toLocaleDateString()}
           </span>
         ) : (
           <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
