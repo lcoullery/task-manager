@@ -1,0 +1,21 @@
+{
+  "profiles": [],
+  "tasks": [],
+  "labels": [
+    { "id": "label-1", "name": "Bug", "color": "red" },
+    { "id": "label-2", "name": "Feature", "color": "blue" },
+    { "id": "label-3", "name": "Urgent", "color": "orange" }
+  ],
+  "columns": [
+    { "id": "col-plan", "name": "Plan", "order": 0 },
+    { "id": "col-execute", "name": "Execute", "order": 1 },
+    { "id": "col-blocked", "name": "Blocked", "order": 2 },
+    { "id": "col-done", "name": "Done", "order": 3 }
+  ],
+  "settings": {
+    "theme": "light",
+    "dataFilePath": "./data/tasks.json",
+    "autoRefreshEnabled": true,
+    "autoRefreshInterval": 5000
+  }
+}
