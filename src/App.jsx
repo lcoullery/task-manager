@@ -4,6 +4,7 @@ import { Dashboard } from './pages/Dashboard'
 import { Profiles } from './pages/Profiles'
 import { Settings } from './pages/Settings'
 import { ListView } from './pages/ListView'
+import { GanttView } from './pages/GanttView'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/list" element={<ListView />} />
+          <Route path="/gantt" element={<GanttView />} />
           <Route path="/profiles" element={<Profiles />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
