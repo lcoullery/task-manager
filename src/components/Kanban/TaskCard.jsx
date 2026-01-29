@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext'
 import { ProfileAvatar } from '../Profiles/ProfileCard'
 import { LabelBadge } from '../Labels/LabelBadge'
 import { PRIORITY_COLORS } from '../../utils/colors'
+import { AssigneeQuickPicker } from './AssigneeQuickPicker'
 
 export function TaskCard({ task, index, onClick }) {
   const { getProfile, getLabel } = useApp()
@@ -60,7 +61,11 @@ export function TaskCard({ task, index, onClick }) {
                 </span>
               )}
             </div>
-            {assignee && <ProfileAvatar profile={assignee} size="sm" />}
+            {assignee ? (
+              <ProfileAvatar profile={assignee} size="sm" />
+            ) : (
+              <AssigneeQuickPicker taskId={task.id} />
+            )}
           </div>
         </div>
       )}

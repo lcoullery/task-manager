@@ -28,9 +28,9 @@ export function ProfileList() {
 
   const handleSubmit = (data) => {
     if (editingProfile) {
-      updateProfile(editingProfile.id, data)
+      updateProfile(editingProfile.id, { name: data.name, color: data.color })
     } else {
-      addProfile(data.name)
+      addProfile(data.name, data.color)
     }
   }
 
