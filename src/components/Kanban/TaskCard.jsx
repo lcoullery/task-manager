@@ -10,7 +10,7 @@ export function TaskCard({ task, index, onClick }) {
   const assignee = task.assignedTo ? getProfile(task.assignedTo) : null
   const priorityColors = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.medium
 
-  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'col-done'
+  const isOverdue = task.endDate && new Date(task.endDate) < new Date() && task.status !== 'col-done'
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -47,10 +47,10 @@ export function TaskCard({ task, index, onClick }) {
 
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-3">
-              {task.dueDate && (
+              {task.endDate && (
                 <span className={`flex items-center gap-1 ${isOverdue ? 'text-red-500' : ''}`}>
                   <Calendar className="w-3 h-3" />
-                  {new Date(task.dueDate).toLocaleDateString()}
+                  {new Date(task.endDate).toLocaleDateString()}
                 </span>
               )}
               {task.comments && task.comments.length > 0 && (
