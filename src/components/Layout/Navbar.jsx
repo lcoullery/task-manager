@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, List, Users, Settings } from 'lucide-react'
+import { LayoutDashboard, List, GanttChart, Users, Settings } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/list', label: 'List', icon: List },
+  { to: '/gantt', label: 'Gantt', icon: GanttChart },
   { to: '/profiles', label: 'Profiles', icon: Users },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
