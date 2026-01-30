@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Send, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { ProfileAvatar } from '../Profiles/ProfileCard'
 
 export function CommentList({ taskId, comments = [] }) {
   const { profiles, getProfile, addComment, deleteComment } = useApp()
+  const { t } = useTranslation()
   const [text, setText] = useState('')
   const [authorId, setAuthorId] = useState(profiles[0]?.id || '')
 
@@ -23,7 +25,7 @@ export function CommentList({ taskId, comments = [] }) {
   return (
     <div className="space-y-4">
       <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Comments ({comments.length})
+        {t('comments.title', { count: comments.length })}
       </h4>
 
       {sortedComments.length > 0 && (
@@ -39,7 +41,7 @@ export function CommentList({ taskId, comments = [] }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      {author?.name || 'Unknown'}
+                      {author?.name || t('comments.unknown')}
                     </span>
                     <span className="text-xs text-gray-500">
                       {new Date(comment.createdAt).toLocaleString()}
@@ -52,7 +54,7 @@ export function CommentList({ taskId, comments = [] }) {
                 <button
                   onClick={() => deleteComment(taskId, comment.id)}
                   className="p-1 text-gray-400 hover:text-red-500 rounded"
-                  title="Delete comment"
+                  title={t('comments.deleteComment')}
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
@@ -69,7 +71,7 @@ export function CommentList({ taskId, comments = [] }) {
             onChange={(e) => setAuthorId(e.target.value)}
             className="input text-sm py-1"
           >
-            <option value="">Post as...</option>
+            <option value="">{t('comments.postAs')}</option>
             {profiles.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}
@@ -82,7 +84,7 @@ export function CommentList({ taskId, comments = [] }) {
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={profiles.length === 0 ? 'Create a profile to comment' : 'Add a comment...'}
+            placeholder={profiles.length === 0 ? t('comments.createProfileToComment') : t('comments.addComment')}
             className="input flex-1"
             disabled={profiles.length === 0}
           />

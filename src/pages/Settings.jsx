@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { Moon, Sun, Download, Upload, RefreshCw, RotateCcw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext'
 import { useApp } from '../context/AppContext'
 import { ColumnEditor } from '../components/Kanban/ColumnEditor'
@@ -7,9 +8,17 @@ import { LabelManager } from '../components/Labels/LabelManager'
 import { Button } from '../components/common/Button'
 import { ConfirmModal } from '../components/common/Modal'
 
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'fr', label: 'Fran\u00e7ais' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'it', label: 'Italiano' },
+]
+
 export function Settings() {
   const { theme, setTheme } = useTheme()
   const { settings, updateSettings, exportToFile, importFromFile, reset } = useApp()
+  const { t, i18n } = useTranslation()
   const [resetConfirm, setResetConfirm] = useState(false)
   const [importStatus, setImportStatus] = useState(null)
   const fileInputRef = useRef(null)
@@ -26,17 +35,22 @@ export function Settings() {
     }
   }
 
+  const handleLanguageChange = (langCode) => {
+    i18n.changeLanguage(langCode)
+    updateSettings({ language: langCode })
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('settings.title')}</h1>
 
       {/* Theme */}
       <section className="card p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Appearance
+          {t('settings.appearance')}
         </h2>
         <div className="flex items-center gap-4">
-          <span className="text-gray-700 dark:text-gray-300">Theme:</span>
+          <span className="text-gray-700 dark:text-gray-300">{t('settings.theme')}</span>
           <div className="flex gap-2">
             <button
               onClick={() => setTheme('light')}
@@ -47,7 +61,7 @@ export function Settings() {
               }`}
             >
               <Sun className="w-4 h-4" />
-              Light
+              {t('settings.light')}
             </button>
             <button
               onClick={() => setTheme('dark')}
@@ -58,8 +72,33 @@ export function Settings() {
               }`}
             >
               <Moon className="w-4 h-4" />
-              Dark
+              {t('settings.dark')}
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Language */}
+      <section className="card p-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {t('settings.language')}
+        </h2>
+        <div className="flex items-center gap-4">
+          <span className="text-gray-700 dark:text-gray-300">{t('settings.languageLabel')}</span>
+          <div className="flex gap-2">
+            {LANGUAGES.map(({ code, label }) => (
+              <button
+                key={code}
+                onClick={() => handleLanguageChange(code)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-colors ${
+                  i18n.language === code
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       </section>
@@ -67,7 +106,7 @@ export function Settings() {
       {/* Auto Refresh */}
       <section className="card p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Sync Settings
+          {t('settings.syncSettings')}
         </h2>
         <div className="space-y-4">
           <label className="flex items-center gap-3 cursor-pointer">
@@ -79,17 +118,17 @@ export function Settings() {
             />
             <div>
               <span className="text-gray-900 dark:text-white font-medium">
-                Auto-refresh
+                {t('settings.autoRefresh')}
               </span>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Automatically reload data to sync with other users
+                {t('settings.autoRefreshDesc')}
               </p>
             </div>
           </label>
 
           {settings.autoRefreshEnabled && (
             <div className="flex items-center gap-3 ml-7">
-              <span className="text-gray-700 dark:text-gray-300">Refresh every:</span>
+              <span className="text-gray-700 dark:text-gray-300">{t('settings.refreshEvery')}</span>
               <select
                 value={settings.autoRefreshInterval}
                 onChange={(e) =>
@@ -97,11 +136,11 @@ export function Settings() {
                 }
                 className="input w-auto"
               >
-                <option value={3000}>3 seconds</option>
-                <option value={5000}>5 seconds</option>
-                <option value={10000}>10 seconds</option>
-                <option value={30000}>30 seconds</option>
-                <option value={60000}>1 minute</option>
+                <option value={3000}>{t('settings.3seconds')}</option>
+                <option value={5000}>{t('settings.5seconds')}</option>
+                <option value={10000}>{t('settings.10seconds')}</option>
+                <option value={30000}>{t('settings.30seconds')}</option>
+                <option value={60000}>{t('settings.1minute')}</option>
               </select>
             </div>
           )}
@@ -121,16 +160,16 @@ export function Settings() {
       {/* Data Management */}
       <section className="card p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Data Management
+          {t('settings.dataManagement')}
         </h2>
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Export your data to share with your team via OneDrive, or import data from a shared file.
+            {t('settings.dataManagementDesc')}
           </p>
 
           <div className="flex flex-wrap gap-3">
             <Button onClick={exportToFile} variant="secondary" icon={Download}>
-              Export Data
+              {t('settings.exportData')}
             </Button>
 
             <input
@@ -145,7 +184,7 @@ export function Settings() {
               variant="secondary"
               icon={Upload}
             >
-              Import Data
+              {t('settings.importData')}
             </Button>
 
             <Button
@@ -153,18 +192,18 @@ export function Settings() {
               variant="danger"
               icon={RotateCcw}
             >
-              Reset All Data
+              {t('settings.resetAllData')}
             </Button>
           </div>
 
           {importStatus === 'success' && (
             <p className="text-sm text-green-600 dark:text-green-400">
-              Data imported successfully!
+              {t('settings.importSuccess')}
             </p>
           )}
           {importStatus === 'error' && (
             <p className="text-sm text-red-600 dark:text-red-400">
-              Failed to import data. Please check the file format.
+              {t('settings.importError')}
             </p>
           )}
         </div>
@@ -173,23 +212,23 @@ export function Settings() {
       {/* Keyboard Shortcuts */}
       <section className="card p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Keyboard Shortcuts
+          {t('settings.keyboardShortcuts')}
         </h2>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-            <span className="text-gray-600 dark:text-gray-400">Create new task</span>
+            <span className="text-gray-600 dark:text-gray-400">{t('settings.shortcutNewTask')}</span>
             <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs font-mono">
               N
             </kbd>
           </div>
           <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-            <span className="text-gray-600 dark:text-gray-400">Close modal</span>
+            <span className="text-gray-600 dark:text-gray-400">{t('settings.shortcutCloseModal')}</span>
             <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs font-mono">
               Escape
             </kbd>
           </div>
           <div className="flex justify-between py-2">
-            <span className="text-gray-600 dark:text-gray-400">Focus search</span>
+            <span className="text-gray-600 dark:text-gray-400">{t('settings.shortcutFocusSearch')}</span>
             <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs font-mono">
               /
             </kbd>
@@ -201,8 +240,8 @@ export function Settings() {
         isOpen={resetConfirm}
         onClose={() => setResetConfirm(false)}
         onConfirm={reset}
-        title="Reset All Data"
-        message="Are you sure you want to reset all data? This will delete all profiles, tasks, and custom settings. This action cannot be undone."
+        title={t('settings.resetTitle')}
+        message={t('settings.resetMessage')}
       />
     </div>
   )

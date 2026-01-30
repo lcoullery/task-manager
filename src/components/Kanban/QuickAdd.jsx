@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 
 export function QuickAdd({ columnId }) {
   const { addTask } = useApp()
+  const { t } = useTranslation()
   const [isAdding, setIsAdding] = useState(false)
   const [title, setTitle] = useState('')
 
@@ -30,7 +32,7 @@ export function QuickAdd({ columnId }) {
         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
       >
         <Plus className="w-4 h-4" />
-        Add task
+        {t('quickAdd.addTask')}
       </button>
     )
   }
@@ -47,13 +49,13 @@ export function QuickAdd({ columnId }) {
             setIsAdding(false)
           }
         }}
-        placeholder="Task title..."
+        placeholder={t('quickAdd.placeholder')}
         className="input text-sm"
         autoFocus
       />
       <div className="flex gap-2 mt-2">
         <button type="submit" className="btn btn-primary text-sm px-3 py-1">
-          Add
+          {t('quickAdd.add')}
         </button>
         <button
           type="button"
@@ -63,7 +65,7 @@ export function QuickAdd({ columnId }) {
           }}
           className="btn btn-secondary text-sm px-3 py-1"
         >
-          Cancel
+          {t('quickAdd.cancel')}
         </button>
       </div>
     </form>

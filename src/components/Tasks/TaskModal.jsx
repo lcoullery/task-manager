@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Archive, ArchiveRestore, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { Modal, ConfirmModal } from '../common/Modal'
 import { TaskForm } from './TaskForm'
@@ -7,6 +8,7 @@ import { CommentList } from './CommentList'
 
 export function TaskModal({ isOpen, onClose, task }) {
   const { updateTask, deleteTask, archiveTask, unarchiveTask } = useApp()
+  const { t } = useTranslation()
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [showForm, setShowForm] = useState(!task)
 
@@ -34,7 +36,7 @@ export function TaskModal({ isOpen, onClose, task }) {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} title="Task Details" size="lg">
+      <Modal isOpen={isOpen} onClose={onClose} title={t('taskModal.taskDetails')} size="lg">
         <div className="space-y-6">
           {showForm ? (
             <TaskForm
@@ -59,7 +61,7 @@ export function TaskModal({ isOpen, onClose, task }) {
                   onClick={() => setShowForm(true)}
                   className="btn btn-secondary text-sm"
                 >
-                  Edit
+                  {t('taskModal.edit')}
                 </button>
               </div>
 
@@ -77,12 +79,12 @@ export function TaskModal({ isOpen, onClose, task }) {
                   {task.archived ? (
                     <>
                       <ArchiveRestore className="w-4 h-4 mr-2" />
-                      Unarchive
+                      {t('taskModal.unarchive')}
                     </>
                   ) : (
                     <>
                       <Archive className="w-4 h-4 mr-2" />
-                      Archive
+                      {t('taskModal.archive')}
                     </>
                   )}
                 </button>
@@ -91,7 +93,7 @@ export function TaskModal({ isOpen, onClose, task }) {
                   className="btn btn-danger text-sm"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
+                  {t('taskModal.delete')}
                 </button>
               </div>
             </>
@@ -103,8 +105,8 @@ export function TaskModal({ isOpen, onClose, task }) {
         isOpen={deleteConfirm}
         onClose={() => setDeleteConfirm(false)}
         onConfirm={handleDelete}
-        title="Delete Task"
-        message={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
+        title={t('taskModal.deleteTitle')}
+        message={t('taskModal.deleteMessage', { title: task.title })}
       />
     </>
   )
@@ -112,6 +114,7 @@ export function TaskModal({ isOpen, onClose, task }) {
 
 export function CreateTaskModal({ isOpen, onClose, defaultStatus }) {
   const { addTask } = useApp()
+  const { t } = useTranslation()
 
   const handleSubmit = (data) => {
     addTask({ ...data, status: defaultStatus || data.status })
@@ -119,7 +122,7 @@ export function CreateTaskModal({ isOpen, onClose, defaultStatus }) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Task" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('taskModal.createTask')} size="lg">
       <TaskForm onSubmit={handleSubmit} onCancel={onClose} />
     </Modal>
   )

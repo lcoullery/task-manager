@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Plus, Pencil, Trash2, Check, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { LabelBadge, LabelColorDot } from './LabelBadge'
 import { LABEL_COLOR_OPTIONS } from '../../utils/colors'
@@ -9,6 +10,7 @@ import { Input } from '../common/Input'
 
 export function LabelManager() {
   const { labels, addLabel, updateLabel, deleteLabel } = useApp()
+  const { t } = useTranslation()
   const [isAdding, setIsAdding] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
@@ -49,11 +51,11 @@ export function LabelManager() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Labels
+          {t('labelManager.title')}
         </h3>
         {!isAdding && (
           <Button onClick={() => setIsAdding(true)} icon={Plus} size="sm">
-            Add Label
+            {t('labelManager.addLabel')}
           </Button>
         )}
       </div>
@@ -61,13 +63,13 @@ export function LabelManager() {
       {isAdding && (
         <div className="card p-4 space-y-3">
           <Input
-            placeholder="Label name"
+            placeholder={t('labelManager.labelNamePlaceholder')}
             value={newLabel.name}
             onChange={(e) => setNewLabel({ ...newLabel, name: e.target.value })}
             autoFocus
           />
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">Color:</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">{t('labelManager.color')}</span>
             {LABEL_COLOR_OPTIONS.map((color) => (
               <LabelColorDot
                 key={color}
@@ -79,7 +81,7 @@ export function LabelManager() {
           </div>
           <div className="flex gap-2">
             <Button onClick={handleAdd} size="sm">
-              Create
+              {t('labelManager.create')}
             </Button>
             <Button
               variant="secondary"
@@ -89,7 +91,7 @@ export function LabelManager() {
               }}
               size="sm"
             >
-              Cancel
+              {t('labelManager.cancel')}
             </Button>
           </div>
         </div>
@@ -97,7 +99,7 @@ export function LabelManager() {
 
       {labels.length === 0 && !isAdding ? (
         <p className="text-gray-500 dark:text-gray-400 text-center py-4">
-          No labels created yet.
+          {t('labelManager.emptyState')}
         </p>
       ) : (
         <div className="space-y-2">
@@ -128,14 +130,14 @@ export function LabelManager() {
                   <button
                     onClick={handleSaveEdit}
                     className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg"
-                    title="Save"
+                    title={t('labelManager.save')}
                   >
                     <Check className="w-4 h-4" />
                   </button>
                   <button
                     onClick={handleCancelEdit}
                     className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                    title="Cancel"
+                    title={t('labelManager.cancelEdit')}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -147,14 +149,14 @@ export function LabelManager() {
                   <button
                     onClick={() => handleStartEdit(label)}
                     className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title="Edit label"
+                    title={t('labelManager.editLabel')}
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setDeleteConfirm(label)}
                     className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title="Delete label"
+                    title={t('labelManager.deleteLabel')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -169,8 +171,8 @@ export function LabelManager() {
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
         onConfirm={confirmDelete}
-        title="Delete Label"
-        message={`Are you sure you want to delete "${deleteConfirm?.name}"? This label will be removed from all tasks.`}
+        title={t('labelManager.deleteTitle')}
+        message={t('labelManager.deleteMessage', { name: deleteConfirm?.name })}
       />
     </div>
   )

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { useKeyboard, createShortcuts } from '../../hooks/useKeyboard'
 import { Filters, ActiveFilterTags } from '../Tasks/Filters'
@@ -9,6 +10,7 @@ import { TaskRow } from './TaskRow'
 
 export function TaskListView() {
   const { tasks } = useApp()
+  const { t } = useTranslation()
   const [selectedTask, setSelectedTask] = useState(null)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [filters, setFilters] = useState({
@@ -72,7 +74,7 @@ export function TaskListView() {
         <Filters filters={filters} onChange={setFilters} />
         <div className="flex items-center gap-2 flex-shrink-0">
           <Button onClick={() => setCreateModalOpen(true)} icon={Plus}>
-            New Task
+            {t('taskListView.newTask')}
           </Button>
         </div>
       </div>
@@ -86,25 +88,25 @@ export function TaskListView() {
               <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                 <th className="px-3 py-2 w-10" />
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Title
+                  {t('taskListView.headerTitle')}
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
+                  {t('taskListView.headerStatus')}
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Priority
+                  {t('taskListView.headerPriority')}
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Assignee
+                  {t('taskListView.headerAssignee')}
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Due Date
+                  {t('taskListView.headerDueDate')}
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Labels
+                  {t('taskListView.headerLabels')}
                 </th>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Comments
+                  {t('taskListView.headerComments')}
                 </th>
               </tr>
             </thead>
@@ -121,7 +123,7 @@ export function TaskListView() {
 
           {filteredTasks.length === 0 && (
             <div className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-              No tasks found. Try adjusting your filters or create a new task.
+              {t('taskListView.emptyState')}
             </div>
           )}
         </div>

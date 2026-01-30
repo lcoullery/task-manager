@@ -1,4 +1,5 @@
 import { Circle, CheckCircle2, Calendar, MessageSquare } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { ProfileAvatar } from '../Profiles/ProfileCard'
 import { LabelBadge } from '../Labels/LabelBadge'
@@ -6,6 +7,7 @@ import { PRIORITY_COLORS } from '../../utils/colors'
 
 export function TaskRow({ task, onClick }) {
   const { columns, getProfile, getLabel, archiveTask, unarchiveTask } = useApp()
+  const { t } = useTranslation()
 
   const column = columns.find((c) => c.id === task.status)
   const assignee = task.assignedTo ? getProfile(task.assignedTo) : null
@@ -36,7 +38,7 @@ export function TaskRow({ task, onClick }) {
         <button
           onClick={handleArchiveToggle}
           className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-          title={task.archived ? 'Unarchive task' : 'Archive task'}
+          title={task.archived ? t('taskRow.unarchive') : t('taskRow.archiveTask')}
         >
           {task.archived ? (
             <CheckCircle2 className="w-5 h-5 text-blue-500 dark:text-blue-400" />
@@ -60,7 +62,7 @@ export function TaskRow({ task, onClick }) {
       {/* Status */}
       <td className="px-3 py-3">
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-          {column?.name || 'Unknown'}
+          {column?.name || t('taskRow.unknown')}
         </span>
       </td>
 
@@ -69,7 +71,7 @@ export function TaskRow({ task, onClick }) {
         <span className="inline-flex items-center gap-1.5 text-xs">
           <span className={`w-2 h-2 rounded-full ${priorityColors.dot}`} />
           <span className={priorityColors.text}>
-            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+            {t('filters.' + task.priority)}
           </span>
         </span>
       </td>
@@ -85,7 +87,7 @@ export function TaskRow({ task, onClick }) {
           </div>
         ) : (
           <span className="text-xs text-gray-400 dark:text-gray-500">
-            Unassigned
+            {t('taskRow.unassigned')}
           </span>
         )}
       </td>

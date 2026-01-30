@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { daysBetween, VIEW_CONFIGS } from '../../utils/gantt'
 import { PRIORITY_COLORS, getInitials, generateAvatarColor } from '../../utils/colors'
 import { GanttBar } from './GanttBar'
@@ -13,6 +14,7 @@ export function GanttRow({
   getProfile,
   isEven,
 }) {
+  const { t } = useTranslation()
   const priorityColors = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.medium
   const assignee = task.assignedTo ? getProfile(task.assignedTo) : null
   const totalWidth = totalDays * pxPerDay
@@ -47,7 +49,7 @@ export function GanttRow({
         onClick={() => onTaskClick(task)}
       >
         <div className={`w-2 h-2 rounded-full flex-shrink-0 ${priorityColors.dot}`}
-          title={`${task.priority} priority`} />
+          title={t('ganttRow.priorityLabel', { priority: t('filters.' + task.priority) })} />
         <span className="text-sm text-gray-900 dark:text-gray-100 truncate flex-1">
           {task.title}
         </span>
@@ -81,7 +83,7 @@ export function GanttRow({
               task.priority === 'low' ? 'bg-gray-400' : 'bg-blue-400'
             }`}
             style={{ left: `${markerLeft - 6}px` }}
-            title={`${task.startDate ? 'Start' : 'End'}: ${task.startDate || task.endDate}`}
+            title={`${task.startDate ? t('ganttRow.start') : t('ganttRow.end')}: ${task.startDate || task.endDate}`}
           />
         )}
       </div>

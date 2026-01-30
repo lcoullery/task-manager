@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useRef } from 'react'
 import { DragDropContext } from '@hello-pangea/dnd'
 import { Plus, Archive } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { useKeyboard, createShortcuts } from '../../hooks/useKeyboard'
 import { Column } from './Column'
@@ -11,6 +12,7 @@ import { ConfirmModal } from '../common/Modal'
 
 export function Board() {
   const { columns, tasks, moveTask, archiveAllDone } = useApp()
+  const { t } = useTranslation()
   const [selectedTask, setSelectedTask] = useState(null)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [archiveConfirm, setArchiveConfirm] = useState(false)
@@ -116,11 +118,11 @@ export function Board() {
               icon={Archive}
               size="sm"
             >
-              Archive Done ({doneTasksCount})
+              {t('board.archiveDone', { count: doneTasksCount })}
             </Button>
           )}
           <Button onClick={() => setCreateModalOpen(true)} icon={Plus}>
-            New Task
+            {t('board.newTask')}
           </Button>
         </div>
       </div>
@@ -157,9 +159,9 @@ export function Board() {
         isOpen={archiveConfirm}
         onClose={() => setArchiveConfirm(false)}
         onConfirm={archiveAllDone}
-        title="Archive All Done Tasks"
-        message={`Are you sure you want to archive ${doneTasksCount} completed task${doneTasksCount !== 1 ? 's' : ''}?`}
-        confirmText="Archive"
+        title={t('board.archiveAllTitle')}
+        message={t('board.archiveAllMessage', { count: doneTasksCount })}
+        confirmText={t('board.archiveConfirm')}
         confirmVariant="primary"
       />
     </div>
