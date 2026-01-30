@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }) {
   const overlayRef = useRef(null)
@@ -73,7 +74,9 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }) {
   )
 }
 
-export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confirmText = 'Delete', confirmVariant = 'danger' }) {
+export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confirmText, confirmVariant = 'danger' }) {
+  const { t } = useTranslation()
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
       <div className="space-y-4">
@@ -83,7 +86,7 @@ export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confi
             onClick={onClose}
             className="btn btn-secondary"
           >
-            Cancel
+            {t('modal.cancel')}
           </button>
           <button
             onClick={() => {
@@ -92,7 +95,7 @@ export function ConfirmModal({ isOpen, onClose, onConfirm, title, message, confi
             }}
             className={`btn ${confirmVariant === 'danger' ? 'btn-danger' : 'btn-primary'}`}
           >
-            {confirmText}
+            {confirmText || t('modal.delete')}
           </button>
         </div>
       </div>

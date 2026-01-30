@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../common/Modal'
 import { Input } from '../common/Input'
 import { Button } from '../common/Button'
 import { AVATAR_COLORS } from '../../utils/colors'
 
 export function ProfileForm({ isOpen, onClose, onSubmit, profile }) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [color, setColor] = useState(AVATAR_COLORS[0])
   const [error, setError] = useState('')
@@ -24,7 +26,7 @@ export function ProfileForm({ isOpen, onClose, onSubmit, profile }) {
     const trimmedName = name.trim()
 
     if (!trimmedName) {
-      setError('Name is required')
+      setError(t('profileForm.nameRequired'))
       return
     }
 
@@ -36,21 +38,21 @@ export function ProfileForm({ isOpen, onClose, onSubmit, profile }) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditing ? 'Edit Profile' : 'Create Profile'}
+      title={isEditing ? t('profileForm.editProfile') : t('profileForm.createProfile')}
       size="sm"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label="Name"
+          label={t('profileForm.name')}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Enter profile name"
+          placeholder={t('profileForm.namePlaceholder')}
           error={error}
           autoFocus
         />
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Avatar Color
+            {t('profileForm.avatarColor')}
           </label>
           <div className="flex flex-wrap gap-2">
             {AVATAR_COLORS.map((c) => (
@@ -71,10 +73,10 @@ export function ProfileForm({ isOpen, onClose, onSubmit, profile }) {
         </div>
         <div className="flex gap-3 justify-end pt-2">
           <Button variant="secondary" type="button" onClick={onClose}>
-            Cancel
+            {t('profileForm.cancel')}
           </Button>
           <Button type="submit">
-            {isEditing ? 'Save Changes' : 'Create Profile'}
+            {isEditing ? t('profileForm.saveChanges') : t('profileForm.createProfile')}
           </Button>
         </div>
       </form>

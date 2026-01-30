@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { UserPlus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { ProfileAvatar } from '../Profiles/ProfileCard'
 
 export function AssigneeQuickPicker({ taskId }) {
   const { profiles, updateTask } = useApp()
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -35,7 +37,7 @@ export function AssigneeQuickPicker({ taskId }) {
       <button
         onClick={handleTrigger}
         className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-        title="Assign task"
+        title={t('assigneePicker.assignTask')}
       >
         <UserPlus className="w-3.5 h-3.5" />
       </button>
@@ -46,7 +48,7 @@ export function AssigneeQuickPicker({ taskId }) {
           className="absolute right-0 bottom-full mb-1 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-1 min-w-[160px]"
         >
           {profiles.length === 0 ? (
-            <p className="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400">No profiles</p>
+            <p className="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400">{t('assigneePicker.noProfiles')}</p>
           ) : (
             profiles.map((profile) => (
               <button

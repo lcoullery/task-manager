@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, Pencil, Trash2, GripVertical, Check, X } from 'lucide-react'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { ConfirmModal } from '../common/Modal'
 import { Button } from '../common/Button'
@@ -8,6 +9,7 @@ import { Input } from '../common/Input'
 
 export function ColumnEditor() {
   const { columns, addColumn, updateColumn, deleteColumn, reorderColumns } = useApp()
+  const { t } = useTranslation()
   const [isAdding, setIsAdding] = useState(false)
   const [newColumnName, setNewColumnName] = useState('')
   const [editingId, setEditingId] = useState(null)
@@ -53,11 +55,11 @@ export function ColumnEditor() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Kanban Columns
+          {t('columnEditor.title')}
         </h3>
         {!isAdding && (
           <Button onClick={() => setIsAdding(true)} icon={Plus} size="sm">
-            Add Column
+            {t('columnEditor.addColumn')}
           </Button>
         )}
       </div>
@@ -67,11 +69,11 @@ export function ColumnEditor() {
           <Input
             value={newColumnName}
             onChange={(e) => setNewColumnName(e.target.value)}
-            placeholder="Column name"
+            placeholder={t('columnEditor.columnNamePlaceholder')}
             autoFocus
           />
           <Button onClick={handleAdd} size="sm">
-            Add
+            {t('columnEditor.add')}
           </Button>
           <Button
             variant="secondary"
@@ -81,7 +83,7 @@ export function ColumnEditor() {
             }}
             size="sm"
           >
-            Cancel
+            {t('columnEditor.cancel')}
           </Button>
         </div>
       )}
@@ -162,8 +164,8 @@ export function ColumnEditor() {
         isOpen={!!deleteConfirm}
         onClose={() => setDeleteConfirm(null)}
         onConfirm={confirmDelete}
-        title="Delete Column"
-        message={`Are you sure you want to delete "${deleteConfirm?.name}"? Tasks in this column will be moved to the first column.`}
+        title={t('columnEditor.deleteTitle')}
+        message={t('columnEditor.deleteMessage', { name: deleteConfirm?.name })}
       />
     </div>
   )

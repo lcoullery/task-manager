@@ -1,25 +1,28 @@
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, List, GanttChart, Users, Settings } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from './ThemeToggle'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/list', label: 'List', icon: List },
-  { to: '/gantt', label: 'Gantt', icon: GanttChart },
-  { to: '/profiles', label: 'Profiles', icon: Users },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { to: '/list', labelKey: 'nav.list', icon: List },
+  { to: '/gantt', labelKey: 'nav.gantt', icon: GanttChart },
+  { to: '/profiles', labelKey: 'nav.profiles', icon: Users },
+  { to: '/settings', labelKey: 'nav.settings', icon: Settings },
 ]
 
 export function Navbar() {
+  const { t } = useTranslation()
+
   return (
     <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-8">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            Task Manager
+            {t('nav.appTitle')}
           </h1>
           <div className="flex items-center gap-1">
-            {navItems.map(({ to, label, icon: Icon }) => (
+            {navItems.map(({ to, labelKey, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -32,7 +35,7 @@ export function Navbar() {
                 }
               >
                 <Icon className="w-4 h-4" />
-                {label}
+                {t(labelKey)}
               </NavLink>
             ))}
           </div>

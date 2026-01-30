@@ -18,6 +18,7 @@ export const DEFAULT_DATA = {
     dataFilePath: './data/tasks.json',
     autoRefreshEnabled: true,
     autoRefreshInterval: 5000,
+    language: 'en',
   },
 }
 

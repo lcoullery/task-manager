@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Plus, Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { LabelBadge, LabelColorDot } from '../Labels/LabelBadge'
 import { LABEL_COLOR_OPTIONS } from '../../utils/colors'
 
 export function LabelPicker({ selectedLabels = [], onChange }) {
   const { labels, addLabel } = useApp()
+  const { t } = useTranslation()
   const [isCreating, setIsCreating] = useState(false)
   const [newLabelName, setNewLabelName] = useState('')
   const [newLabelColor, setNewLabelColor] = useState('blue')
@@ -31,7 +33,7 @@ export function LabelPicker({ selectedLabels = [], onChange }) {
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Labels
+        {t('labelPicker.labels')}
       </label>
 
       <div className="flex flex-wrap gap-2">
@@ -61,7 +63,7 @@ export function LabelPicker({ selectedLabels = [], onChange }) {
             type="text"
             value={newLabelName}
             onChange={(e) => setNewLabelName(e.target.value)}
-            placeholder="Label name"
+            placeholder={t('labelPicker.labelNamePlaceholder')}
             className="input"
             autoFocus
           />
@@ -81,7 +83,7 @@ export function LabelPicker({ selectedLabels = [], onChange }) {
               onClick={handleCreateLabel}
               className="btn btn-primary text-sm px-3 py-1"
             >
-              Add
+              {t('labelPicker.add')}
             </button>
             <button
               type="button"
@@ -91,7 +93,7 @@ export function LabelPicker({ selectedLabels = [], onChange }) {
               }}
               className="btn btn-secondary text-sm px-3 py-1"
             >
-              Cancel
+              {t('labelPicker.cancel')}
             </button>
           </div>
         </div>
@@ -102,7 +104,7 @@ export function LabelPicker({ selectedLabels = [], onChange }) {
           className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline"
         >
           <Plus className="w-3 h-3" />
-          Create new label
+          {t('labelPicker.createNewLabel')}
         </button>
       )}
     </div>

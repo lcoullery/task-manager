@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { Input, Textarea, Select } from '../common/Input'
 import { Button } from '../common/Button'
 import { LabelPicker } from './LabelPicker'
 
-const PRIORITY_OPTIONS = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-]
-
 export function TaskForm({ task, onSubmit, onCancel }) {
   const { profiles, columns } = useApp()
+  const { t } = useTranslation()
   const isEditing = !!task
+
+  const PRIORITY_OPTIONS = [
+    { value: 'low', label: t('taskForm.priorityLow') },
+    { value: 'medium', label: t('taskForm.priorityMedium') },
+    { value: 'high', label: t('taskForm.priorityHigh') },
+  ]
 
   const [formData, setFormData] = useState({
     title: '',
@@ -67,32 +69,32 @@ export function TaskForm({ task, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
-        label="Title"
+        label={t('taskForm.title')}
         value={formData.title}
         onChange={handleChange('title')}
-        placeholder="Task title"
+        placeholder={t('taskForm.titlePlaceholder')}
         required
         autoFocus
       />
 
       <Textarea
-        label="Description"
+        label={t('taskForm.description')}
         value={formData.description}
         onChange={handleChange('description')}
-        placeholder="Add a description..."
+        placeholder={t('taskForm.descriptionPlaceholder')}
         rows={3}
       />
 
       <div className="grid grid-cols-2 gap-4">
         <Select
-          label="Status"
+          label={t('taskForm.status')}
           value={formData.status}
           onChange={handleChange('status')}
           options={columnOptions}
         />
 
         <Select
-          label="Priority"
+          label={t('taskForm.priority')}
           value={formData.priority}
           onChange={handleChange('priority')}
           options={PRIORITY_OPTIONS}
@@ -100,23 +102,23 @@ export function TaskForm({ task, onSubmit, onCancel }) {
       </div>
 
       <Select
-        label="Assignee"
+        label={t('taskForm.assignee')}
         value={formData.assignedTo}
         onChange={handleChange('assignedTo')}
         options={profileOptions}
-        placeholder="Unassigned"
+        placeholder={t('taskForm.unassigned')}
       />
 
       <div className="grid grid-cols-2 gap-4">
         <Input
-          label="Start Date"
+          label={t('taskForm.startDate')}
           type="date"
           value={formData.startDate}
           onChange={handleChange('startDate')}
         />
 
         <Input
-          label="End Date"
+          label={t('taskForm.endDate')}
           type="date"
           value={formData.endDate}
           onChange={handleChange('endDate')}
@@ -130,10 +132,10 @@ export function TaskForm({ task, onSubmit, onCancel }) {
 
       <div className="flex gap-3 justify-end pt-2">
         <Button variant="secondary" type="button" onClick={onCancel}>
-          Cancel
+          {t('taskForm.cancel')}
         </Button>
         <Button type="submit">
-          {isEditing ? 'Save Changes' : 'Create Task'}
+          {isEditing ? t('taskForm.saveChanges') : t('taskForm.createTask')}
         </Button>
       </div>
     </form>

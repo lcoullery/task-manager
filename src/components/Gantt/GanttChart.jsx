@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { VIEW_CONFIGS, getTimelineRange, getHeaderCells, daysBetween, getTodayStr } from '../../utils/gantt'
 import { GanttHeader } from './GanttHeader'
@@ -10,9 +11,17 @@ const TASK_LIST_WIDTH = 240
 
 export function GanttChart() {
   const { tasks, updateTask, getProfile } = useApp()
+  const { t } = useTranslation()
   const [viewMode, setViewMode] = useState('month')
   const [selectedTask, setSelectedTask] = useState(null)
   const scrollRef = useRef(null)
+
+  const VIEW_MODE_LABELS = {
+    week: t('ganttChart.week'),
+    month: t('ganttChart.month'),
+    quarter: t('ganttChart.quarter'),
+    year: t('ganttChart.year'),
+  }
 
   // Filter out archived tasks
   const activeTasks = useMemo(() => tasks.filter((t) => !t.archived), [tasks])
@@ -77,13 +86,13 @@ export function GanttChart() {
                   : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
                 }`}
             >
-              {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              {VIEW_MODE_LABELS[mode]}
             </button>
           ))}
         </div>
         {hiddenCount > 0 && (
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {hiddenCount} task{hiddenCount !== 1 ? 's' : ''} hidden (no dates)
+            {t('ganttChart.hiddenTasks', { count: hiddenCount })}
           </span>
         )}
       </div>
@@ -93,7 +102,7 @@ export function GanttChart() {
         <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900
           rounded-b-lg border border-t-0 border-gray-200 dark:border-gray-700">
           <p className="text-gray-500 dark:text-gray-400">
-            No tasks with dates to display. Add start or end dates to your tasks to see them here.
+            {t('ganttChart.emptyState')}
           </p>
         </div>
       ) : (

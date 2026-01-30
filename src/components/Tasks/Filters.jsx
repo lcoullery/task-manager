@@ -1,9 +1,11 @@
 import { Search, X, Archive } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { LabelBadge } from '../Labels/LabelBadge'
 
 export function Filters({ filters, onChange }) {
   const { profiles, labels } = useApp()
+  const { t } = useTranslation()
 
   const updateFilter = (key, value) => {
     onChange({ ...filters, [key]: value })
@@ -34,7 +36,7 @@ export function Filters({ filters, onChange }) {
           type="text"
           value={filters.search}
           onChange={(e) => updateFilter('search', e.target.value)}
-          placeholder="Search tasks... (press / to focus)"
+          placeholder={t('filters.searchPlaceholder')}
           className="input pl-10"
           id="task-search"
         />
@@ -45,8 +47,8 @@ export function Filters({ filters, onChange }) {
         onChange={(e) => updateFilter('assignee', e.target.value)}
         className="input w-auto"
       >
-        <option value="">All Assignees</option>
-        <option value="unassigned">Unassigned</option>
+        <option value="">{t('filters.allAssignees')}</option>
+        <option value="unassigned">{t('filters.unassigned')}</option>
         {profiles.map((p) => (
           <option key={p.id} value={p.id}>
             {p.name}
@@ -59,10 +61,10 @@ export function Filters({ filters, onChange }) {
         onChange={(e) => updateFilter('priority', e.target.value)}
         className="input w-auto"
       >
-        <option value="">All Priorities</option>
-        <option value="high">High</option>
-        <option value="medium">Medium</option>
-        <option value="low">Low</option>
+        <option value="">{t('filters.allPriorities')}</option>
+        <option value="high">{t('filters.high')}</option>
+        <option value="medium">{t('filters.medium')}</option>
+        <option value="low">{t('filters.low')}</option>
       </select>
 
       <select
@@ -70,7 +72,7 @@ export function Filters({ filters, onChange }) {
         onChange={(e) => updateFilter('labelId', e.target.value)}
         className="input w-auto"
       >
-        <option value="">All Labels</option>
+        <option value="">{t('filters.allLabels')}</option>
         {labels.map((l) => (
           <option key={l.id} value={l.id}>
             {l.name}
@@ -86,7 +88,7 @@ export function Filters({ filters, onChange }) {
           className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
         <Archive className="w-4 h-4 text-gray-500" />
-        <span className="text-sm text-gray-600 dark:text-gray-400">Show Archived</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400">{t('filters.showArchived')}</span>
       </label>
 
       {hasActiveFilters && (
@@ -95,7 +97,7 @@ export function Filters({ filters, onChange }) {
           className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
         >
           <X className="w-4 h-4" />
-          Clear
+          {t('filters.clear')}
         </button>
       )}
     </div>
@@ -104,6 +106,7 @@ export function Filters({ filters, onChange }) {
 
 export function ActiveFilterTags({ filters, onChange }) {
   const { profiles, labels, getProfile, getLabel } = useApp()
+  const { t } = useTranslation()
 
   const removeFilter = (key) => {
     onChange({ ...filters, [key]: key === 'showArchived' ? false : '' })
@@ -115,14 +118,14 @@ export function ActiveFilterTags({ filters, onChange }) {
     const profile = getProfile(filters.assignee)
     tags.push({
       key: 'assignee',
-      label: filters.assignee === 'unassigned' ? 'Unassigned' : profile?.name || 'Unknown',
+      label: filters.assignee === 'unassigned' ? t('filters.unassigned') : profile?.name || 'Unknown',
     })
   }
 
   if (filters.priority) {
     tags.push({
       key: 'priority',
-      label: `${filters.priority.charAt(0).toUpperCase() + filters.priority.slice(1)} Priority`,
+      label: `${t('filters.' + filters.priority)} ${t('filters.prioritySuffix')}`,
     })
   }
 
@@ -130,7 +133,7 @@ export function ActiveFilterTags({ filters, onChange }) {
     const label = getLabel(filters.labelId)
     tags.push({
       key: 'labelId',
-      label: label?.name || 'Unknown Label',
+      label: label?.name || t('filters.unknownLabel'),
       labelObj: label,
     })
   }
