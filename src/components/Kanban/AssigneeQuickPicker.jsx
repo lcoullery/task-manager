@@ -45,7 +45,12 @@ export function AssigneeQuickPicker({ taskId }) {
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute right-0 bottom-full mb-1 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-1 min-w-[160px]"
+          className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-1 min-w-[160px]"
+          style={(() => {
+            const rect = ref.current?.getBoundingClientRect()
+            if (!rect) return {}
+            return { top: rect.bottom + 4, left: rect.right - 160 }
+          })()}
         >
           {profiles.length === 0 ? (
             <p className="px-2 py-1.5 text-sm text-gray-500 dark:text-gray-400">{t('assigneePicker.noProfiles')}</p>
