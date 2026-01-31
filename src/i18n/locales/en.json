@@ -181,5 +181,8 @@
   "settings.multiUserTip": "For multiple users, point all instances to the same file:",
   "settings.tipExample1": "OneDrive: C:/Users/YourName/OneDrive/tasks.json",
   "settings.tipExample2": "Network: //server/shared/tasks.json",
-  "settings.tipExample3": "Relative: ./data/tasks.json (local only)"
+  "settings.tipExample3": "Relative: ./data/tasks.json (local only)",
+  "settings.browseFile": "Browse...",
+  "settings.browserLimitation": "Browser security prevents reading file paths. Please type the full path manually.",
+  "settings.pathHelp": "Type the full path manually. Examples: C:/Users/YourName/Documents/tasks.json or ./data/tasks.json"
 }

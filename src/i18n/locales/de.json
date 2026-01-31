@@ -181,5 +181,8 @@
   "settings.multiUserTip": "F\u00fcr mehrere Benutzer richten Sie alle Instanzen auf dieselbe Datei aus:",
   "settings.tipExample1": "OneDrive: C:/Users/IhrName/OneDrive/tasks.json",
   "settings.tipExample2": "Netzwerk: //server/freigegeben/tasks.json",
-  "settings.tipExample3": "Relativ: ./data/tasks.json (nur lokal)"
+  "settings.tipExample3": "Relativ: ./data/tasks.json (nur lokal)",
+  "settings.browseFile": "Durchsuchen...",
+  "settings.browserLimitation": "Browsersicherheit verhindert das Lesen von Dateipfaden. Bitte geben Sie den vollständigen Pfad manuell ein.",
+  "settings.pathHelp": "Geben Sie den vollständigen Pfad manuell ein. Beispiele: C:/Users/IhrName/Dokumente/tasks.json oder ./data/tasks.json"
 }

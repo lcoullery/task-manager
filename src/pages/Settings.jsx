@@ -43,8 +43,11 @@ export function Settings() {
       // Trigger reload to load from new location
       reload()
     } catch (err) {
-      setFilePathStatus('error')
-      setTimeout(() => setFilePathStatus(null), 3000)
+      // Show detailed error message
+      console.error('Save path error:', err)
+      const errorMsg = err.message || 'Unknown error'
+      setFilePathStatus(`error: ${errorMsg}`)
+      setTimeout(() => setFilePathStatus(null), 6000)
     }
   }
 
@@ -244,20 +247,25 @@ export function Settings() {
             {t('settings.dataFilePathDesc')}
           </p>
 
-          <div className="flex items-center gap-3">
-            <label className="text-gray-700 dark:text-gray-300 min-w-[100px]">
-              {t('settings.filePath')}
-            </label>
-            <input
-              type="text"
-              value={dataFilePath}
-              onChange={(e) => setDataFilePath(e.target.value)}
-              className="input flex-1 font-mono text-sm"
-              placeholder="./data/tasks.json"
-            />
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <label className="text-gray-700 dark:text-gray-300 min-w-[100px]">
+                {t('settings.filePath')}
+              </label>
+              <input
+                type="text"
+                value={dataFilePath}
+                onChange={(e) => setDataFilePath(e.target.value)}
+                className="input flex-1 font-mono text-sm"
+                placeholder="./data/tasks.json"
+              />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 ml-[112px]">
+              💡 {t('settings.pathHelp')}
+            </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-start">
             <Button onClick={handleSaveFilePath} variant="primary">
               {t('settings.saveFilePath')}
             </Button>
@@ -266,9 +274,10 @@ export function Settings() {
                 ✓ {t('settings.filePathSaved')}
               </p>
             )}
-            {filePathStatus === 'error' && (
-              <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
-                ✗ {t('settings.filePathError')}
+            {filePathStatus && filePathStatus.startsWith('error:') && (
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-start max-w-md">
+                <span className="mr-1 mt-0.5">✗</span>
+                <span className="break-words">{filePathStatus.replace('error: ', '')}</span>
               </p>
             )}
           </div>
