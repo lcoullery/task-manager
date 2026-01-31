@@ -45,15 +45,67 @@ export function loadData() {
   return DEFAULT_DATA
 }
 
-// Save data to localStorage
+// Save data to localStorage (and push to server fire-and-forget)
 export function saveData(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    // Fire-and-forget push to server
+    saveDataToServer(data).catch(() => {})
     return true
   } catch (error) {
     console.error('Error saving data:', error)
     return false
   }
+}
+
+// Load data from the Express server, updating localStorage cache
+export async function loadDataFromServer() {
+  try {
+    const res = await fetch('/api/data')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json()
+    // Merge with defaults
+    const merged = {
+      ...DEFAULT_DATA,
+      ...data,
+      settings: { ...DEFAULT_DATA.settings, ...data.settings },
+    }
+    // Cache in localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+    return merged
+  } catch (error) {
+    console.warn('Server unreachable, falling back to localStorage:', error.message)
+    return loadData()
+  }
+}
+
+// Push data to the Express server
+export async function saveDataToServer(data) {
+  const res = await fetch('/api/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+// Load server config (dataFilePath)
+export async function loadConfig() {
+  const res = await fetch('/api/config')
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+// Save server config (dataFilePath)
+export async function saveConfig(config) {
+  const res = await fetch('/api/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(config),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
 }
 
 // Export data as JSON file

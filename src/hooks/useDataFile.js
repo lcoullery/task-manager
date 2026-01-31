@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { loadData, saveData, exportData, importData, DEFAULT_DATA } from '../utils/storage'
+import { loadData, saveData, exportData, importData, DEFAULT_DATA, loadDataFromServer } from '../utils/storage'
 
 export function useDataFile() {
   const [data, setData] = useState(() => loadData())
@@ -31,14 +31,15 @@ export function useDataFile() {
   }, [])
 
   // Reload data from storage
-  const reload = useCallback(() => {
+  const reload = useCallback(async () => {
     setLoading(true)
     try {
-      const freshData = loadData()
+      const freshData = await loadDataFromServer()
       setData(freshData)
       setError(null)
     } catch (err) {
-      setError('Failed to reload data')
+      setError('Failed to reload data from server')
+      console.error('Reload error:', err)
     } finally {
       setLoading(false)
     }

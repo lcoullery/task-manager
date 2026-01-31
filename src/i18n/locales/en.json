@@ -170,5 +170,16 @@
   "settings.shortcutCloseModal": "Close modal",
   "settings.shortcutFocusSearch": "Focus search",
   "settings.resetTitle": "Reset All Data",
-  "settings.resetMessage": "Are you sure you want to reset all data? This will delete all profiles, tasks, and custom settings. This action cannot be undone."
+  "settings.resetMessage": "Are you sure you want to reset all data? This will delete all profiles, tasks, and custom settings. This action cannot be undone.",
+  "settings.dataFilePath": "Data File Path",
+  "settings.dataFilePathDesc": "Configure where task data is stored. Use a shared folder (OneDrive, Dropbox, network drive) for multi-user access.",
+  "settings.filePath": "File Path",
+  "settings.saveFilePath": "Save Path",
+  "settings.filePathSaved": "Path saved successfully",
+  "settings.filePathError": "Failed to save path",
+  "settings.tip": "Tip",
+  "settings.multiUserTip": "For multiple users, point all instances to the same file:",
+  "settings.tipExample1": "OneDrive: C:/Users/YourName/OneDrive/tasks.json",
+  "settings.tipExample2": "Network: //server/shared/tasks.json",
+  "settings.tipExample3": "Relative: ./data/tasks.json (local only)"
 }

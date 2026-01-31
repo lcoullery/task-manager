@@ -170,5 +170,16 @@
   "settings.shortcutCloseModal": "Fermer la fen\u00eatre",
   "settings.shortcutFocusSearch": "Cibler la recherche",
   "settings.resetTitle": "R\u00e9initialiser toutes les donn\u00e9es",
-  "settings.resetMessage": "\u00cates-vous s\u00fbr de vouloir r\u00e9initialiser toutes les donn\u00e9es\u00a0? Cela supprimera tous les profils, t\u00e2ches et param\u00e8tres personnalis\u00e9s. Cette action est irr\u00e9versible."
+  "settings.resetMessage": "\u00cates-vous s\u00fbr de vouloir r\u00e9initialiser toutes les donn\u00e9es\u00a0? Cela supprimera tous les profils, t\u00e2ches et param\u00e8tres personnalis\u00e9s. Cette action est irr\u00e9versible.",
+  "settings.dataFilePath": "Chemin du fichier de donn\u00e9es",
+  "settings.dataFilePathDesc": "Configurez o\u00f9 les donn\u00e9es de t\u00e2ches sont stock\u00e9es. Utilisez un dossier partag\u00e9 (OneDrive, Dropbox, lecteur r\u00e9seau) pour l'acc\u00e8s multi-utilisateur.",
+  "settings.filePath": "Chemin du fichier",
+  "settings.saveFilePath": "Enregistrer le chemin",
+  "settings.filePathSaved": "Chemin enregistr\u00e9 avec succ\u00e8s",
+  "settings.filePathError": "\u00c9chec de l'enregistrement du chemin",
+  "settings.tip": "Astuce",
+  "settings.multiUserTip": "Pour plusieurs utilisateurs, pointez toutes les instances vers le m\u00eame fichier:",
+  "settings.tipExample1": "OneDrive: C:/Users/VotreNom/OneDrive/tasks.json",
+  "settings.tipExample2": "R\u00e9seau: //serveur/partag\u00e9/tasks.json",
+  "settings.tipExample3": "Relatif: ./data/tasks.json (local uniquement)"
 }
