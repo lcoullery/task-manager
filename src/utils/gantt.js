@@ -92,7 +92,7 @@ export function getTimelineRange(tasks, viewMode) {
 
   const start = addDays(earliest, -config.buffer)
   const end = addDays(latest, config.buffer)
-  const totalDays = daysBetween(start, end)
+  const totalDays = daysBetween(start, end) + 1
 
   return { start, end, totalDays }
 }
@@ -111,7 +111,7 @@ export function getTodayStr() {
 }
 
 export function getHeaderCells(start, end, viewMode) {
-  const totalDays = daysBetween(start, end)
+  const totalDays = daysBetween(start, end) + 1
   const topCells = []
   const bottomCells = []
 
@@ -121,7 +121,7 @@ export function getHeaderCells(start, end, viewMode) {
     let monthStart = 0
     let monthDayCount = 0
 
-    for (let i = 0; i <= totalDays; i++) {
+    for (let i = 0; i < totalDays; i++) {
       const dateStr = addDays(start, i)
       const d = new Date(dateStr + 'T00:00:00')
       const monthKey = `${d.getFullYear()}-${d.getMonth()}`
@@ -164,7 +164,7 @@ export function getHeaderCells(start, end, viewMode) {
 
     // Group days into weeks
     let weekIdx = 0
-    for (let i = 0; i <= totalDays; i += 7) {
+    for (let i = 0; i < totalDays; i += 7) {
       const dateStr = addDays(start, i)
       const d = new Date(dateStr + 'T00:00:00')
       const monthKey = `${d.getFullYear()}-${d.getMonth()}`

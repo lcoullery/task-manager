@@ -27,7 +27,7 @@ export function GanttRow({
 
   if (hasBothDates) {
     barLeft = daysBetween(timelineStart, task.startDate) * pxPerDay
-    barWidth = Math.max(daysBetween(task.startDate, task.endDate) * pxPerDay, 8)
+    barWidth = Math.max((daysBetween(task.startDate, task.endDate) + 1) * pxPerDay, 8)
   }
 
   let markerLeft = 0
