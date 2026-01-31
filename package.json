@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "npx vite",
     "build": "npx vite build",
-    "preview": "npx vite preview"
+    "preview": "npx vite preview",
+    "start": "node server.js"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^16.6.0",
+    "express": "^4.21.0",
     "i18next": "^25.8.0",
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",

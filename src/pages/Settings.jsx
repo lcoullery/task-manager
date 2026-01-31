@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Moon, Sun, Download, Upload, RefreshCw, RotateCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext'
@@ -7,6 +7,7 @@ import { ColumnEditor } from '../components/Kanban/ColumnEditor'
 import { LabelManager } from '../components/Labels/LabelManager'
 import { Button } from '../components/common/Button'
 import { ConfirmModal } from '../components/common/Modal'
+import { loadConfig, saveConfig } from '../utils/storage'
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -17,11 +18,35 @@ const LANGUAGES = [
 
 export function Settings() {
   const { theme, setTheme } = useTheme()
-  const { settings, updateSettings, exportToFile, importFromFile, reset } = useApp()
+  const { settings, updateSettings, exportToFile, importFromFile, reset, reload } = useApp()
   const { t, i18n } = useTranslation()
   const [resetConfirm, setResetConfirm] = useState(false)
   const [importStatus, setImportStatus] = useState(null)
   const fileInputRef = useRef(null)
+  const [dataFilePath, setDataFilePath] = useState('')
+  const [filePathStatus, setFilePathStatus] = useState(null)
+
+  // Load current file path on mount
+  useEffect(() => {
+    loadConfig().then(config => {
+      setDataFilePath(config.dataFilePath || './data/tasks.json')
+    }).catch(() => {
+      setDataFilePath('./data/tasks.json')
+    })
+  }, [])
+
+  const handleSaveFilePath = async () => {
+    try {
+      await saveConfig({ dataFilePath })
+      setFilePathStatus('success')
+      setTimeout(() => setFilePathStatus(null), 3000)
+      // Trigger reload to load from new location
+      reload()
+    } catch (err) {
+      setFilePathStatus('error')
+      setTimeout(() => setFilePathStatus(null), 3000)
+    }
+  }
 
   const handleImport = async (e) => {
     const file = e.target.files?.[0]
@@ -206,6 +231,58 @@ export function Settings() {
               {t('settings.importError')}
             </p>
           )}
+        </div>
+      </section>
+
+      {/* Data File Path */}
+      <section className="card p-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {t('settings.dataFilePath')}
+        </h2>
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {t('settings.dataFilePathDesc')}
+          </p>
+
+          <div className="flex items-center gap-3">
+            <label className="text-gray-700 dark:text-gray-300 min-w-[100px]">
+              {t('settings.filePath')}
+            </label>
+            <input
+              type="text"
+              value={dataFilePath}
+              onChange={(e) => setDataFilePath(e.target.value)}
+              className="input flex-1 font-mono text-sm"
+              placeholder="./data/tasks.json"
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <Button onClick={handleSaveFilePath} variant="primary">
+              {t('settings.saveFilePath')}
+            </Button>
+            {filePathStatus === 'success' && (
+              <p className="text-sm text-green-600 dark:text-green-400 flex items-center">
+                ✓ {t('settings.filePathSaved')}
+              </p>
+            )}
+            {filePathStatus === 'error' && (
+              <p className="text-sm text-red-600 dark:text-red-400 flex items-center">
+                ✗ {t('settings.filePathError')}
+              </p>
+            )}
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              <strong>{t('settings.tip')}:</strong> {t('settings.multiUserTip')}
+            </p>
+            <ul className="mt-2 text-sm text-blue-700 dark:text-blue-300 list-disc list-inside space-y-1">
+              <li>{t('settings.tipExample1')}</li>
+              <li>{t('settings.tipExample2')}</li>
+              <li>{t('settings.tipExample3')}</li>
+            </ul>
+          </div>
         </div>
       </section>
 

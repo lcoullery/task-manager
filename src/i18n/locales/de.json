@@ -170,5 +170,16 @@
   "settings.shortcutCloseModal": "Fenster schlie\u00dfen",
   "settings.shortcutFocusSearch": "Suche fokussieren",
   "settings.resetTitle": "Alle Daten zur\u00fccksetzen",
-  "settings.resetMessage": "M\u00f6chten Sie wirklich alle Daten zur\u00fccksetzen? Dies l\u00f6scht alle Profile, Aufgaben und benutzerdefinierten Einstellungen. Diese Aktion kann nicht r\u00fcckg\u00e4ngig gemacht werden."
+  "settings.resetMessage": "M\u00f6chten Sie wirklich alle Daten zur\u00fccksetzen? Dies l\u00f6scht alle Profile, Aufgaben und benutzerdefinierten Einstellungen. Diese Aktion kann nicht r\u00fcckg\u00e4ngig gemacht werden.",
+  "settings.dataFilePath": "Datendateipfad",
+  "settings.dataFilePathDesc": "Konfigurieren Sie, wo Aufgabendaten gespeichert werden. Verwenden Sie einen freigegebenen Ordner (OneDrive, Dropbox, Netzlaufwerk) f\u00fcr Mehrbenutzerzugriff.",
+  "settings.filePath": "Dateipfad",
+  "settings.saveFilePath": "Pfad speichern",
+  "settings.filePathSaved": "Pfad erfolgreich gespeichert",
+  "settings.filePathError": "Fehler beim Speichern des Pfads",
+  "settings.tip": "Tipp",
+  "settings.multiUserTip": "F\u00fcr mehrere Benutzer richten Sie alle Instanzen auf dieselbe Datei aus:",
+  "settings.tipExample1": "OneDrive: C:/Users/IhrName/OneDrive/tasks.json",
+  "settings.tipExample2": "Netzwerk: //server/freigegeben/tasks.json",
+  "settings.tipExample3": "Relativ: ./data/tasks.json (nur lokal)"
 }
