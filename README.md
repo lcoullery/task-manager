@@ -23,9 +23,40 @@ npm install
 
 ### Running the Application
 
-This app has **two parts**: a **frontend** (Vite/React) and a **backend** (Express API). You can run them in development or production mode.
+This app has **two parts**: a **frontend** (Vite/React) and a **backend** (Express API). Choose one of these methods:
 
-#### Development Mode (Recommended for Development)
+#### ⚡ Quick Start (One-Click Launch) - **Recommended for End Users**
+
+**First Time:**
+- **Windows**: Double-click **`start.bat`**
+- **Mac/Linux**: Double-click **`start.sh`** (or run `./start.sh`)
+- On first launch, it will install dependencies and build (takes ~1 minute)
+- Browser opens automatically
+
+**Every Time After:**
+- Just double-click **`start.bat`** or **`start.sh`** again
+- Starts instantly! (no install/build, just launches the server)
+- **To stop**: Close the console window or press `Ctrl+C`
+
+**After Pulling Updates:**
+- **Windows**: Double-click **`setup.bat`** to rebuild
+- **Mac/Linux**: Run **`./setup.sh`** to rebuild
+
+The scripts are smart:
+- ✅ First run: Installs dependencies + builds (automatic)
+- ✅ Subsequent runs: Just starts the server (instant!)
+- ✅ After updates: Run `setup.bat`/`setup.sh` to rebuild
+- ✅ Browser opens automatically at `http://localhost:4173`
+
+#### 🚀 Quick Start (Single Command)
+
+```bash
+npm run dev:all
+```
+
+This runs both servers with colored output showing which is which.
+
+#### 🔧 Development Mode (Manual)
 
 Run **both servers** in separate terminal windows:
 
@@ -57,12 +88,15 @@ Then open **http://localhost:4173** in your browser.
 
 ## Available Scripts
 
-| Script            | Description                                      |
-| ----------------- | ------------------------------------------------ |
-| `npm run dev`     | Start Vite dev server (frontend only)           |
-| `npm start`       | Start Express server (backend API)               |
-| `npm run build`   | Build frontend for production                    |
-| `npm run preview` | Preview the production build (Vite preview mode) |
+| Script            | Description                                           |
+| ----------------- | ----------------------------------------------------- |
+| `npm run dev:all` | **Start both servers at once** (recommended)          |
+| `npm run dev`     | Start Vite dev server (frontend only)                |
+| `npm start`       | Start Express server (backend API)                    |
+| `npm run build`   | Build frontend for production                         |
+| `npm run preview` | Preview the production build (Vite preview mode)      |
+
+**For Coworkers:** Just double-click `start.bat` (Windows) or `start.sh` (Mac/Linux) to launch everything!
 
 ## Features
 
