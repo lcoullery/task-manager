@@ -181,5 +181,8 @@
   "settings.multiUserTip": "Per pi\u00f9 utenti, punta tutte le istanze allo stesso file:",
   "settings.tipExample1": "OneDrive: C:/Users/TuoNome/OneDrive/tasks.json",
   "settings.tipExample2": "Rete: //server/condiviso/tasks.json",
-  "settings.tipExample3": "Relativo: ./data/tasks.json (solo locale)"
+  "settings.tipExample3": "Relativo: ./data/tasks.json (solo locale)",
+  "settings.browseFile": "Sfoglia...",
+  "settings.browserLimitation": "La sicurezza del browser impedisce la lettura dei percorsi dei file. Digita il percorso completo manualmente.",
+  "settings.pathHelp": "Digita il percorso completo manualmente. Esempi: C:/Users/TuoNome/Documenti/tasks.json o ./data/tasks.json"
 }

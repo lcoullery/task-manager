@@ -26,14 +26,52 @@ function writeConfig(config) {
   writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8')
 }
 
+// Convert Windows paths to WSL paths ONLY when running on Linux/WSL
+function convertWindowsPathToWSL(filePath) {
+  // Safety check
+  if (!filePath || typeof filePath !== 'string') {
+    return filePath
+  }
+
+  // Only convert paths on Linux/WSL, not on native Windows
+  const isLinux = process.platform === 'linux'
+
+  if (!isLinux) {
+    // On Windows or Mac, just normalize backslashes to forward slashes
+    return filePath.replace(/\\/g, '/')
+  }
+
+  // On Linux/WSL: Check if this is a Windows absolute path (C:\... or C:/...)
+  const windowsPathMatch = filePath.match(/^([A-Za-z]):[\\/](.*)/)
+
+  if (windowsPathMatch) {
+    const driveLetter = windowsPathMatch[1].toLowerCase()
+    const restOfPath = windowsPathMatch[2]
+    // Convert to WSL mount path: C:\Users\... → /mnt/c/Users/...
+    return `/mnt/${driveLetter}/${restOfPath}`
+  }
+
+  // Not a Windows path, return as-is
+  return filePath
+}
+
 // Resolve the data file path (relative to project root)
 function resolveDataPath() {
   const config = readConfig()
-  const filePath = config.dataFilePath || DEFAULT_DATA_PATH
-  // If absolute, use as-is; otherwise resolve relative to project root
-  if (filePath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(filePath) || filePath.startsWith('\\\\')) {
+  let filePath = config.dataFilePath || DEFAULT_DATA_PATH
+
+  // Trim whitespace
+  filePath = filePath.trim()
+
+  // Convert Windows paths to WSL format if needed (handles backslash normalization too)
+  filePath = convertWindowsPathToWSL(filePath)
+
+  // If absolute path, use as-is
+  if (filePath.startsWith('/') || /^[A-Za-z]:\//.test(filePath)) {
     return filePath
   }
+
+  // Otherwise resolve relative to project root
   return resolve(__dirname, filePath)
 }
 
@@ -118,26 +156,60 @@ app.get('/api/config', (req, res) => {
 app.post('/api/config', (req, res) => {
   try {
     const config = readConfig()
+
+    // Normalize dataFilePath if provided
+    if (req.body.dataFilePath) {
+      let filePath = req.body.dataFilePath.trim()
+      if (!filePath) {
+        return res.status(400).json({ error: 'Path cannot be empty' })
+      }
+
+      // Normalize path separators to forward slashes
+      filePath = filePath.replace(/\\/g, '/')
+
+      // Convert Windows paths to WSL format
+      filePath = convertWindowsPathToWSL(filePath)
+
+      req.body.dataFilePath = filePath
+    }
+
     const newConfig = { ...config, ...req.body }
     writeConfig(newConfig)
 
     // Create default data file at new path if it doesn't exist
     const filePath = newConfig.dataFilePath || DEFAULT_DATA_PATH
     let resolved
-    if (filePath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(filePath) || filePath.startsWith('\\\\')) {
+
+    // Resolve the path - check for absolute paths (Unix / or Windows C:/)
+    if (filePath.startsWith('/') || /^[A-Za-z]:\//.test(filePath)) {
       resolved = filePath
     } else {
       resolved = resolve(__dirname, filePath)
     }
-    if (!existsSync(resolved)) {
-      ensureDir(resolved)
-      writeFileSync(resolved, JSON.stringify(DEFAULT_DATA, null, 2), 'utf-8')
+
+    // Log the resolved path for debugging
+    console.log(`Saving to path: ${resolved}`)
+
+    try {
+      if (!existsSync(resolved)) {
+        ensureDir(resolved)
+        writeFileSync(resolved, JSON.stringify(DEFAULT_DATA, null, 2), 'utf-8')
+        console.log(`Created new data file at: ${resolved}`)
+      }
+    } catch (fileErr) {
+      console.error('Error creating data file:', fileErr)
+      return res.status(500).json({
+        error: `Failed to create file: ${fileErr.message}`,
+        details: `Path: ${resolved}, Code: ${fileErr.code}`
+      })
     }
 
-    res.json({ ok: true })
+    res.json({ ok: true, path: resolved })
   } catch (err) {
-    console.error('Error writing config:', err.message)
-    res.status(500).json({ error: 'Failed to write config' })
+    console.error('Error writing config:', err)
+    res.status(500).json({
+      error: `Failed to save config: ${err.message}`
+    })
   }
 })
 

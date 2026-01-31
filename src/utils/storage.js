@@ -104,7 +104,14 @@ export async function saveConfig(config) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(config),
   })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  if (!res.ok) {
+    try {
+      const errorData = await res.json()
+      throw new Error(errorData.error || `HTTP ${res.status}`)
+    } catch (jsonError) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+    }
+  }
   return res.json()
 }
 
