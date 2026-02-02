@@ -293,7 +293,7 @@ app.get('/api/update/check', async (req, res) => {
       currentVersion,
       latestVersion,
       hasUpdate,
-      downloadUrl: release.assets.find(a => a.name.endsWith('.zip'))?.browser_download_url,
+      downloadUrl: (release.assets.find(a => a.name.endsWith('.zip')) || release.assets.find(a => a.name.endsWith('.tar.gz')))?.browser_download_url,
       commitSha: release.target_commitish,
       releaseNotes: release.body || '',
       releaseName: release.name || `v${latestVersion}`,
