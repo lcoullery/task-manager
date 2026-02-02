@@ -2,6 +2,7 @@ import express from 'express'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { execSync } from 'child_process'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -103,6 +104,8 @@ const DEFAULT_DATA = {
     dataFilePath: './data/tasks.json',
     autoRefreshEnabled: true,
     autoRefreshInterval: 5000,
+    autoUpdateEnabled: false,
+    updateCheckInterval: 86400000,
     language: 'en',
   },
 }
@@ -210,6 +213,119 @@ app.post('/api/config', (req, res) => {
     res.status(500).json({
       error: `Failed to save config: ${err.message}`
     })
+  }
+})
+
+// --- Update API endpoints ---
+
+// GET /api/update/check — check for new releases on GitHub
+app.get('/api/update/check', async (req, res) => {
+  try {
+    const OFFICIAL_REPO = 'lcoullery/task-manager'
+    const response = await fetch(`https://api.github.com/repos/${OFFICIAL_REPO}/releases/latest`)
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch releases' })
+    }
+
+    const release = await response.json()
+    const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'))
+    const currentVersion = packageJson.version
+    const latestVersion = release.tag_name.replace(/^v/, '')
+
+    // Simple version comparison (assumes semantic versioning)
+    const hasUpdate = latestVersion > currentVersion
+
+    res.json({
+      currentVersion,
+      latestVersion,
+      hasUpdate,
+      downloadUrl: release.assets.find(a => a.name.endsWith('.zip'))?.browser_download_url,
+      commitSha: release.target_commitish,
+      releaseNotes: release.body || '',
+      releaseName: release.name || `v${latestVersion}`,
+    })
+  } catch (err) {
+    console.error('Error checking for updates:', err.message)
+    res.status(500).json({ error: 'Failed to check for updates' })
+  }
+})
+
+// POST /api/update/download — download update from GitHub
+app.post('/api/update/download', async (req, res) => {
+  try {
+    const { downloadUrl, commitSha, version } = req.body
+
+    if (!downloadUrl || !commitSha || !version) {
+      return res.status(400).json({ error: 'Missing required parameters' })
+    }
+
+    // Security check: verify URL is from official GitHub
+    if (!downloadUrl.includes('github.com/lcoullery/task-manager')) {
+      return res.status(400).json({ error: 'Download URL must be from official repository' })
+    }
+
+    // Create updates directory
+    const updatesDir = resolve(__dirname, '.updates')
+    if (!existsSync(updatesDir)) {
+      mkdirSync(updatesDir, { recursive: true })
+    }
+
+    const zipPath = resolve(updatesDir, `update-${version}.zip`)
+
+    // Download the ZIP file
+    const response = await fetch(downloadUrl)
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to download update' })
+    }
+
+    const buffer = await response.arrayBuffer()
+    writeFileSync(zipPath, Buffer.from(buffer))
+
+    // Create pending update flag
+    const pendingUpdatePath = resolve(__dirname, '.update-pending.json')
+    writeFileSync(pendingUpdatePath, JSON.stringify({
+      version,
+      commitSha,
+      downloadedAt: new Date().toISOString(),
+      zipPath,
+    }, null, 2), 'utf-8')
+
+    res.json({ success: true, version })
+  } catch (err) {
+    console.error('Error downloading update:', err.message)
+    res.status(500).json({ error: 'Failed to download update' })
+  }
+})
+
+// POST /api/update/apply — trigger update and graceful shutdown
+app.post('/api/update/apply', (req, res) => {
+  try {
+    res.json({ ok: true })
+
+    // Graceful shutdown with 1 second delay to allow response to complete
+    setTimeout(() => {
+      console.log('Shutting down for update...')
+      process.exit(0)
+    }, 1000)
+  } catch (err) {
+    console.error('Error applying update:', err.message)
+    res.status(500).json({ error: 'Failed to apply update' })
+  }
+})
+
+// GET /api/update/status — check if update is pending
+app.get('/api/update/status', (req, res) => {
+  try {
+    const pendingUpdatePath = resolve(__dirname, '.update-pending.json')
+    if (existsSync(pendingUpdatePath)) {
+      const pendingUpdate = JSON.parse(readFileSync(pendingUpdatePath, 'utf-8'))
+      return res.json({ pending: true, ...pendingUpdate })
+    }
+    res.json({ pending: false })
+  } catch (err) {
+    console.error('Error checking update status:', err.message)
+    res.status(500).json({ error: 'Failed to check update status' })
   }
 })
 

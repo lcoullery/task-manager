@@ -184,5 +184,26 @@
   "settings.tipExample3": "Relative: ./data/tasks.json (local only)",
   "settings.browseFile": "Browse...",
   "settings.browserLimitation": "Browser security prevents reading file paths. Please type the full path manually.",
-  "settings.pathHelp": "Type the full path manually. Examples: C:/Users/YourName/Documents/tasks.json or ./data/tasks.json"
+  "settings.pathHelp": "Type the full path manually. Examples: C:/Users/YourName/Documents/tasks.json or ./data/tasks.json",
+
+  "settings.autoUpdates": "Auto Updates",
+  "settings.enableUpdateCheck": "Check for updates automatically",
+  "settings.enableUpdateCheckDesc": "Periodically check GitHub for new releases",
+  "settings.checkEvery": "Check for updates every",
+  "settings.1hour": "1 hour",
+  "settings.6hours": "6 hours",
+  "settings.12hours": "12 hours",
+  "settings.24hours": "24 hours",
+  "settings.securityInfo": "Security Information",
+  "settings.securityPoint1": "Updates require your approval before installation",
+  "settings.securityPoint2": "Downloads verified from official GitHub repository only",
+  "settings.securityPoint3": "Commit SHA verification ensures authenticity",
+
+  "updates.newVersionAvailable": "New Version Available",
+  "updates.currentVersion": "Current version",
+  "updates.latestVersion": "Latest version",
+  "updates.updateAndRestart": "Update and Restart",
+  "updates.downloading": "Downloading...",
+  "updates.close": "Close",
+  "updates.securityNote": "Updates are downloaded from the official GitHub repository only"
 }

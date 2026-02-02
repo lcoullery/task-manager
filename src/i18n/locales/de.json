@@ -184,5 +184,26 @@
   "settings.tipExample3": "Relativ: ./data/tasks.json (nur lokal)",
   "settings.browseFile": "Durchsuchen...",
   "settings.browserLimitation": "Browsersicherheit verhindert das Lesen von Dateipfaden. Bitte geben Sie den vollständigen Pfad manuell ein.",
-  "settings.pathHelp": "Geben Sie den vollständigen Pfad manuell ein. Beispiele: C:/Users/IhrName/Dokumente/tasks.json oder ./data/tasks.json"
+  "settings.pathHelp": "Geben Sie den vollständigen Pfad manuell ein. Beispiele: C:/Users/IhrName/Dokumente/tasks.json oder ./data/tasks.json",
+
+  "settings.autoUpdates": "Automatische Updates",
+  "settings.enableUpdateCheck": "Automatisch auf Updates prüfen",
+  "settings.enableUpdateCheckDesc": "Regelmäßig GitHub auf neue Versionen prüfen",
+  "settings.checkEvery": "Auf Updates prüfen alle",
+  "settings.1hour": "1 Stunde",
+  "settings.6hours": "6 Stunden",
+  "settings.12hours": "12 Stunden",
+  "settings.24hours": "24 Stunden",
+  "settings.securityInfo": "Sicherheitsinformationen",
+  "settings.securityPoint1": "Updates erfordern Ihre Genehmigung vor der Installation",
+  "settings.securityPoint2": "Downloads werden nur aus dem offiziellen GitHub-Repository überprüft",
+  "settings.securityPoint3": "Die SHA-Commit-Verifizierung gewährleistet Authentizität",
+
+  "updates.newVersionAvailable": "Neue Version verfügbar",
+  "updates.currentVersion": "Aktuelle Version",
+  "updates.latestVersion": "Neueste Version",
+  "updates.updateAndRestart": "Update und Neustart",
+  "updates.downloading": "Wird heruntergeladen...",
+  "updates.close": "Schließen",
+  "updates.securityNote": "Updates werden nur aus dem offiziellen GitHub-Repository heruntergeladen"
 }

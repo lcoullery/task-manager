@@ -4,3 +4,8 @@ dist
 
 # Local configuration
 config.json
+
+# Update system
+.updates/
+.backup/
+.update-pending.json

@@ -184,5 +184,26 @@
   "settings.tipExample3": "Relatif: ./data/tasks.json (local uniquement)",
   "settings.browseFile": "Parcourir...",
   "settings.browserLimitation": "La sécurité du navigateur empêche la lecture des chemins de fichiers. Veuillez saisir le chemin complet manuellement.",
-  "settings.pathHelp": "Saisissez le chemin complet manuellement. Exemples : C:/Users/VotreNom/Documents/tasks.json ou ./data/tasks.json"
+  "settings.pathHelp": "Saisissez le chemin complet manuellement. Exemples : C:/Users/VotreNom/Documents/tasks.json ou ./data/tasks.json",
+
+  "settings.autoUpdates": "Mises à jour automatiques",
+  "settings.enableUpdateCheck": "Vérifier les mises à jour automatiquement",
+  "settings.enableUpdateCheckDesc": "Vérifier périodiquement GitHub pour les nouvelles versions",
+  "settings.checkEvery": "Vérifier les mises à jour tous les",
+  "settings.1hour": "1 heure",
+  "settings.6hours": "6 heures",
+  "settings.12hours": "12 heures",
+  "settings.24hours": "24 heures",
+  "settings.securityInfo": "Informations de sécurité",
+  "settings.securityPoint1": "Les mises à jour nécessitent votre approbation avant l'installation",
+  "settings.securityPoint2": "Les téléchargements sont vérifiés depuis le référentiel GitHub officiel uniquement",
+  "settings.securityPoint3": "La vérification du SHA de commit garantit l'authenticité",
+
+  "updates.newVersionAvailable": "Nouvelle version disponible",
+  "updates.currentVersion": "Version actuelle",
+  "updates.latestVersion": "Dernière version",
+  "updates.updateAndRestart": "Mettre à jour et redémarrer",
+  "updates.downloading": "Téléchargement...",
+  "updates.close": "Fermer",
+  "updates.securityNote": "Les mises à jour sont téléchargées uniquement depuis le référentiel GitHub officiel"
 }

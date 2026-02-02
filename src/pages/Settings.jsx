@@ -175,6 +175,60 @@ export function Settings() {
         </div>
       </section>
 
+      {/* Auto Updates */}
+      <section className="card p-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {t('settings.autoUpdates')}
+        </h2>
+        <div className="space-y-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={settings.autoUpdateEnabled}
+              onChange={(e) => updateSettings({ autoUpdateEnabled: e.target.checked })}
+              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <div>
+              <span className="text-gray-900 dark:text-white font-medium">
+                {t('settings.enableUpdateCheck')}
+              </span>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('settings.enableUpdateCheckDesc')}
+              </p>
+            </div>
+          </label>
+
+          {settings.autoUpdateEnabled && (
+            <div className="flex items-center gap-3 ml-7">
+              <span className="text-gray-700 dark:text-gray-300">{t('settings.checkEvery')}</span>
+              <select
+                value={settings.updateCheckInterval}
+                onChange={(e) =>
+                  updateSettings({ updateCheckInterval: parseInt(e.target.value) })
+                }
+                className="input w-auto"
+              >
+                <option value={3600000}>{t('settings.1hour')}</option>
+                <option value={21600000}>{t('settings.6hours')}</option>
+                <option value={43200000}>{t('settings.12hours')}</option>
+                <option value={86400000}>{t('settings.24hours')}</option>
+              </select>
+            </div>
+          )}
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-4">
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+              {t('settings.securityInfo')}
+            </p>
+            <ul className="text-sm text-blue-800 dark:text-blue-200 list-disc list-inside space-y-1">
+              <li>{t('settings.securityPoint1')}</li>
+              <li>{t('settings.securityPoint2')}</li>
+              <li>{t('settings.securityPoint3')}</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* Column Editor */}
       <section className="card p-6">
         <ColumnEditor />
