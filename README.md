@@ -13,6 +13,17 @@ A feature-rich task management application with Kanban board, list view, Gantt c
 
 ## Getting Started
 
+### Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (version 16 or higher recommended)
+  - **Download**: [https://nodejs.org/](https://nodejs.org/)
+  - **Check your version**: Run `node --version` in terminal
+  - npm (Node Package Manager) comes bundled with Node.js
+
+**Note**: The setup scripts will automatically check for Node.js and guide you if it's not installed.
+
 ### Installation
 
 ```bash
@@ -27,26 +38,23 @@ This app has **two parts**: a **frontend** (Vite/React) and a **backend** (Expre
 
 #### ⚡ Quick Start (One-Click Launch) - **Recommended for End Users**
 
-**First Time:**
+**First Time Setup:**
+1. **Windows**: Double-click **`setup.bat`**
+2. **Mac/Linux**: Run **`./setup.sh`** (or double-click with execute permissions)
+3. Wait ~1 minute for installation and build to complete
+
+**Launching the App:**
 - **Windows**: Double-click **`start.bat`**
 - **Mac/Linux**: Double-click **`start.sh`** (or run `./start.sh`)
-- On first launch, it will install dependencies and build (takes ~1 minute)
-- Browser opens automatically
-
-**Every Time After:**
-- Just double-click **`start.bat`** or **`start.sh`** again
-- Starts instantly! (no install/build, just launches the server)
+- Browser opens automatically at `http://localhost:4173`
 - **To stop**: Close the console window or press `Ctrl+C`
 
 **After Pulling Updates:**
-- **Windows**: Double-click **`setup.bat`** to rebuild
+- **Windows**: Run **`setup.bat`** to rebuild
 - **Mac/Linux**: Run **`./setup.sh`** to rebuild
+- Then launch with `start.bat`/`start.sh` as usual
 
-The scripts are smart:
-- ✅ First run: Installs dependencies + builds (automatic)
-- ✅ Subsequent runs: Just starts the server (instant!)
-- ✅ After updates: Run `setup.bat`/`setup.sh` to rebuild
-- ✅ Browser opens automatically at `http://localhost:4173`
+**Note:** The `start.bat`/`start.sh` scripts are smart enough to auto-detect first-time setup if you forget to run setup, but for clarity we recommend the explicit setup step first.
 
 #### 🚀 Quick Start (Single Command)
 
@@ -96,7 +104,9 @@ Then open **http://localhost:4173** in your browser.
 | `npm run build`   | Build frontend for production                         |
 | `npm run preview` | Preview the production build (Vite preview mode)      |
 
-**For Coworkers:** Just double-click `start.bat` (Windows) or `start.sh` (Mac/Linux) to launch everything!
+**For Coworkers:**
+- **First time:** Run `setup.bat`/`setup.sh` to install and build
+- **Then:** Double-click `start.bat` (Windows) or `start.sh` (Mac/Linux) to launch!
 
 ## Features
 
