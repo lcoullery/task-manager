@@ -203,6 +203,8 @@
   "settings.upToDate": "You're up to date!",
   "settings.updateAvailable": "Update available: v{{version}}",
   "settings.checkFailed": "Failed to check for updates. Please try again.",
+  "settings.rateLimitError": "Too many requests. Please try again in a few minutes.",
+  "settings.noReleasesYet": "No updates available yet.",
 
   "updates.newVersionAvailable": "New Version Available",
   "updates.currentVersion": "Current version",

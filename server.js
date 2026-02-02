@@ -234,13 +234,51 @@ app.get('/api/version', (req, res) => {
 // --- Update API endpoints ---
 
 // GET /api/update/check — check for new releases on GitHub
+// Helper function for semantic version comparison
+function compareVersions(v1, v2) {
+  const parts1 = v1.split('.').map(Number)
+  const parts2 = v2.split('.').map(Number)
+
+  for (let i = 0; i < 3; i++) {
+    const num1 = parts1[i] || 0
+    const num2 = parts2[i] || 0
+    if (num1 > num2) return 1
+    if (num1 < num2) return -1
+  }
+  return 0
+}
+
 app.get('/api/update/check', async (req, res) => {
   try {
     const OFFICIAL_REPO = 'lcoullery/task-manager'
     const response = await fetch(`https://api.github.com/repos/${OFFICIAL_REPO}/releases/latest`)
 
+    // Handle 404 - no releases available (not an error)
+    if (response.status === 404) {
+      const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'))
+      return res.json({
+        currentVersion: packageJson.version,
+        latestVersion: packageJson.version,
+        hasUpdate: false,
+        noReleasesAvailable: true
+      })
+    }
+
+    // Handle rate limiting
+    if (response.status === 403) {
+      const rateLimitRemaining = response.headers.get('x-ratelimit-remaining')
+      if (rateLimitRemaining === '0') {
+        return res.status(429).json({
+          error: 'GitHub API rate limit exceeded. Please try again later.'
+        })
+      }
+    }
+
+    // Other errors
     if (!response.ok) {
-      return res.status(response.status).json({ error: 'Failed to fetch releases' })
+      return res.status(response.status).json({
+        error: `GitHub API error: ${response.status} ${response.statusText}`
+      })
     }
 
     const release = await response.json()
@@ -248,8 +286,8 @@ app.get('/api/update/check', async (req, res) => {
     const currentVersion = packageJson.version
     const latestVersion = release.tag_name.replace(/^v/, '')
 
-    // Simple version comparison (assumes semantic versioning)
-    const hasUpdate = latestVersion > currentVersion
+    // Use semantic version comparison
+    const hasUpdate = compareVersions(latestVersion, currentVersion) > 0
 
     res.json({
       currentVersion,
@@ -262,7 +300,7 @@ app.get('/api/update/check', async (req, res) => {
     })
   } catch (err) {
     console.error('Error checking for updates:', err.message)
-    res.status(500).json({ error: 'Failed to check for updates' })
+    res.status(500).json({ error: `Server error: ${err.message}` })
   }
 })
 

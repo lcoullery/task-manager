@@ -203,6 +203,8 @@
   "settings.upToDate": "Sie sind auf dem neuesten Stand!",
   "settings.updateAvailable": "Update verfügbar: v{{version}}",
   "settings.checkFailed": "Fehler beim Suchen nach Updates. Bitte versuchen Sie es erneut.",
+  "settings.rateLimitError": "Zu viele Anfragen. Bitte versuchen Sie es in ein paar Minuten erneut.",
+  "settings.noReleasesYet": "Noch keine Updates verfügbar.",
 
   "updates.newVersionAvailable": "Neue Version verfügbar",
   "updates.currentVersion": "Aktuelle Version",

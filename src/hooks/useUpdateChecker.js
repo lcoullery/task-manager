@@ -14,8 +14,16 @@ export function useUpdateChecker(enabled) {
       setError(null)
 
       const response = await fetch('/api/update/check')
+
+      // Handle rate limiting specifically
+      if (response.status === 429) {
+        const data = await response.json()
+        throw new Error(data.error || 'Too many requests. Please try again later.')
+      }
+
       if (!response.ok) {
-        throw new Error('Failed to check for updates')
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to check for updates')
       }
 
       const data = await response.json()
@@ -23,6 +31,7 @@ export function useUpdateChecker(enabled) {
       if (data.hasUpdate) {
         setUpdateInfo(data)
       } else {
+        // Clear update info when no updates or no releases available
         setUpdateInfo(null)
       }
     } catch (err) {
