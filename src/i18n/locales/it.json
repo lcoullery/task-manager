@@ -198,6 +198,11 @@
   "settings.securityPoint1": "Gli aggiornamenti richiedono la tua approvazione prima dell'installazione",
   "settings.securityPoint2": "I download sono verificati solo dal repository GitHub ufficiale",
   "settings.securityPoint3": "La verifica SHA del commit garantisce l'autenticità",
+  "settings.softwareVersion": "Versione software",
+  "settings.checkForUpdatesNow": "Cerca aggiornamenti",
+  "settings.upToDate": "Sei aggiornato!",
+  "settings.updateAvailable": "Aggiornamento disponibile: v{{version}}",
+  "settings.checkFailed": "Impossibile verificare gli aggiornamenti. Riprova.",
 
   "updates.newVersionAvailable": "Nuova versione disponibile",
   "updates.currentVersion": "Versione attuale",

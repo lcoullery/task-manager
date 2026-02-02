@@ -3,6 +3,7 @@ import { Moon, Sun, Download, Upload, RefreshCw, RotateCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext'
 import { useApp } from '../context/AppContext'
+import { useUpdateChecker } from '../hooks/useUpdateChecker'
 import { ColumnEditor } from '../components/Kanban/ColumnEditor'
 import { LabelManager } from '../components/Labels/LabelManager'
 import { Button } from '../components/common/Button'
@@ -25,6 +26,12 @@ export function Settings() {
   const fileInputRef = useRef(null)
   const [dataFilePath, setDataFilePath] = useState('')
   const [filePathStatus, setFilePathStatus] = useState(null)
+  const [currentVersion, setCurrentVersion] = useState(null)
+  const [checkStatus, setCheckStatus] = useState(null) // 'checking', 'upToDate', 'updateAvailable'
+  const { checkForUpdates, isChecking, updateInfo, error } = useUpdateChecker(
+    settings.autoUpdateEnabled,
+    settings.updateCheckInterval
+  )
 
   // Load current file path on mount
   useEffect(() => {
@@ -33,6 +40,14 @@ export function Settings() {
     }).catch(() => {
       setDataFilePath('./data/tasks.json')
     })
+  }, [])
+
+  // Fetch current version on mount
+  useEffect(() => {
+    fetch('/api/version')
+      .then(res => res.json())
+      .then(data => setCurrentVersion(data.version))
+      .catch(err => console.error('Failed to fetch version:', err))
   }, [])
 
   const handleSaveFilePath = async () => {
@@ -67,6 +82,22 @@ export function Settings() {
     i18n.changeLanguage(langCode)
     updateSettings({ language: langCode })
   }
+
+  const handleManualCheck = async () => {
+    setCheckStatus('checking')
+    await checkForUpdates()
+  }
+
+  // Update check status based on updateInfo
+  useEffect(() => {
+    if (updateInfo?.hasUpdate) {
+      setCheckStatus('updateAvailable')
+    } else if (updateInfo !== null && !updateInfo.hasUpdate) {
+      setCheckStatus('upToDate')
+    } else if (!isChecking && checkStatus === 'checking') {
+      setCheckStatus(null)
+    }
+  }, [updateInfo, isChecking, checkStatus])
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -225,6 +256,55 @@ export function Settings() {
               <li>{t('settings.securityPoint2')}</li>
               <li>{t('settings.securityPoint3')}</li>
             </ul>
+          </div>
+
+          {/* Software Version Info */}
+          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {t('settings.softwareVersion')}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-mono mt-1">
+                  v{currentVersion || '...'}
+                </p>
+              </div>
+              <Button
+                onClick={handleManualCheck}
+                variant="secondary"
+                size="sm"
+                loading={isChecking}
+                icon={RefreshCw}
+                disabled={isChecking}
+              >
+                {t('settings.checkForUpdatesNow')}
+              </Button>
+            </div>
+
+            {/* Check Status Messages */}
+            {checkStatus === 'upToDate' && !isChecking && (
+              <div className="mt-3 text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                {t('settings.upToDate')}
+              </div>
+            )}
+
+            {checkStatus === 'updateAvailable' && updateInfo && (
+              <div className="mt-3 text-sm text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                {t('settings.updateAvailable', { version: updateInfo.latestVersion })}
+              </div>
+            )}
+
+            {error && !isChecking && (
+              <div className="mt-3 text-sm text-red-600 dark:text-red-400">
+                {t('settings.checkFailed')}
+              </div>
+            )}
           </div>
         </div>
       </section>

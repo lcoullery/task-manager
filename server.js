@@ -216,6 +216,21 @@ app.post('/api/config', (req, res) => {
   }
 })
 
+// --- Version endpoint ---
+
+// GET /api/version — return current version information
+app.get('/api/version', (req, res) => {
+  try {
+    const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'))
+    res.json({
+      version: packageJson.version,
+      name: packageJson.name
+    })
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to read version' })
+  }
+})
+
 // --- Update API endpoints ---
 
 // GET /api/update/check — check for new releases on GitHub
