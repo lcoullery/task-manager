@@ -16,7 +16,7 @@ function App() {
   const [downloadError, setDownloadError] = useState(null)
 
   const { updateInfo, downloadUpdate, applyUpdateAndRestart, dismissUpdate } =
-    useUpdateChecker(settings.autoUpdateEnabled, settings.updateCheckInterval)
+    useUpdateChecker(settings.autoUpdateEnabled)
 
   const handleUpdateAndRestart = async () => {
     setIsDownloading(true)

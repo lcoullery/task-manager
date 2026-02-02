@@ -28,10 +28,7 @@ export function Settings() {
   const [filePathStatus, setFilePathStatus] = useState(null)
   const [currentVersion, setCurrentVersion] = useState(null)
   const [checkStatus, setCheckStatus] = useState(null) // 'checking', 'upToDate', 'updateAvailable'
-  const { checkForUpdates, isChecking, updateInfo, error } = useUpdateChecker(
-    settings.autoUpdateEnabled,
-    settings.updateCheckInterval
-  )
+  const { checkForUpdates, isChecking, updateInfo, error } = useUpdateChecker(false)
 
   // Load current file path on mount
   useEffect(() => {

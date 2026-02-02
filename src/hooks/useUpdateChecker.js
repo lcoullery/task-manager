@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
-export function useUpdateChecker(enabled, interval) {
+export function useUpdateChecker(enabled) {
   const [updateInfo, setUpdateInfo] = useState(null)
   const [isChecking, setIsChecking] = useState(false)
   const [error, setError] = useState(null)
-  const intervalRef = useRef(null)
+  const timeoutRef = useRef(null)
   const hasCheckedRef = useRef(false)
 
   // Check for updates from GitHub API
@@ -84,28 +84,22 @@ export function useUpdateChecker(enabled, interval) {
     setUpdateInfo(null)
   }, [])
 
-  // Set up auto-check interval
+  // Check for updates once at startup with a 5 second delay
   useEffect(() => {
-    if (enabled && interval > 0) {
-      // Check immediately on first run if never checked
-      if (!hasCheckedRef.current) {
+    if (enabled && !hasCheckedRef.current) {
+      timeoutRef.current = setTimeout(() => {
         checkForUpdates()
         hasCheckedRef.current = true
-      }
-
-      // Set up periodic checks
-      intervalRef.current = setInterval(() => {
-        checkForUpdates()
-      }, interval)
+      }, 5000)
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
     }
-  }, [enabled, interval, checkForUpdates])
+  }, [enabled, checkForUpdates])
 
   return {
     updateInfo,
