@@ -5,9 +5,11 @@ export function useUpdateChecker(enabled) {
   const [isChecking, setIsChecking] = useState(false)
   const [error, setError] = useState(null)
   const [downloadProgress, setDownloadProgress] = useState(null)
+  const [justUpdated, setJustUpdated] = useState(null)
   const timeoutRef = useRef(null)
   const hasCheckedRef = useRef(null)
   const eventSourceRef = useRef(null)
+  const abortControllerRef = useRef(null)
 
   // Check for updates from GitHub API
   const checkForUpdates = useCallback(async () => {
@@ -51,6 +53,9 @@ export function useUpdateChecker(enabled) {
     }
 
     try {
+      // Create abort controller
+      abortControllerRef.current = new AbortController()
+
       // Open SSE connection for progress
       const eventSource = new EventSource('/api/update/progress')
       eventSourceRef.current = eventSource
@@ -71,7 +76,7 @@ export function useUpdateChecker(enabled) {
         eventSourceRef.current = null
       }
 
-      // Start download
+      // Start download with abort signal
       const response = await fetch('/api/update/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,6 +85,7 @@ export function useUpdateChecker(enabled) {
           commitSha: updateInfo.commitSha,
           version: updateInfo.latestVersion,
         }),
+        signal: abortControllerRef.current.signal,
       })
 
       if (!response.ok) {
@@ -95,6 +101,10 @@ export function useUpdateChecker(enabled) {
       if (eventSourceRef.current) {
         eventSourceRef.current.close()
         eventSourceRef.current = null
+      }
+      // Check if error is due to abort
+      if (err.name === 'AbortError') {
+        return { success: false, error: 'Download cancelled', cancelled: true }
       }
       return { success: false, error: err.message }
     }
@@ -117,6 +127,37 @@ export function useUpdateChecker(enabled) {
     }
   }, [])
 
+  // Cancel ongoing download
+  const cancelDownload = useCallback(async () => {
+    // Close SSE connection
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+      eventSourceRef.current = null
+    }
+
+    // Abort fetch request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      abortControllerRef.current = null
+    }
+
+    // Reset progress
+    setDownloadProgress(null)
+
+    // Call server to cleanup
+    try {
+      await fetch('/api/update/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          version: updateInfo?.latestVersion || 'unknown'
+        })
+      })
+    } catch (err) {
+      console.error('Failed to notify server of cancellation:', err.message)
+    }
+  }, [updateInfo])
+
   // Dismiss the update notification
   const dismissUpdate = useCallback(() => {
     setUpdateInfo(null)
@@ -126,6 +167,39 @@ export function useUpdateChecker(enabled) {
       eventSourceRef.current = null
     }
   }, [])
+
+  // Check for completed update on mount
+  const checkForCompletedUpdate = useCallback(async () => {
+    try {
+      const res = await fetch('/api/update/status')
+      if (!res.ok) return null
+      const data = await res.json()
+      return data.pending ? data : null
+    } catch (err) {
+      console.error('Failed to check update status:', err)
+      return null
+    }
+  }, [])
+
+  const clearCompletedUpdate = useCallback(async () => {
+    try {
+      await fetch('/api/update/clear-status', { method: 'POST' })
+    } catch (err) {
+      console.error('Failed to clear update status:', err)
+    }
+  }, [])
+
+  // Check for completed update on mount
+  useEffect(() => {
+    const checkCompleted = async () => {
+      const pendingUpdate = await checkForCompletedUpdate()
+      if (pendingUpdate) {
+        setJustUpdated({ version: pendingUpdate.version })
+        await clearCompletedUpdate()
+      }
+    }
+    checkCompleted()
+  }, [checkForCompletedUpdate, clearCompletedUpdate])
 
   // Check for updates once at startup with a 5 second delay
   useEffect(() => {
@@ -159,9 +233,11 @@ export function useUpdateChecker(enabled) {
     isChecking,
     error,
     downloadProgress,
+    justUpdated,
     checkForUpdates,
     downloadUpdate,
     applyUpdateAndRestart,
     dismissUpdate,
+    cancelDownload,
   }
 }

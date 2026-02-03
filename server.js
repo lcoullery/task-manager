@@ -1,5 +1,5 @@
 import express from 'express'
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { execSync } from 'child_process'
@@ -542,6 +542,57 @@ app.get('/api/update/status', (req, res) => {
   } catch (err) {
     console.error('Error checking update status:', err.message)
     res.status(500).json({ error: 'Failed to check update status' })
+  }
+})
+
+// POST /api/update/clear-status — clear pending update flag
+app.post('/api/update/clear-status', (req, res) => {
+  try {
+    const pendingUpdatePath = resolve(__dirname, '.update-pending.json')
+    if (existsSync(pendingUpdatePath)) {
+      unlinkSync(pendingUpdatePath)
+      console.log('Cleared pending update flag')
+    }
+    res.json({ success: true })
+  } catch (err) {
+    console.error('Error clearing update status:', err.message)
+    res.status(500).json({ error: 'Failed to clear update status' })
+  }
+})
+
+// POST /api/update/cancel — Cancel ongoing download
+app.post('/api/update/cancel', (req, res) => {
+  try {
+    const version = req.body?.version || 'unknown'
+
+    // Clear download progress tracking
+    downloadProgress.delete(version)
+
+    // Clean up .updates directory
+    const updatesDir = resolve(__dirname, '.updates')
+    if (existsSync(updatesDir)) {
+      // Remove incomplete downloads
+      const files = readdirSync(updatesDir)
+      files.forEach(file => {
+        const filePath = resolve(updatesDir, file)
+        try {
+          unlinkSync(filePath)
+        } catch (err) {
+          console.error(`Failed to delete ${filePath}:`, err.message)
+        }
+      })
+      try {
+        rmdirSync(updatesDir)
+      } catch (err) {
+        console.error('Failed to remove .updates directory:', err.message)
+      }
+    }
+
+    console.log(`Download cancelled for version ${version}`)
+    res.json({ success: true })
+  } catch (err) {
+    console.error('Error cancelling download:', err.message)
+    res.status(500).json({ error: 'Failed to cancel download' })
   }
 })
 

@@ -12,6 +12,8 @@ export function UpdateNotification({
   downloadComplete,
   downloadProgress,
   downloadError,
+  isRestarting,
+  onCancelDownload,
 }) {
   const { t } = useTranslation()
   const [showError, setShowError] = useState(false)
@@ -105,19 +107,34 @@ export function UpdateNotification({
         )}
 
         {/* Download Complete Message */}
-        {downloadComplete && !downloadError && (
+        {downloadComplete && !downloadError && !isRestarting && (
           <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded">
-            <p className="text-sm text-green-700 dark:text-green-200">
-              {t('updates.downloadComplete')}
+            <p className="text-sm font-semibold text-green-700 dark:text-green-200 mb-1">
+              {t('updates.downloadCompleteTitle')}
+            </p>
+            <p className="text-xs text-green-600 dark:text-green-300">
+              {t('updates.downloadCompleteMessage')}
             </p>
           </div>
         )}
 
-        {/* Error Message */}
-        {downloadError && (
+        {/* Restarting State */}
+        {isRestarting && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded">
+            <p className="text-sm font-semibold text-blue-700 dark:text-blue-200 mb-1">
+              {t('updates.restartingTitle')}
+            </p>
+            <p className="text-xs text-blue-600 dark:text-blue-300">
+              {t('updates.restartingMessage')}
+            </p>
+          </div>
+        )}
+
+        {/* Download Error Message */}
+        {downloadError && !isRestarting && (
           <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded">
             <p className="text-sm text-red-700 dark:text-red-200">
-              {t('updates.restartMessage')}
+              {t('updates.downloadErrorMessage')}
             </p>
           </div>
         )}
@@ -131,39 +148,65 @@ export function UpdateNotification({
 
         {/* Actions */}
         <div className="flex gap-3">
-          {!downloadComplete ? (
+          {isRestarting ? (
+            // No buttons during restart
+            null
+          ) : !downloadComplete ? (
             <>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleUpdateClick}
-                disabled={isDownloading}
-                loading={isDownloading}
-                className="flex-1"
-              >
-                {isDownloading && downloadProgress
-                  ? `${t('updates.downloading')} ${downloadProgress.progress}%`
-                  : t('updates.updateAndRestart')}
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={onClose}
-                disabled={isDownloading}
-                className="flex-1"
-              >
-                {t('updates.close')}
-              </Button>
+              {isDownloading ? (
+                <>
+                  {/* Show progress in button text */}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled
+                    loading
+                    className="flex-1"
+                  >
+                    {t('updates.downloading')} {downloadProgress?.progress || 0}%
+                  </Button>
+                  {/* Cancel button during download */}
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={onCancelDownload}
+                    className="flex-1"
+                  >
+                    {t('updates.cancel')}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {/* Initial state: Download Update button */}
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleUpdateClick}
+                    className="flex-1"
+                  >
+                    {t('updates.downloadUpdate')}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={onClose}
+                    className="flex-1"
+                  >
+                    {t('updates.close')}
+                  </Button>
+                </>
+              )}
             </>
           ) : (
             <>
+              {/* Download complete: Restart Server button */}
               <Button
                 variant="primary"
                 size="sm"
                 onClick={handleRestartClick}
                 className="flex-1"
               >
-                {t('updates.restartNow')}
+                {t('updates.restartServer')}
               </Button>
               <Button
                 variant="secondary"
@@ -171,7 +214,7 @@ export function UpdateNotification({
                 onClick={onClose}
                 className="flex-1"
               >
-                {t('updates.restartLater')}
+                {t('updates.later')}
               </Button>
             </>
           )}
