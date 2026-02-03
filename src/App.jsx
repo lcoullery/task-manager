@@ -7,6 +7,7 @@ import { Settings } from './pages/Settings'
 import { ListView } from './pages/ListView'
 import { GanttView } from './pages/GanttView'
 import { UpdateNotification } from './components/Updates/UpdateNotification'
+import { BugReportButton } from './components/BugReport/BugReportButton'
 import { useUpdateChecker } from './hooks/useUpdateChecker'
 import { useApp } from './context/AppContext'
 
@@ -62,6 +63,7 @@ function App() {
           downloadError={downloadError}
         />
       )}
+      {settings.bugReportEnabled && <BugReportButton />}
     </div>
   )
 }

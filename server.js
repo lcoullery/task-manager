@@ -76,6 +76,26 @@ function resolveDataPath() {
   return resolve(__dirname, filePath)
 }
 
+// Resolve bug report file path (same logic as resolveDataPath)
+function resolveBugReportPath(configPath) {
+  if (!configPath) {
+    return resolve(__dirname, 'data', 'bugReports.json')
+  }
+
+  let filePath = configPath.trim()
+
+  // Convert Windows paths to WSL format if needed
+  filePath = convertWindowsPathToWSL(filePath)
+
+  // If absolute path, use as-is
+  if (filePath.startsWith('/') || /^[A-Za-z]:\//.test(filePath)) {
+    return filePath
+  }
+
+  // Otherwise resolve relative to project root
+  return resolve(__dirname, filePath)
+}
+
 // Ensure directory exists for a file path
 function ensureDir(filePath) {
   const dir = dirname(filePath)
@@ -102,6 +122,8 @@ const DEFAULT_DATA = {
   settings: {
     theme: 'light',
     dataFilePath: './data/tasks.json',
+    bugReportFilePath: './data/bugReports.json',
+    bugReportEnabled: true,
     autoRefreshEnabled: true,
     autoRefreshInterval: 5000,
     autoUpdateEnabled: false,
@@ -176,6 +198,22 @@ app.post('/api/config', (req, res) => {
       req.body.dataFilePath = filePath
     }
 
+    // Normalize bugReportFilePath if provided
+    if (req.body.bugReportFilePath) {
+      let filePath = req.body.bugReportFilePath.trim()
+      if (!filePath) {
+        return res.status(400).json({ error: 'Bug report path cannot be empty' })
+      }
+
+      // Normalize path separators to forward slashes
+      filePath = filePath.replace(/\\/g, '/')
+
+      // Convert Windows paths to WSL format
+      filePath = convertWindowsPathToWSL(filePath)
+
+      req.body.bugReportFilePath = filePath
+    }
+
     const newConfig = { ...config, ...req.body }
     writeConfig(newConfig)
 
@@ -213,6 +251,64 @@ app.post('/api/config', (req, res) => {
     res.status(500).json({
       error: `Failed to save config: ${err.message}`
     })
+  }
+})
+
+// GET /api/bug-reports — read bug reports
+app.get('/api/bug-reports', (req, res) => {
+  try {
+    const config = readConfig()
+    const bugReportPath = resolveBugReportPath(config.bugReportFilePath || './data/bugReports.json')
+
+    if (!existsSync(bugReportPath)) {
+      // Create empty file if doesn't exist
+      const dir = dirname(bugReportPath)
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true })
+      }
+      writeFileSync(bugReportPath, JSON.stringify({ bugReports: [] }, null, 2), 'utf-8')
+    }
+
+    const data = JSON.parse(readFileSync(bugReportPath, 'utf-8'))
+    res.json(data)
+  } catch (err) {
+    console.error('Error reading bug reports:', err.message)
+    res.status(500).json({ error: 'Failed to read bug reports' })
+  }
+})
+
+// POST /api/bug-reports — append new bug report
+app.post('/api/bug-reports', (req, res) => {
+  try {
+    const config = readConfig()
+    const bugReportPath = resolveBugReportPath(config.bugReportFilePath || './data/bugReports.json')
+    const { bugReport } = req.body
+
+    if (!bugReport || !bugReport.profileId || !bugReport.message) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+
+    // Read existing data
+    let data = { bugReports: [] }
+    if (existsSync(bugReportPath)) {
+      data = JSON.parse(readFileSync(bugReportPath, 'utf-8'))
+    } else {
+      const dir = dirname(bugReportPath)
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true })
+      }
+    }
+
+    // Append new report
+    data.bugReports.push(bugReport)
+
+    // Write back to file
+    writeFileSync(bugReportPath, JSON.stringify(data, null, 2), 'utf-8')
+
+    res.json({ success: true })
+  } catch (err) {
+    console.error('Error saving bug report:', err.message)
+    res.status(500).json({ error: 'Failed to save bug report' })
   }
 })
 

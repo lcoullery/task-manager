@@ -16,6 +16,8 @@ export const DEFAULT_DATA = {
   settings: {
     theme: 'light',
     dataFilePath: './data/tasks.json',
+    bugReportFilePath: './data/bugReports.json',
+    bugReportEnabled: true,
     autoRefreshEnabled: true,
     autoRefreshInterval: 5000,
     autoUpdateEnabled: false,

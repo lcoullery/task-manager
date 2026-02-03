@@ -217,5 +217,25 @@
   "updates.restartLater": "Restart Later",
   "updates.restartMessage": "Server is restarting. Please relaunch the application.",
   "updates.close": "Close",
-  "updates.securityNote": "Updates are downloaded from the official GitHub repository only"
+  "updates.securityNote": "Updates are downloaded from the official GitHub repository only",
+
+  "settings.bugReports": "Bug Reports",
+  "settings.bugReportsDesc": "Configure bug report submission feature",
+  "settings.enableBugReports": "Enable bug report button",
+  "settings.enableBugReportsDesc": "Show a floating button to submit bug reports",
+  "settings.bugReportFilePath": "Bug Report File Path",
+  "settings.bugReportPathHelp": "Path to store bug reports (e.g., ./data/bugReports.json or C:/path/to/bugReports.json)",
+
+  "bugReport.reportBug": "Report Bug",
+  "bugReport.reportedBy": "Reported By",
+  "bugReport.selectProfile": "Select your profile...",
+  "bugReport.bugDescription": "Bug Description",
+  "bugReport.descriptionPlaceholder": "Describe the bug you encountered...",
+  "bugReport.currentPage": "Current page",
+  "bugReport.fillAllFields": "Please fill in all required fields",
+  "bugReport.submitError": "Failed to submit bug report. Please try again.",
+  "bugReport.submitSuccess": "Bug report submitted successfully!",
+  "bugReport.submit": "Submit Report",
+
+  "common.cancel": "Cancel"
 }

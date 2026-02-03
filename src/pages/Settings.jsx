@@ -7,6 +7,7 @@ import { useUpdateChecker } from '../hooks/useUpdateChecker'
 import { ColumnEditor } from '../components/Kanban/ColumnEditor'
 import { LabelManager } from '../components/Labels/LabelManager'
 import { Button } from '../components/common/Button'
+import { Input } from '../components/common/Input'
 import { ConfirmModal } from '../components/common/Modal'
 import { loadConfig, saveConfig } from '../utils/storage'
 
@@ -26,6 +27,8 @@ export function Settings() {
   const fileInputRef = useRef(null)
   const [dataFilePath, setDataFilePath] = useState('')
   const [filePathStatus, setFilePathStatus] = useState(null)
+  const [bugReportFilePath, setBugReportFilePath] = useState('')
+  const [bugReportFilePathStatus, setBugReportFilePathStatus] = useState(null)
   const [currentVersion, setCurrentVersion] = useState(null)
   const [checkStatus, setCheckStatus] = useState(null) // 'checking', 'upToDate', 'updateAvailable'
   const { checkForUpdates, isChecking, updateInfo, error } = useUpdateChecker(false)
@@ -34,8 +37,10 @@ export function Settings() {
   useEffect(() => {
     loadConfig().then(config => {
       setDataFilePath(config.dataFilePath || './data/tasks.json')
+      setBugReportFilePath(config.bugReportFilePath || './data/bugReports.json')
     }).catch(() => {
       setDataFilePath('./data/tasks.json')
+      setBugReportFilePath('./data/bugReports.json')
     })
   }, [])
 
@@ -60,6 +65,26 @@ export function Settings() {
       const errorMsg = err.message || 'Unknown error'
       setFilePathStatus(`error: ${errorMsg}`)
       setTimeout(() => setFilePathStatus(null), 6000)
+    }
+  }
+
+  const handleSaveBugReportFilePath = async () => {
+    try {
+      setBugReportFilePathStatus('saving')
+      const trimmedPath = bugReportFilePath.trim()
+      if (!trimmedPath) {
+        setBugReportFilePathStatus('error')
+        setTimeout(() => setBugReportFilePathStatus(null), 3000)
+        return
+      }
+      await saveConfig({ bugReportFilePath: trimmedPath })
+      setBugReportFilePathStatus('success')
+      setTimeout(() => setBugReportFilePathStatus(null), 3000)
+      reload()
+    } catch (err) {
+      console.error('Failed to save bug report path:', err)
+      setBugReportFilePathStatus('error')
+      setTimeout(() => setBugReportFilePathStatus(null), 3000)
     }
   }
 
@@ -426,6 +451,71 @@ export function Settings() {
               <li>{t('settings.tipExample3')}</li>
             </ul>
           </div>
+        </div>
+      </section>
+
+      {/* Bug Report Settings */}
+      <section className="card p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          {t('settings.bugReports')}
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          {t('settings.bugReportsDesc')}
+        </p>
+
+        {/* Enable/Disable Bug Report Button */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('settings.enableBugReports')}
+            </label>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {t('settings.enableBugReportsDesc')}
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            checked={settings.bugReportEnabled ?? true}
+            onChange={(e) => updateSettings({ bugReportEnabled: e.target.checked })}
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+        </div>
+
+        {/* Bug Report File Path */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {t('settings.bugReportFilePath')}
+          </label>
+          <div className="flex gap-3 items-start">
+            <Input
+              type="text"
+              value={bugReportFilePath}
+              onChange={(e) => setBugReportFilePath(e.target.value)}
+              placeholder="./data/bugReports.json"
+              className="flex-1"
+            />
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleSaveBugReportFilePath}
+              disabled={bugReportFilePathStatus === 'saving'}
+            >
+              {t('settings.saveFilePath')}
+            </Button>
+          </div>
+          {bugReportFilePathStatus === 'success' && (
+            <p className="text-sm text-green-600 dark:text-green-400 mt-2">
+              {t('settings.filePathSaved')}
+            </p>
+          )}
+          {bugReportFilePathStatus === 'error' && (
+            <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+              {t('settings.filePathError')}
+            </p>
+          )}
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            {t('settings.bugReportPathHelp')}
+          </p>
         </div>
       </section>
 
