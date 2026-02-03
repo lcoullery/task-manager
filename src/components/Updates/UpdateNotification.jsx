@@ -6,8 +6,11 @@ import { Button } from '../common/Button'
 export function UpdateNotification({
   updateInfo,
   onUpdateAndRestart,
+  onRestart,
   onClose,
   isDownloading,
+  downloadComplete,
+  downloadProgress,
   downloadError,
 }) {
   const { t } = useTranslation()
@@ -18,9 +21,18 @@ export function UpdateNotification({
   const handleUpdateClick = async () => {
     setShowError(false)
     await onUpdateAndRestart()
-    if (downloadError) {
-      setShowError(true)
-    }
+  }
+
+  const handleRestartClick = async () => {
+    await onRestart()
+  }
+
+  const formatBytes = (bytes) => {
+    if (bytes === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
   }
 
   return (
@@ -60,7 +72,7 @@ export function UpdateNotification({
         </div>
 
         {/* Release Notes */}
-        {updateInfo.releaseNotes && (
+        {updateInfo.releaseNotes && !isDownloading && !downloadComplete && (
           <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
             <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">
               Release Notes:
@@ -71,10 +83,42 @@ export function UpdateNotification({
           </div>
         )}
 
+        {/* Download Progress Bar */}
+        {isDownloading && downloadProgress && (
+          <div className="mb-4 space-y-2">
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
+              <span>{t('updates.downloadingProgress')}</span>
+              <span>
+                {formatBytes(downloadProgress.downloaded)} / {formatBytes(downloadProgress.total)}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                style={{ width: `${downloadProgress.progress}%` }}
+              />
+            </div>
+            <div className="text-center text-xs font-semibold text-gray-700 dark:text-gray-300">
+              {downloadProgress.progress}%
+            </div>
+          </div>
+        )}
+
+        {/* Download Complete Message */}
+        {downloadComplete && !downloadError && (
+          <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded">
+            <p className="text-sm text-green-700 dark:text-green-200">
+              {t('updates.downloadComplete')}
+            </p>
+          </div>
+        )}
+
         {/* Error Message */}
         {downloadError && (
           <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded">
-            <p className="text-sm text-red-700 dark:text-red-200">{downloadError}</p>
+            <p className="text-sm text-red-700 dark:text-red-200">
+              {t('updates.restartMessage')}
+            </p>
           </div>
         )}
 
@@ -87,25 +131,50 @@ export function UpdateNotification({
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={handleUpdateClick}
-            disabled={isDownloading}
-            loading={isDownloading}
-            className="flex-1"
-          >
-            {isDownloading ? t('updates.downloading') : t('updates.updateAndRestart')}
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onClose}
-            disabled={isDownloading}
-            className="flex-1"
-          >
-            {t('updates.close')}
-          </Button>
+          {!downloadComplete ? (
+            <>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleUpdateClick}
+                disabled={isDownloading}
+                loading={isDownloading}
+                className="flex-1"
+              >
+                {isDownloading && downloadProgress
+                  ? `${t('updates.downloading')} ${downloadProgress.progress}%`
+                  : t('updates.updateAndRestart')}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onClose}
+                disabled={isDownloading}
+                className="flex-1"
+              >
+                {t('updates.close')}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleRestartClick}
+                className="flex-1"
+              >
+                {t('updates.restartNow')}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onClose}
+                className="flex-1"
+              >
+                {t('updates.restartLater')}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -13,22 +13,29 @@ import { useApp } from './context/AppContext'
 function App() {
   const { settings } = useApp()
   const [isDownloading, setIsDownloading] = useState(false)
-  const [downloadError, setDownloadError] = useState(null)
+  const [downloadError, setDownloadError] = useState(false)
+  const [downloadComplete, setDownloadComplete] = useState(false)
 
-  const { updateInfo, downloadUpdate, applyUpdateAndRestart, dismissUpdate } =
+  const { updateInfo, downloadProgress, downloadUpdate, applyUpdateAndRestart, dismissUpdate } =
     useUpdateChecker(settings.autoUpdateEnabled)
 
   const handleUpdateAndRestart = async () => {
     setIsDownloading(true)
-    setDownloadError(null)
+    setDownloadError(false)
+    setDownloadComplete(false)
     const downloadResult = await downloadUpdate()
     if (!downloadResult.success) {
-      setDownloadError(downloadResult.error)
+      setDownloadError(true)
       setIsDownloading(false)
       return
     }
+    setIsDownloading(false)
+    setDownloadComplete(true)
+  }
+
+  const handleRestart = async () => {
     await applyUpdateAndRestart()
-    setDownloadError('Server is restarting. Please relaunch the application.')
+    setDownloadError(true)
   }
 
   return (
@@ -47,8 +54,11 @@ function App() {
         <UpdateNotification
           updateInfo={updateInfo}
           onUpdateAndRestart={handleUpdateAndRestart}
+          onRestart={handleRestart}
           onClose={dismissUpdate}
           isDownloading={isDownloading}
+          downloadComplete={downloadComplete}
+          downloadProgress={downloadProgress}
           downloadError={downloadError}
         />
       )}

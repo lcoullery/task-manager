@@ -304,6 +304,30 @@ app.get('/api/update/check', async (req, res) => {
   }
 })
 
+// Download progress tracking: version -> { progress, total, downloaded, status }
+const downloadProgress = new Map()
+
+// GET /api/update/progress — SSE endpoint for download progress
+app.get('/api/update/progress', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream')
+  res.setHeader('Cache-Control', 'no-cache')
+  res.setHeader('Connection', 'keep-alive')
+  res.setHeader('Access-Control-Allow-Origin', '*')
+
+  const sendProgress = () => {
+    const progress = Array.from(downloadProgress.values())[0]
+    if (progress) {
+      res.write(`data: ${JSON.stringify(progress)}\n\n`)
+    }
+  }
+
+  const interval = setInterval(sendProgress, 100)
+
+  req.on('close', () => {
+    clearInterval(interval)
+  })
+})
+
 // POST /api/update/download — download update from GitHub
 app.post('/api/update/download', async (req, res) => {
   try {
@@ -326,14 +350,54 @@ app.post('/api/update/download', async (req, res) => {
 
     const zipPath = resolve(updatesDir, `update-${version}.zip`)
 
-    // Download the ZIP file
+    // Stream download with progress tracking
     const response = await fetch(downloadUrl)
     if (!response.ok) {
       return res.status(response.status).json({ error: 'Failed to download update' })
     }
 
-    const buffer = await response.arrayBuffer()
-    writeFileSync(zipPath, Buffer.from(buffer))
+    const totalSize = parseInt(response.headers.get('content-length') || '0', 10)
+    let downloadedSize = 0
+
+    downloadProgress.set(version, {
+      version,
+      progress: 0,
+      total: totalSize,
+      downloaded: 0,
+      status: 'downloading',
+    })
+
+    const chunks = []
+    const reader = response.body.getReader()
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      chunks.push(value)
+      downloadedSize += value.length
+
+      const progress = totalSize > 0 ? Math.round((downloadedSize / totalSize) * 100) : 0
+      downloadProgress.set(version, {
+        version,
+        progress,
+        total: totalSize,
+        downloaded: downloadedSize,
+        status: 'downloading',
+      })
+    }
+
+    const buffer = Buffer.concat(chunks)
+    writeFileSync(zipPath, buffer)
+
+    // Mark as complete
+    downloadProgress.set(version, {
+      version,
+      progress: 100,
+      total: totalSize,
+      downloaded: totalSize,
+      status: 'complete',
+    })
 
     // Create pending update flag
     const pendingUpdatePath = resolve(__dirname, '.update-pending.json')
@@ -345,6 +409,9 @@ app.post('/api/update/download', async (req, res) => {
     }, null, 2), 'utf-8')
 
     res.json({ success: true, version })
+
+    // Clean up progress tracking after 5 seconds
+    setTimeout(() => downloadProgress.delete(version), 5000)
   } catch (err) {
     console.error('Error downloading update:', err.message)
     res.status(500).json({ error: 'Failed to download update' })

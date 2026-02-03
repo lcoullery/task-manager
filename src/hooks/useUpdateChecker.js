@@ -4,8 +4,10 @@ export function useUpdateChecker(enabled) {
   const [updateInfo, setUpdateInfo] = useState(null)
   const [isChecking, setIsChecking] = useState(false)
   const [error, setError] = useState(null)
+  const [downloadProgress, setDownloadProgress] = useState(null)
   const timeoutRef = useRef(null)
-  const hasCheckedRef = useRef(false)
+  const hasCheckedRef = useRef(null)
+  const eventSourceRef = useRef(null)
 
   // Check for updates from GitHub API
   const checkForUpdates = useCallback(async () => {
@@ -49,6 +51,27 @@ export function useUpdateChecker(enabled) {
     }
 
     try {
+      // Open SSE connection for progress
+      const eventSource = new EventSource('/api/update/progress')
+      eventSourceRef.current = eventSource
+
+      eventSource.onmessage = (event) => {
+        const progress = JSON.parse(event.data)
+        setDownloadProgress(progress)
+
+        if (progress.status === 'complete') {
+          eventSource.close()
+          eventSourceRef.current = null
+        }
+      }
+
+      eventSource.onerror = () => {
+        console.error('SSE connection error')
+        eventSource.close()
+        eventSourceRef.current = null
+      }
+
+      // Start download
       const response = await fetch('/api/update/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -60,6 +83,8 @@ export function useUpdateChecker(enabled) {
       })
 
       if (!response.ok) {
+        eventSource.close()
+        eventSourceRef.current = null
         const data = await response.json()
         return { success: false, error: data.error || 'Download failed' }
       }
@@ -67,6 +92,10 @@ export function useUpdateChecker(enabled) {
       return { success: true }
     } catch (err) {
       console.error('Download error:', err.message)
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+        eventSourceRef.current = null
+      }
       return { success: false, error: err.message }
     }
   }, [updateInfo])
@@ -91,6 +120,11 @@ export function useUpdateChecker(enabled) {
   // Dismiss the update notification
   const dismissUpdate = useCallback(() => {
     setUpdateInfo(null)
+    setDownloadProgress(null)
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+      eventSourceRef.current = null
+    }
   }, [])
 
   // Check for updates once at startup with a 5 second delay
@@ -110,10 +144,21 @@ export function useUpdateChecker(enabled) {
     }
   }, [enabled, checkForUpdates])
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+        eventSourceRef.current = null
+      }
+    }
+  }, [])
+
   return {
     updateInfo,
     isChecking,
     error,
+    downloadProgress,
     checkForUpdates,
     downloadUpdate,
     applyUpdateAndRestart,
