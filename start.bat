@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 REM Task Manager - Quick Launcher
 
 REM Check if Node.js is installed
