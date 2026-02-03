@@ -88,16 +88,11 @@ export function BugReportModal({ isOpen, onClose }) {
           <Select
             value={selectedProfileId}
             onChange={(e) => setSelectedProfileId(e.target.value)}
+            options={profileOptions}
+            placeholder={t('bugReport.selectProfile')}
             required
             disabled={isSubmitting}
-          >
-            <option value="">{t('bugReport.selectProfile')}</option>
-            {profileOptions.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
+          />
         </div>
 
         {/* Message Textarea */}
