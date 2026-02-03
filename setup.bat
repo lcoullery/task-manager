@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 REM Task Manager - Setup/Update Script
 REM Run this when you pull new code or want to rebuild
 

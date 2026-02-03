@@ -1,4 +1,5 @@
 #!/bin/bash
+cd "$( dirname "$0" )"
 
 # Task Manager - Setup/Update Script
 # Run this when you pull new code or want to rebuild
