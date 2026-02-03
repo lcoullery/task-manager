@@ -116,10 +116,18 @@ export function Settings() {
       setCheckStatus('updateAvailable')
     } else if (updateInfo !== null && !updateInfo.hasUpdate) {
       setCheckStatus('upToDate')
+      // Trigger toast notification in main app
+      window.dispatchEvent(new CustomEvent('show-update-toast', {
+        detail: {
+          message: `${t('settings.upToDate')} Running v${currentVersion}`,
+          variant: 'success',
+          duration: 3000
+        }
+      }))
     } else if (!isChecking && checkStatus === 'checking') {
       setCheckStatus(null)
     }
-  }, [updateInfo, isChecking, checkStatus])
+  }, [updateInfo, isChecking, checkStatus, t, currentVersion])
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
