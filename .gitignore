@@ -11,6 +11,9 @@ data/
 # Release archives
 releases/
 
+# Claude AI working directory
+.claude/
+
 # Update system
 .updates/
 .backup/
