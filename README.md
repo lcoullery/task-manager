@@ -161,6 +161,21 @@ The application automatically creates a `config.json` file on first run with def
 - See `config.example.json` for the template with default values
 - If you delete `config.json`, it will be recreated with defaults on next startup
 
+### Data Privacy
+
+Your personal data stays private and local:
+- **`data/tasks.json`** - Contains your tasks, profiles, comments, and settings
+  - **Not tracked in git** - Your personal data never leaves your machine
+  - Stays local to your installation
+  - See `data/tasks.example.json` for the template structure
+- **`data/bugReports.json`** - Contains your bug reports
+  - Also excluded from version control
+  - Your feedback stays private
+- **`config.json`** - Contains your personal file paths
+  - Local configuration only
+
+**For new users**: The repository includes only example templates. Your actual data files are created automatically when you first run the app. All personal data (tasks, profiles, settings) remains on your local machine and is never committed to git.
+
 ## Project Structure
 
 ```
