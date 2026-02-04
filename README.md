@@ -144,6 +144,23 @@ By default, tasks are stored in `./data/tasks.json`. You can change this in **Se
 - On **WSL/Linux**: Windows paths (`C:\...`) are automatically converted to `/mnt/c/...`
 - Use forward slashes `/` for better cross-platform compatibility
 
+### Configuration File (config.json)
+
+The application automatically creates a `config.json` file on first run with default paths:
+```json
+{
+  "dataFilePath": "./data/tasks.json",
+  "bugReportFilePath": "./data/bugReports.json"
+}
+```
+
+**Important notes**:
+- `config.json` is created automatically - you don't need to create it manually
+- The file is local to your installation and not tracked in version control
+- You can edit paths directly in `config.json` or via the Settings UI
+- See `config.example.json` for the template with default values
+- If you delete `config.json`, it will be recreated with defaults on next startup
+
 ## Project Structure
 
 ```

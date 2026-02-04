@@ -8,6 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const CONFIG_PATH = resolve(__dirname, 'config.json')
 const DEFAULT_DATA_PATH = './data/tasks.json'
+const DEFAULT_BUG_REPORT_PATH = './data/bugReports.json'
 const PORT = 4173
 
 // Read config from disk
@@ -15,6 +16,24 @@ function readConfig() {
   try {
     if (existsSync(CONFIG_PATH)) {
       return JSON.parse(readFileSync(CONFIG_PATH, 'utf-8'))
+    } else {
+      // First run: create config.json with default values
+      const defaultConfig = {
+        dataFilePath: DEFAULT_DATA_PATH,
+        bugReportFilePath: DEFAULT_BUG_REPORT_PATH
+      }
+
+      // Ensure ./data directory exists
+      const dataDir = resolve(__dirname, 'data')
+      if (!existsSync(dataDir)) {
+        mkdirSync(dataDir, { recursive: true })
+      }
+
+      // Create config.json
+      writeFileSync(CONFIG_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8')
+      console.log('Created config.json with default paths')
+
+      return defaultConfig
     }
   } catch (err) {
     console.error('Error reading config.json:', err.message)

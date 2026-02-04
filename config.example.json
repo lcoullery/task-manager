@@ -1,0 +1,4 @@
+{
+  "dataFilePath": "./data/tasks.json",
+  "bugReportFilePath": "./data/bugReports.json"
+}
