@@ -8,6 +8,9 @@ config.json
 # User data (personal information)
 data/
 
+# Release archives
+releases/
+
 # Update system
 .updates/
 .backup/
