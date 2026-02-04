@@ -1,0 +1,72 @@
+{
+  "profiles": [
+    {
+      "id": "profile-1",
+      "name": "Demo User",
+      "color": "#3B82F6",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Sample Task",
+      "description": "This is an example task",
+      "status": "col-plan",
+      "priority": "medium",
+      "assignedTo": "profile-1",
+      "startDate": "2026-01-01",
+      "endDate": "2026-01-07",
+      "labels": ["label-1"],
+      "comments": [],
+      "archived": false,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "labels": [
+    {
+      "id": "label-1",
+      "name": "Bug",
+      "color": "red"
+    },
+    {
+      "id": "label-2",
+      "name": "Feature",
+      "color": "blue"
+    },
+    {
+      "id": "label-3",
+      "name": "Urgent",
+      "color": "orange"
+    }
+  ],
+  "columns": [
+    {
+      "id": "col-plan",
+      "name": "Plan",
+      "order": 0
+    },
+    {
+      "id": "col-execute",
+      "name": "Execute",
+      "order": 1
+    },
+    {
+      "id": "col-blocked",
+      "name": "Blocked",
+      "order": 2
+    },
+    {
+      "id": "col-done",
+      "name": "Done",
+      "order": 3
+    }
+  ],
+  "settings": {
+    "theme": "light",
+    "dataFilePath": "./data/tasks.json",
+    "autoRefreshEnabled": false,
+    "autoRefreshInterval": 5000,
+    "language": "en"
+  }
+}

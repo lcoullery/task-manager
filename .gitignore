@@ -5,6 +5,9 @@ dist
 # Local configuration
 config.json
 
+# User data (personal information)
+data/
+
 # Update system
 .updates/
 .backup/
