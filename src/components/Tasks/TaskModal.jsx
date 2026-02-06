@@ -1,22 +1,31 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Archive, ArchiveRestore, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { Modal, ConfirmModal } from '../common/Modal'
 import { TaskForm } from './TaskForm'
 import { CommentList } from './CommentList'
+import { Button } from '../common/Button'
 
 export function TaskModal({ isOpen, onClose, task }) {
   const { updateTask, deleteTask, archiveTask, unarchiveTask } = useApp()
   const { t } = useTranslation()
   const [deleteConfirm, setDeleteConfirm] = useState(false)
-  const [showForm, setShowForm] = useState(!task)
+  const taskFormRef = useRef()
 
-  const handleSubmit = (data) => {
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    // Trigger TaskForm's submit via ref
+    if (taskFormRef.current) {
+      taskFormRef.current.submit()
+    }
+  }
+
+  const handleTaskUpdate = (data) => {
     if (task) {
       updateTask(task.id, data)
-      setShowForm(false)
     }
+    onClose()
   }
 
   const handleDelete = () => {
@@ -37,68 +46,60 @@ export function TaskModal({ isOpen, onClose, task }) {
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} title={t('taskModal.taskDetails')} size="lg">
-        <div className="space-y-6">
-          {showForm ? (
-            <TaskForm
-              task={task}
-              onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
-            />
-          ) : (
-            <>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {task.title}
-                  </h3>
-                  {task.description && (
-                    <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                      {task.description}
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={() => setShowForm(true)}
-                  className="btn btn-secondary text-sm"
-                >
-                  {t('taskModal.edit')}
-                </button>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Form fields only - no buttons */}
+          <TaskForm
+            ref={taskFormRef}
+            task={task}
+            onSubmit={handleTaskUpdate}
+            onCancel={onClose}
+            hideButtons={true}
+          />
 
-              <hr className="border-gray-200 dark:border-gray-700" />
+          {/* Comment section above buttons */}
+          <hr className="border-gray-200 dark:border-gray-700" />
+          <CommentList taskId={task.id} comments={task.comments} />
+          <hr className="border-gray-200 dark:border-gray-700" />
 
-              <CommentList taskId={task.id} comments={task.comments} />
-
-              <hr className="border-gray-200 dark:border-gray-700" />
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleArchiveToggle}
-                  className="btn btn-secondary text-sm"
-                >
-                  {task.archived ? (
-                    <>
-                      <ArchiveRestore className="w-4 h-4 mr-2" />
-                      {t('taskModal.unarchive')}
-                    </>
-                  ) : (
-                    <>
-                      <Archive className="w-4 h-4 mr-2" />
-                      {t('taskModal.archive')}
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setDeleteConfirm(true)}
-                  className="btn btn-danger text-sm"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  {t('taskModal.delete')}
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+          {/* All action buttons at the bottom */}
+          <div className="flex justify-between">
+            <div className="flex gap-3">
+              <Button
+                variant="secondary"
+                onClick={handleArchiveToggle}
+                type="button"
+              >
+                {task.archived ? (
+                  <>
+                    <ArchiveRestore className="w-4 h-4" />
+                    {t('taskModal.unarchive')}
+                  </>
+                ) : (
+                  <>
+                    <Archive className="w-4 h-4" />
+                    {t('taskModal.archive')}
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => setDeleteConfirm(true)}
+                type="button"
+              >
+                <Trash2 className="w-4 h-4" />
+                {t('taskModal.delete')}
+              </Button>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={onClose} type="button">
+                {t('modal.cancel')}
+              </Button>
+              <Button type="submit">
+                {t('taskForm.saveChanges')}
+              </Button>
+            </div>
+          </div>
+        </form>
       </Modal>
 
       <ConfirmModal

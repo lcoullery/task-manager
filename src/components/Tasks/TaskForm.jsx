@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useImperativeHandle, forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { Input, Textarea, Select } from '../common/Input'
 import { Button } from '../common/Button'
 import { LabelPicker } from './LabelPicker'
 
-export function TaskForm({ task, onSubmit, onCancel }) {
+export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel, hideButtons = false }, ref) {
   const { profiles, columns } = useApp()
   const { t } = useTranslation()
   const isEditing = !!task
@@ -51,7 +51,7 @@ export function TaskForm({ task, onSubmit, onCancel }) {
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     if (!formData.title.trim()) return
 
     onSubmit({
@@ -63,11 +63,16 @@ export function TaskForm({ task, onSubmit, onCancel }) {
     })
   }
 
+  // Expose submit handler to parent via ref
+  useImperativeHandle(ref, () => ({
+    submit: () => handleSubmit()
+  }))
+
   const profileOptions = profiles.map((p) => ({ value: p.id, label: p.name }))
   const columnOptions = columns.map((c) => ({ value: c.id, label: c.name }))
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+  const formFields = (
+    <>
       <Input
         label={t('taskForm.title')}
         value={formData.title}
@@ -75,6 +80,7 @@ export function TaskForm({ task, onSubmit, onCancel }) {
         placeholder={t('taskForm.titlePlaceholder')}
         required
         autoFocus
+        name="title"
       />
 
       <Textarea
@@ -83,6 +89,7 @@ export function TaskForm({ task, onSubmit, onCancel }) {
         onChange={handleChange('description')}
         placeholder={t('taskForm.descriptionPlaceholder')}
         rows={3}
+        name="description"
       />
 
       <div className="grid grid-cols-2 gap-4">
@@ -91,6 +98,7 @@ export function TaskForm({ task, onSubmit, onCancel }) {
           value={formData.status}
           onChange={handleChange('status')}
           options={columnOptions}
+          name="status"
         />
 
         <Select
@@ -98,6 +106,7 @@ export function TaskForm({ task, onSubmit, onCancel }) {
           value={formData.priority}
           onChange={handleChange('priority')}
           options={PRIORITY_OPTIONS}
+          name="priority"
         />
       </div>
 
@@ -107,6 +116,7 @@ export function TaskForm({ task, onSubmit, onCancel }) {
         onChange={handleChange('assignedTo')}
         options={profileOptions}
         placeholder={t('taskForm.unassigned')}
+        name="assignedTo"
       />
 
       <div className="grid grid-cols-2 gap-4">
@@ -115,6 +125,7 @@ export function TaskForm({ task, onSubmit, onCancel }) {
           type="date"
           value={formData.startDate}
           onChange={handleChange('startDate')}
+          name="startDate"
         />
 
         <Input
@@ -122,6 +133,7 @@ export function TaskForm({ task, onSubmit, onCancel }) {
           type="date"
           value={formData.endDate}
           onChange={handleChange('endDate')}
+          name="endDate"
         />
       </div>
 
@@ -129,7 +141,16 @@ export function TaskForm({ task, onSubmit, onCancel }) {
         selectedLabels={formData.labels}
         onChange={handleLabelsChange}
       />
+    </>
+  )
 
+  if (hideButtons) {
+    return <div className="space-y-4">{formFields}</div>
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {formFields}
       <div className="flex gap-3 justify-end pt-2">
         <Button variant="secondary" type="button" onClick={onCancel}>
           {t('taskForm.cancel')}
@@ -140,4 +161,4 @@ export function TaskForm({ task, onSubmit, onCancel }) {
       </div>
     </form>
   )
-}
+})
