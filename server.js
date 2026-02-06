@@ -1,5 +1,5 @@
 import express from 'express'
-import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync, rmSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { execSync } from 'child_process'
@@ -590,18 +590,8 @@ app.post('/api/update/cancel', (req, res) => {
     // Clean up .updates directory
     const updatesDir = resolve(__dirname, '.updates')
     if (existsSync(updatesDir)) {
-      // Remove incomplete downloads
-      const files = readdirSync(updatesDir)
-      files.forEach(file => {
-        const filePath = resolve(updatesDir, file)
-        try {
-          unlinkSync(filePath)
-        } catch (err) {
-          console.error(`Failed to delete ${filePath}:`, err.message)
-        }
-      })
       try {
-        rmdirSync(updatesDir)
+        rmSync(updatesDir, { recursive: true, force: true })
       } catch (err) {
         console.error('Failed to remove .updates directory:', err.message)
       }
