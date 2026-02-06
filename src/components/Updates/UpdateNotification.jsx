@@ -6,13 +6,11 @@ import { Button } from '../common/Button'
 export function UpdateNotification({
   updateInfo,
   onUpdateAndRestart,
-  onRestart,
   onClose,
   isDownloading,
   downloadComplete,
   downloadProgress,
   downloadError,
-  isRestarting,
   onCancelDownload,
 }) {
   const { t } = useTranslation()
@@ -23,10 +21,6 @@ export function UpdateNotification({
   const handleUpdateClick = async () => {
     setShowError(false)
     await onUpdateAndRestart()
-  }
-
-  const handleRestartClick = async () => {
-    await onRestart()
   }
 
   const formatBytes = (bytes) => {
@@ -107,7 +101,7 @@ export function UpdateNotification({
         )}
 
         {/* Download Complete Message */}
-        {downloadComplete && !downloadError && !isRestarting && (
+        {downloadComplete && !downloadError && (
           <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded">
             <p className="text-sm font-semibold text-green-700 dark:text-green-200 mb-1">
               {t('updates.downloadCompleteTitle')}
@@ -118,20 +112,8 @@ export function UpdateNotification({
           </div>
         )}
 
-        {/* Restarting State */}
-        {isRestarting && (
-          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded">
-            <p className="text-sm font-semibold text-blue-700 dark:text-blue-200 mb-1">
-              {t('updates.restartingTitle')}
-            </p>
-            <p className="text-xs text-blue-600 dark:text-blue-300">
-              {t('updates.restartingMessage')}
-            </p>
-          </div>
-        )}
-
         {/* Download Error Message */}
-        {downloadError && !isRestarting && (
+        {downloadError && (
           <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded">
             <p className="text-sm text-red-700 dark:text-red-200">
               {t('updates.downloadErrorMessage')}
@@ -148,10 +130,7 @@ export function UpdateNotification({
 
         {/* Actions */}
         <div className="flex gap-3">
-          {isRestarting ? (
-            // No buttons during restart
-            null
-          ) : !downloadComplete ? (
+          {!downloadComplete ? (
             <>
               {isDownloading ? (
                 <>
@@ -198,25 +177,15 @@ export function UpdateNotification({
               )}
             </>
           ) : (
-            <>
-              {/* Download complete: Restart Server button */}
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleRestartClick}
-                className="flex-1"
-              >
-                {t('updates.restartServer')}
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={onClose}
-                className="flex-1"
-              >
-                {t('updates.later')}
-              </Button>
-            </>
+            /* Download complete: Only Close button */
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={onClose}
+              className="flex-1"
+            >
+              {t('updates.close')}
+            </Button>
           )}
         </div>
       </div>

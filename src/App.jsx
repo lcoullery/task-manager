@@ -17,7 +17,6 @@ function App() {
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadError, setDownloadError] = useState(false)
   const [downloadComplete, setDownloadComplete] = useState(false)
-  const [isRestarting, setIsRestarting] = useState(false)
   const [toast, setToast] = useState(null)
 
   const showToast = useCallback((message, variant = 'success', duration = 5000) => {
@@ -59,11 +58,6 @@ function App() {
     setDownloadError(false)
   }
 
-  const handleRestart = async () => {
-    setIsRestarting(true)
-    await applyUpdateAndRestart()
-  }
-
   // Show "successfully updated" toast on first launch after update
   useEffect(() => {
     if (justUpdated) {
@@ -102,13 +96,11 @@ function App() {
         <UpdateNotification
           updateInfo={updateInfo}
           onUpdateAndRestart={handleUpdateAndRestart}
-          onRestart={handleRestart}
           onClose={dismissUpdate}
           isDownloading={isDownloading}
           downloadComplete={downloadComplete}
           downloadProgress={downloadProgress}
           downloadError={downloadError}
-          isRestarting={isRestarting}
           onCancelDownload={handleCancelDownload}
         />
       )}

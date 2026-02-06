@@ -214,11 +214,7 @@
   "updates.downloadingProgress": "Update wird heruntergeladen...",
   "updates.cancel": "Abbrechen",
   "updates.downloadCompleteTitle": "Update erfolgreich heruntergeladen!",
-  "updates.downloadCompleteMessage": "Klicken Sie auf 'Server neu starten', um das Update anzuwenden. Ihr Browser wird getrennt und Sie müssen die Seite aktualisieren.",
-  "updates.restartServer": "Server neu starten",
-  "updates.later": "Später",
-  "updates.restartingTitle": "Server wird neu gestartet...",
-  "updates.restartingMessage": "Bitte warten Sie 5-10 Sekunden und aktualisieren Sie dann diese Seite, um die aktualisierte Anwendung zu sehen.",
+  "updates.downloadCompleteMessage": "Update ist bereit. Änderungen werden beim nächsten Serverstart angewendet.",
   "updates.downloadErrorMessage": "Fehler beim Herunterladen des Updates. Bitte versuchen Sie es später erneut.",
   "updates.close": "Schließen",
   "updates.securityNote": "Updates werden nur aus dem offiziellen GitHub-Repository heruntergeladen"

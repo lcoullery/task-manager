@@ -214,11 +214,7 @@
   "updates.downloadingProgress": "Download dell'aggiornamento...",
   "updates.cancel": "Annulla",
   "updates.downloadCompleteTitle": "Aggiornamento scaricato con successo!",
-  "updates.downloadCompleteMessage": "Fai clic su 'Riavvia server' per applicare l'aggiornamento. Il browser si disconnetterà e dovrai aggiornare la pagina.",
-  "updates.restartServer": "Riavvia server",
-  "updates.later": "Più tardi",
-  "updates.restartingTitle": "Il server si sta riavviando...",
-  "updates.restartingMessage": "Attendi 5-10 secondi, quindi aggiorna questa pagina per vedere l'applicazione aggiornata.",
+  "updates.downloadCompleteMessage": "Aggiornamento pronto. Le modifiche verranno applicate al prossimo avvio del server.",
   "updates.downloadErrorMessage": "Impossibile scaricare l'aggiornamento. Riprova più tardi.",
   "updates.close": "Chiudi",
   "updates.securityNote": "Gli aggiornamenti vengono scaricati solo dal repository GitHub ufficiale"
