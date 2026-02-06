@@ -140,8 +140,13 @@ function applyPendingUpdate() {
       throw new Error('Build failed, update rolled back')
     }
 
-    // Step 7: Cleanup
+    // Step 7: Cleanup and mark as completed
     console.log('Cleaning up...')
+
+    // Create completed update marker for the frontend toast
+    const completedUpdatePath = resolve(__dirname, '.update-completed.json')
+    writeFileSync(completedUpdatePath, JSON.stringify({ version, appliedAt: new Date().toISOString() }), 'utf-8')
+
     unlinkSync(pendingUpdatePath)
     rmSync(updatesDir, { recursive: true, force: true })
     rmSync(backupDir, { recursive: true, force: true })
@@ -741,13 +746,14 @@ app.post('/api/update/apply', (req, res) => {
   }
 })
 
-// GET /api/update/status — check if update is pending
+// GET /api/update/status — check if update was just completed
 app.get('/api/update/status', (req, res) => {
   try {
-    const pendingUpdatePath = resolve(__dirname, '.update-pending.json')
-    if (existsSync(pendingUpdatePath)) {
-      const pendingUpdate = JSON.parse(readFileSync(pendingUpdatePath, 'utf-8'))
-      return res.json({ pending: true, ...pendingUpdate })
+    // Check for completed update (shown as toast on frontend)
+    const completedUpdatePath = resolve(__dirname, '.update-completed.json')
+    if (existsSync(completedUpdatePath)) {
+      const completedUpdate = JSON.parse(readFileSync(completedUpdatePath, 'utf-8'))
+      return res.json({ pending: true, ...completedUpdate })
     }
     res.json({ pending: false })
   } catch (err) {
@@ -756,13 +762,13 @@ app.get('/api/update/status', (req, res) => {
   }
 })
 
-// POST /api/update/clear-status — clear pending update flag
+// POST /api/update/clear-status — clear completed update flag
 app.post('/api/update/clear-status', (req, res) => {
   try {
-    const pendingUpdatePath = resolve(__dirname, '.update-pending.json')
-    if (existsSync(pendingUpdatePath)) {
-      unlinkSync(pendingUpdatePath)
-      console.log('Cleared pending update flag')
+    const completedUpdatePath = resolve(__dirname, '.update-completed.json')
+    if (existsSync(completedUpdatePath)) {
+      unlinkSync(completedUpdatePath)
+      console.log('Cleared completed update flag')
     }
     res.json({ success: true })
   } catch (err) {

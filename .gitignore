@@ -19,3 +19,4 @@ CLAUDE.md
 .updates/
 .backup/
 .update-pending.json
+.update-completed.json
