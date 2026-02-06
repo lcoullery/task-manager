@@ -13,6 +13,7 @@ releases/
 
 # Claude AI working directory
 .claude/
+CLAUDE.md
 
 # Update system
 .updates/
