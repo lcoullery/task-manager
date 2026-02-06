@@ -1,10 +1,202 @@
 import express from 'express'
-import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync, rmSync } from 'fs'
-import { dirname, resolve } from 'path'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync, rmSync, readdirSync, cpSync } from 'fs'
+import { dirname, resolve, join } from 'path'
 import { fileURLToPath } from 'url'
 import { execSync } from 'child_process'
+import AdmZip from 'adm-zip'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+// ============================================
+// STARTUP UPDATE APPLICATION
+// ============================================
+// Check for pending updates and apply them before starting the server
+
+function applyPendingUpdate() {
+  const pendingUpdatePath = resolve(__dirname, '.update-pending.json')
+  const updatesDir = resolve(__dirname, '.updates')
+  const backupDir = resolve(__dirname, '.backup')
+
+  // Check if there's a pending update
+  if (!existsSync(pendingUpdatePath)) {
+    return { applied: false }
+  }
+
+  console.log('Found pending update, applying...')
+
+  let pendingUpdate
+  try {
+    pendingUpdate = JSON.parse(readFileSync(pendingUpdatePath, 'utf-8'))
+  } catch (err) {
+    console.error('Failed to read pending update info:', err.message)
+    unlinkSync(pendingUpdatePath)
+    return { applied: false, error: 'Failed to read pending update info' }
+  }
+
+  const { version, zipPath } = pendingUpdate
+
+  // Verify zip file exists
+  if (!zipPath || !existsSync(zipPath)) {
+    console.error('Update zip file not found:', zipPath)
+    unlinkSync(pendingUpdatePath)
+    return { applied: false, error: 'Update zip file not found' }
+  }
+
+  console.log(`Applying update to version ${version}...`)
+
+  // Files/directories to preserve (not overwrite)
+  const preserveList = ['data', 'config.json', 'node_modules', '.updates', '.backup', '.update-pending.json', '.git', '.gitignore']
+
+  // Files/directories to update
+  const updateList = ['server.js', 'package.json', 'package-lock.json', 'src', 'dist', 'public', 'index.html', 'vite.config.js', 'tailwind.config.js', 'postcss.config.js', 'locales']
+
+  try {
+    // Step 1: Create backup
+    console.log('Creating backup...')
+    if (existsSync(backupDir)) {
+      rmSync(backupDir, { recursive: true, force: true })
+    }
+    mkdirSync(backupDir, { recursive: true })
+
+    // Backup files that will be updated
+    for (const item of updateList) {
+      const itemPath = resolve(__dirname, item)
+      const backupPath = resolve(backupDir, item)
+      if (existsSync(itemPath)) {
+        cpSync(itemPath, backupPath, { recursive: true })
+      }
+    }
+    console.log('Backup created successfully')
+
+    // Step 2: Extract zip
+    console.log('Extracting update...')
+    const extractDir = resolve(updatesDir, 'extracted')
+    if (existsSync(extractDir)) {
+      rmSync(extractDir, { recursive: true, force: true })
+    }
+    mkdirSync(extractDir, { recursive: true })
+
+    const zip = new AdmZip(zipPath)
+    zip.extractAllTo(extractDir, true)
+
+    // Step 3: Find the root directory inside the extracted zip
+    // GitHub zips have a nested structure like: lcoullery-task-manager-abc123/
+    const extractedContents = readdirSync(extractDir)
+    let sourceDir = extractDir
+
+    if (extractedContents.length === 1) {
+      const potentialRoot = resolve(extractDir, extractedContents[0])
+      // Check if it's a directory containing project files
+      if (existsSync(resolve(potentialRoot, 'package.json')) || existsSync(resolve(potentialRoot, 'server.js'))) {
+        sourceDir = potentialRoot
+      }
+    }
+
+    console.log('Update extracted, copying files...')
+
+    // Step 4: Copy updated files to project root
+    const sourceContents = readdirSync(sourceDir)
+    for (const item of sourceContents) {
+      // Skip preserved items
+      if (preserveList.includes(item)) {
+        continue
+      }
+
+      const sourcePath = resolve(sourceDir, item)
+      const destPath = resolve(__dirname, item)
+
+      // Remove existing file/directory
+      if (existsSync(destPath)) {
+        rmSync(destPath, { recursive: true, force: true })
+      }
+
+      // Copy new file/directory
+      cpSync(sourcePath, destPath, { recursive: true })
+    }
+
+    console.log('Files updated successfully')
+
+    // Step 5: Run npm install if package.json was updated
+    if (existsSync(resolve(sourceDir, 'package.json'))) {
+      console.log('Running npm install...')
+      try {
+        execSync('npm install', { cwd: __dirname, stdio: 'inherit' })
+        console.log('npm install completed')
+      } catch (err) {
+        console.error('npm install failed, but continuing with update...')
+      }
+    }
+
+    // Step 6: Run build if needed
+    console.log('Running build...')
+    try {
+      execSync('npm run build', { cwd: __dirname, stdio: 'inherit' })
+      console.log('Build completed')
+    } catch (err) {
+      console.error('Build failed:', err.message)
+      // Rollback
+      console.log('Rolling back update...')
+      rollbackUpdate(backupDir, updateList)
+      throw new Error('Build failed, update rolled back')
+    }
+
+    // Step 7: Cleanup
+    console.log('Cleaning up...')
+    unlinkSync(pendingUpdatePath)
+    rmSync(updatesDir, { recursive: true, force: true })
+    rmSync(backupDir, { recursive: true, force: true })
+
+    console.log(`Update to version ${version} applied successfully!`)
+    return { applied: true, version }
+
+  } catch (err) {
+    console.error('Update failed:', err.message)
+
+    // Attempt rollback
+    if (existsSync(backupDir)) {
+      console.log('Attempting rollback...')
+      rollbackUpdate(backupDir, updateList)
+    }
+
+    // Cleanup pending update flag
+    if (existsSync(pendingUpdatePath)) {
+      unlinkSync(pendingUpdatePath)
+    }
+
+    return { applied: false, error: err.message }
+  }
+}
+
+function rollbackUpdate(backupDir, updateList) {
+  try {
+    for (const item of updateList) {
+      const backupPath = resolve(backupDir, item)
+      const destPath = resolve(__dirname, item)
+
+      if (existsSync(backupPath)) {
+        // Remove failed update file
+        if (existsSync(destPath)) {
+          rmSync(destPath, { recursive: true, force: true })
+        }
+        // Restore backup
+        cpSync(backupPath, destPath, { recursive: true })
+      }
+    }
+    console.log('Rollback completed')
+  } catch (err) {
+    console.error('Rollback failed:', err.message)
+  }
+}
+
+// Apply pending update at startup
+const updateResult = applyPendingUpdate()
+if (updateResult.applied) {
+  console.log(`Server starting with newly applied update to version ${updateResult.version}`)
+}
+
+// ============================================
+// END STARTUP UPDATE APPLICATION
+// ============================================
 
 const CONFIG_PATH = resolve(__dirname, 'config.json')
 const DEFAULT_DATA_PATH = './data/tasks.json'
