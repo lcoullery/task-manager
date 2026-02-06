@@ -408,7 +408,7 @@ app.get('/api/update/check', async (req, res) => {
       currentVersion,
       latestVersion,
       hasUpdate,
-      downloadUrl: (release.assets.find(a => a.name.endsWith('.zip')) || release.assets.find(a => a.name.endsWith('.tar.gz')))?.browser_download_url,
+      downloadUrl: (release.assets.find(a => a.name.includes('.zip')) || release.assets.find(a => a.name.includes('.tar.gz')))?.browser_download_url || release.zipball_url,
       commitSha: release.target_commitish,
       releaseNotes: release.body || '',
       releaseName: release.name || `v${latestVersion}`,
@@ -453,7 +453,7 @@ app.post('/api/update/download', async (req, res) => {
     }
 
     // Security check: verify URL is from official GitHub
-    if (!downloadUrl.includes('github.com/lcoullery/task-manager')) {
+    if (!downloadUrl.includes('lcoullery/task-manager')) {
       return res.status(400).json({ error: 'Download URL must be from official repository' })
     }
 
