@@ -44,17 +44,17 @@ This app has **two parts**: a **frontend** (Vite/React) and a **backend** (Expre
 3. Wait ~1 minute for installation and build to complete
 
 **Launching the App:**
-- **Windows**: Double-click **`start.bat`**
-- **Mac/Linux**: Double-click **`start.sh`** (or run `./start.sh`)
+- **Windows**: Double-click **`TaskManager.bat`**
+- **Mac/Linux**: Double-click **`TaskManager.sh`** (or run `./TaskManager.sh`)
 - Browser opens automatically at `http://localhost:4173`
 - **To stop**: Close the console window or press `Ctrl+C`
 
 **After Pulling Updates:**
 - **Windows**: Run **`setup.bat`** to rebuild
 - **Mac/Linux**: Run **`./setup.sh`** to rebuild
-- Then launch with `start.bat`/`start.sh` as usual
+- Then launch with `TaskManager.bat`/`TaskManager.sh` as usual
 
-**Note:** The `start.bat`/`start.sh` scripts are smart enough to auto-detect first-time setup if you forget to run setup, but for clarity we recommend the explicit setup step first.
+**Note:** The `TaskManager.bat`/`TaskManager.sh` scripts are smart enough to auto-detect first-time setup if you forget to run setup, but for clarity we recommend the explicit setup step first.
 
 #### 🚀 Quick Start (Single Command)
 
@@ -106,7 +106,7 @@ Then open **http://localhost:4173** in your browser.
 
 **For Coworkers:**
 - **First time:** Run `setup.bat`/`setup.sh` to install and build
-- **Then:** Double-click `start.bat` (Windows) or `start.sh` (Mac/Linux) to launch!
+- **Then:** Double-click `TaskManager.bat` (Windows) or `TaskManager.sh` (Mac/Linux) to launch!
 
 ## Features
 

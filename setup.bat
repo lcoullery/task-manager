@@ -39,7 +39,7 @@ call npm run build
 echo.
 echo ========================================
 echo   Setup complete!
-echo   Run start.bat to launch the app
+echo   Run TaskManager.bat to launch the app
 echo ========================================
 echo.
 pause

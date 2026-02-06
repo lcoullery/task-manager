@@ -2,6 +2,12 @@
 cd /d "%~dp0"
 REM Task Manager - Quick Launcher
 
+REM Kill any existing server on port 4173
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":4173" ^| findstr "LISTENING"') do (
+    echo Stopping existing server...
+    taskkill /F /PID %%a >nul 2>&1
+)
+
 REM Check if Node.js is installed
 where node >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
@@ -11,7 +17,7 @@ if %ERRORLEVEL% NEQ 0 (
     echo   1. Visit: https://nodejs.org/
     echo   2. Download the LTS version for Windows
     echo   3. Run the installer
-    echo   4. Restart this terminal and run start.bat again
+    echo   4. Restart this terminal and run TaskManager.bat again
     echo.
     echo After installing, verify with: node --version
     echo.

@@ -81,6 +81,17 @@ rollback() {
     rm -rf ".updates"
 }
 
+# Kill any existing server on port 4173
+if command -v lsof &> /dev/null; then
+    PID=$(lsof -ti:4173 2>/dev/null)
+    if [ -n "$PID" ]; then
+        echo "Stopping existing server..."
+        kill -9 $PID 2>/dev/null
+    fi
+elif command -v fuser &> /dev/null; then
+    fuser -k 4173/tcp 2>/dev/null && echo "Stopping existing server..."
+fi
+
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
     echo "ERROR: Node.js is not installed!"

@@ -42,6 +42,6 @@ npm run build
 echo ""
 echo "========================================"
 echo "  Setup complete!"
-echo "  Run ./start.sh to launch the app"
+echo "  Run ./TaskManager.sh to launch the app"
 echo "========================================"
 echo ""
