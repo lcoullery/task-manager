@@ -10,8 +10,7 @@ export function CommentList({ taskId, comments = [] }) {
   const [text, setText] = useState('')
   const [authorId, setAuthorId] = useState(profiles[0]?.id || '')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     if (text.trim() && authorId) {
       addComment(taskId, text.trim(), authorId)
       setText('')
@@ -64,7 +63,7 @@ export function CommentList({ taskId, comments = [] }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-2">
+      <div className="space-y-2">
         {profiles.length > 1 && (
           <select
             value={authorId}
@@ -84,19 +83,26 @@ export function CommentList({ taskId, comments = [] }) {
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                handleSubmit()
+              }
+            }}
             placeholder={profiles.length === 0 ? t('comments.createProfileToComment') : t('comments.addComment')}
             className="input flex-1"
             disabled={profiles.length === 0}
           />
           <button
-            type="submit"
+            type="button"
+            onClick={handleSubmit}
             disabled={!text.trim() || !authorId}
             className="btn btn-primary px-3"
           >
             <Send className="w-4 h-4" />
           </button>
         </div>
-      </form>
+      </div>
     </div>
   )
 }
