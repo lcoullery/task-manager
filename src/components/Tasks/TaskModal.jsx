@@ -8,10 +8,13 @@ import { CommentList } from './CommentList'
 import { Button } from '../common/Button'
 
 export function TaskModal({ isOpen, onClose, task }) {
-  const { updateTask, deleteTask, archiveTask, unarchiveTask } = useApp()
+  const { tasks, updateTask, deleteTask, archiveTask, unarchiveTask } = useApp()
   const { t } = useTranslation()
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const taskFormRef = useRef()
+
+  // Get fresh task data from context to reflect real-time updates (e.g., comments)
+  const currentTask = tasks.find(t => t.id === task?.id) || task
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -22,26 +25,26 @@ export function TaskModal({ isOpen, onClose, task }) {
   }
 
   const handleTaskUpdate = (data) => {
-    if (task) {
-      updateTask(task.id, data)
+    if (currentTask) {
+      updateTask(currentTask.id, data)
     }
     onClose()
   }
 
   const handleDelete = () => {
-    deleteTask(task.id)
+    deleteTask(currentTask.id)
     onClose()
   }
 
   const handleArchiveToggle = () => {
-    if (task.archived) {
-      unarchiveTask(task.id)
+    if (currentTask.archived) {
+      unarchiveTask(currentTask.id)
     } else {
-      archiveTask(task.id)
+      archiveTask(currentTask.id)
     }
   }
 
-  if (!task) return null
+  if (!currentTask) return null
 
   return (
     <>
@@ -50,7 +53,7 @@ export function TaskModal({ isOpen, onClose, task }) {
           {/* Form fields only - no buttons */}
           <TaskForm
             ref={taskFormRef}
-            task={task}
+            task={currentTask}
             onSubmit={handleTaskUpdate}
             onCancel={onClose}
             hideButtons={true}
@@ -58,7 +61,7 @@ export function TaskModal({ isOpen, onClose, task }) {
 
           {/* Comment section above buttons */}
           <hr className="border-gray-200 dark:border-gray-700" />
-          <CommentList taskId={task.id} comments={task.comments} />
+          <CommentList taskId={currentTask.id} comments={currentTask.comments} />
           <hr className="border-gray-200 dark:border-gray-700" />
 
           {/* All action buttons at the bottom */}
@@ -69,7 +72,7 @@ export function TaskModal({ isOpen, onClose, task }) {
                 onClick={handleArchiveToggle}
                 type="button"
               >
-                {task.archived ? (
+                {currentTask.archived ? (
                   <>
                     <ArchiveRestore className="w-4 h-4" />
                     {t('taskModal.unarchive')}
@@ -107,7 +110,7 @@ export function TaskModal({ isOpen, onClose, task }) {
         onClose={() => setDeleteConfirm(false)}
         onConfirm={handleDelete}
         title={t('taskModal.deleteTitle')}
-        message={t('taskModal.deleteMessage', { title: task.title })}
+        message={t('taskModal.deleteMessage', { title: currentTask.title })}
       />
     </>
   )
