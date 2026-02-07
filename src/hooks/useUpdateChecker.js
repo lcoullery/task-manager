@@ -11,8 +11,16 @@ export function useUpdateChecker(enabled) {
   const eventSourceRef = useRef(null)
   const abortControllerRef = useRef(null)
 
+  // Detect if running in Electron
+  const isElectron = typeof window !== 'undefined' && window.electronAPI
+
   // Check for updates from GitHub API
   const checkForUpdates = useCallback(async () => {
+    // Skip update checks in Electron - updates are handled by electron-updater
+    if (isElectron) {
+      console.log('[Update] Running in Electron, skipping manual update check')
+      return
+    }
     try {
       setIsChecking(true)
       setError(null)

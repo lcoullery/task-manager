@@ -203,10 +203,17 @@ if (updateResult.applied) {
 // END STARTUP UPDATE APPLICATION
 // ============================================
 
-const CONFIG_PATH = resolve(__dirname, 'config.json')
+// Use DATA_DIR env variable when running in Electron, otherwise use __dirname
+const BASE_DIR = process.env.DATA_DIR || __dirname
+const CONFIG_PATH = resolve(BASE_DIR, 'config.json')
 const DEFAULT_DATA_PATH = './data/tasks.json'
 const DEFAULT_BUG_REPORT_PATH = './data/bugReports.json'
 const PORT = parseInt(process.env.PORT, 10) || 4173
+
+// Log data directory location for debugging
+if (process.env.DATA_DIR) {
+  console.log(`[server] Using data directory: ${BASE_DIR}`)
+}
 
 // Read config from disk
 function readConfig() {
@@ -221,7 +228,7 @@ function readConfig() {
       }
 
       // Ensure ./data directory exists
-      const dataDir = resolve(__dirname, 'data')
+      const dataDir = resolve(BASE_DIR, 'data')
       if (!existsSync(dataDir)) {
         mkdirSync(dataDir, { recursive: true })
       }
@@ -288,14 +295,14 @@ function resolveDataPath() {
     return filePath
   }
 
-  // Otherwise resolve relative to project root
-  return resolve(__dirname, filePath)
+  // Otherwise resolve relative to data directory
+  return resolve(BASE_DIR, filePath)
 }
 
 // Resolve bug report file path (same logic as resolveDataPath)
 function resolveBugReportPath(configPath) {
   if (!configPath) {
-    return resolve(__dirname, 'data', 'bugReports.json')
+    return resolve(BASE_DIR, 'data', 'bugReports.json')
   }
 
   let filePath = configPath.trim()
@@ -308,8 +315,8 @@ function resolveBugReportPath(configPath) {
     return filePath
   }
 
-  // Otherwise resolve relative to project root
-  return resolve(__dirname, filePath)
+  // Otherwise resolve relative to data directory
+  return resolve(BASE_DIR, filePath)
 }
 
 // Ensure directory exists for a file path
@@ -441,7 +448,7 @@ app.post('/api/config', (req, res) => {
     if (filePath.startsWith('/') || /^[A-Za-z]:\//.test(filePath)) {
       resolved = filePath
     } else {
-      resolved = resolve(__dirname, filePath)
+      resolved = resolve(BASE_DIR, filePath)
     }
 
     // Log the resolved path for debugging

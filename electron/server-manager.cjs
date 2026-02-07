@@ -7,12 +7,16 @@ let serverProcess = null
  * Start the Express server as a child process on the given port.
  * Returns a promise that resolves when the server is ready.
  */
-function startServer(port) {
+function startServer(port, dataDir) {
   return new Promise((resolve, reject) => {
     const serverPath = path.join(__dirname, '..', 'server.js')
 
     serverProcess = fork(serverPath, [], {
-      env: { ...process.env, PORT: String(port) },
+      env: {
+        ...process.env,
+        PORT: String(port),
+        DATA_DIR: dataDir || '',
+      },
       cwd: path.join(__dirname, '..'),
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
