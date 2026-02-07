@@ -35,8 +35,8 @@ export function useUpdateChecker(enabled) {
       if (data.hasUpdate) {
         setUpdateInfo(data)
       } else {
-        // Clear update info when no updates or no releases available
-        setUpdateInfo(null)
+        // Set updateInfo with hasUpdate: false to trigger "up to date" message
+        setUpdateInfo({ hasUpdate: false, currentVersion: data.currentVersion, latestVersion: data.latestVersion })
       }
     } catch (err) {
       console.error('Update check error:', err.message)
