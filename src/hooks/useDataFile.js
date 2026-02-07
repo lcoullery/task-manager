@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { loadData, saveData, exportData, importData, DEFAULT_DATA, loadDataFromServer } from '../utils/storage'
+import { loadData, saveData, loadDataFromServer } from '../utils/storage'
 
 export function useDataFile() {
   const [data, setData] = useState(() => loadData())
@@ -45,36 +45,6 @@ export function useDataFile() {
     }
   }, [])
 
-  // Export data to file
-  const exportToFile = useCallback(() => {
-    exportData(data)
-  }, [data])
-
-  // Import data from file
-  const importFromFile = useCallback(async (file) => {
-    setLoading(true)
-    try {
-      const importedData = await importData(file)
-      setData(importedData)
-      saveData(importedData)
-      setLastSaved(new Date())
-      setError(null)
-      return true
-    } catch (err) {
-      setError(`Failed to import: ${err.message}`)
-      return false
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  // Reset to default data
-  const reset = useCallback(() => {
-    setData(DEFAULT_DATA)
-    saveData(DEFAULT_DATA)
-    setLastSaved(new Date())
-  }, [])
-
   return {
     data,
     loading,
@@ -83,8 +53,5 @@ export function useDataFile() {
     save,
     updateData,
     reload,
-    exportToFile,
-    importFromFile,
-    reset,
   }
 }

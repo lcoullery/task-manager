@@ -14,9 +14,6 @@ export function AppProvider({ children }) {
     lastSaved,
     updateData,
     reload,
-    exportToFile,
-    importFromFile,
-    reset,
   } = useDataFile()
 
   // Auto refresh based on settings
@@ -292,9 +289,6 @@ export function AppProvider({ children }) {
 
     // Data management
     reload,
-    exportToFile,
-    importFromFile,
-    reset,
 
     // Profiles
     profiles,

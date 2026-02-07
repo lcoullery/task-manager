@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Moon, Sun, Download, Upload, RefreshCw, RotateCcw } from 'lucide-react'
+import { Moon, Sun, RefreshCw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext'
 import { useApp } from '../context/AppContext'
@@ -8,7 +8,6 @@ import { ColumnEditor } from '../components/Kanban/ColumnEditor'
 import { LabelManager } from '../components/Labels/LabelManager'
 import { Button } from '../components/common/Button'
 import { Input } from '../components/common/Input'
-import { ConfirmModal } from '../components/common/Modal'
 import { loadConfig, saveConfig } from '../utils/storage'
 
 const LANGUAGES = [
@@ -20,11 +19,8 @@ const LANGUAGES = [
 
 export function Settings() {
   const { theme, setTheme } = useTheme()
-  const { settings, updateSettings, exportToFile, importFromFile, reset, reload } = useApp()
+  const { settings, updateSettings, reload } = useApp()
   const { t, i18n } = useTranslation()
-  const [resetConfirm, setResetConfirm] = useState(false)
-  const [importStatus, setImportStatus] = useState(null)
-  const fileInputRef = useRef(null)
   const [dataFilePath, setDataFilePath] = useState('')
   const [filePathStatus, setFilePathStatus] = useState(null)
   const [bugReportFilePath, setBugReportFilePath] = useState('')
@@ -85,18 +81,6 @@ export function Settings() {
       console.error('Failed to save bug report path:', err)
       setBugReportFilePathStatus('error')
       setTimeout(() => setBugReportFilePathStatus(null), 3000)
-    }
-  }
-
-  const handleImport = async (e) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const success = await importFromFile(file)
-      setImportStatus(success ? 'success' : 'error')
-      setTimeout(() => setImportStatus(null), 3000)
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
     }
   }
 
@@ -352,58 +336,6 @@ export function Settings() {
         <LabelManager />
       </section>
 
-      {/* Data Management */}
-      <section className="card p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {t('settings.dataManagement')}
-        </h2>
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t('settings.dataManagementDesc')}
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={exportToFile} variant="secondary" icon={Download}>
-              {t('settings.exportData')}
-            </Button>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              onChange={handleImport}
-              className="hidden"
-            />
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              variant="secondary"
-              icon={Upload}
-            >
-              {t('settings.importData')}
-            </Button>
-
-            <Button
-              onClick={() => setResetConfirm(true)}
-              variant="danger"
-              icon={RotateCcw}
-            >
-              {t('settings.resetAllData')}
-            </Button>
-          </div>
-
-          {importStatus === 'success' && (
-            <p className="text-sm text-green-600 dark:text-green-400">
-              {t('settings.importSuccess')}
-            </p>
-          )}
-          {importStatus === 'error' && (
-            <p className="text-sm text-red-600 dark:text-red-400">
-              {t('settings.importError')}
-            </p>
-          )}
-        </div>
-      </section>
-
       {/* Data File Path */}
       <section className="card p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -553,14 +485,6 @@ export function Settings() {
           </div>
         </div>
       </section>
-
-      <ConfirmModal
-        isOpen={resetConfirm}
-        onClose={() => setResetConfirm(false)}
-        onConfirm={reset}
-        title={t('settings.resetTitle')}
-        message={t('settings.resetMessage')}
-      />
     </div>
   )
 }
