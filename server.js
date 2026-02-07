@@ -206,7 +206,7 @@ if (updateResult.applied) {
 const CONFIG_PATH = resolve(__dirname, 'config.json')
 const DEFAULT_DATA_PATH = './data/tasks.json'
 const DEFAULT_BUG_REPORT_PATH = './data/bugReports.json'
-const PORT = 4173
+const PORT = parseInt(process.env.PORT, 10) || 4173
 
 // Read config from disk
 function readConfig() {
