@@ -1,7 +1,16 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
+const fs = require('fs')
 const { findAvailablePort } = require('./utils/port-finder.cjs')
 const { startServer, stopServer } = require('./server-manager.cjs')
+
+// Log to file in packaged app for debugging
+const logFile = path.join(app.getPath('userData'), 'electron-log.txt')
+function log(msg) {
+  const line = `[${new Date().toISOString()}] ${msg}\n`
+  console.log(msg)
+  fs.appendFileSync(logFile, line)
+}
 
 let mainWindow
 let serverPort = null
@@ -19,7 +28,7 @@ function createWindow(port) {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    icon: path.join(__dirname, '../build-resources/icons/icon.png'),
+    // icon: path.join(__dirname, '../build-resources/icons/icon.png'),
   })
 
   mainWindow.loadURL(`http://localhost:${port}`)
@@ -38,13 +47,17 @@ ipcMain.handle('get-port', () => serverPort)
 
 app.whenReady().then(async () => {
   try {
+    log(`[electron] App path: ${app.getAppPath()}`)
+    log(`[electron] User data: ${app.getPath('userData')}`)
+    log(`[electron] Is packaged: ${app.isPackaged}`)
+
     // Find an available port
     serverPort = await findAvailablePort(4173)
-    console.log(`[electron] Using port ${serverPort}`)
+    log(`[electron] Using port ${serverPort}`)
 
     // Start the Express server
     await startServer(serverPort)
-    console.log(`[electron] Server started on port ${serverPort}`)
+    log(`[electron] Server started on port ${serverPort}`)
 
     // Create the window
     createWindow(serverPort)
@@ -55,7 +68,8 @@ app.whenReady().then(async () => {
       }
     })
   } catch (err) {
-    console.error('[electron] Failed to start:', err.message)
+    log(`[electron] Failed to start: ${err.message}\n${err.stack}`)
+    dialog.showErrorBox('Task Manager - Startup Error', err.message)
     app.quit()
   }
 })
