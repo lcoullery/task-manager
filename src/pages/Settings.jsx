@@ -98,7 +98,8 @@ export function Settings() {
   useEffect(() => {
     if (updateInfo?.hasUpdate) {
       setCheckStatus('updateAvailable')
-    } else if (updateInfo !== null && !updateInfo.hasUpdate) {
+    } else if (!isChecking && checkStatus === 'checking' && updateInfo === null) {
+      // Check just completed with no update available
       setCheckStatus('upToDate')
       // Trigger toast notification in main app
       window.dispatchEvent(new CustomEvent('show-update-toast', {
@@ -108,8 +109,6 @@ export function Settings() {
           duration: 3000
         }
       }))
-    } else if (!isChecking && checkStatus === 'checking') {
-      setCheckStatus(null)
     }
   }, [updateInfo, isChecking, checkStatus, t, currentVersion])
 
