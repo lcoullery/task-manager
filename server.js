@@ -4,6 +4,15 @@ import { dirname, resolve, join } from 'path'
 import { fileURLToPath } from 'url'
 import { execSync } from 'child_process'
 import AdmZip from 'adm-zip'
+import dotenv from 'dotenv'
+import helmet from 'helmet'
+import cors from 'cors'
+import rateLimit from 'express-rate-limit'
+import { createAuthMiddleware } from './middleware/auth.js'
+import logger from './utils/logger.js'
+
+// Load environment variables from .env file
+dotenv.config()
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -22,13 +31,13 @@ function applyPendingUpdate() {
     return { applied: false }
   }
 
-  console.log('Found pending update, applying...')
+  logger.info('Found pending update, applying...')
 
   let pendingUpdate
   try {
     pendingUpdate = JSON.parse(readFileSync(pendingUpdatePath, 'utf-8'))
   } catch (err) {
-    console.error('Failed to read pending update info:', err.message)
+    logger.error('Failed to read pending update info:', err.message)
     unlinkSync(pendingUpdatePath)
     return { applied: false, error: 'Failed to read pending update info' }
   }
@@ -37,12 +46,12 @@ function applyPendingUpdate() {
 
   // Verify zip file exists
   if (!zipPath || !existsSync(zipPath)) {
-    console.error('Update zip file not found:', zipPath)
+    logger.error('Update zip file not found:', zipPath)
     unlinkSync(pendingUpdatePath)
     return { applied: false, error: 'Update zip file not found' }
   }
 
-  console.log(`Applying update to version ${version}...`)
+  logger.info(`Applying update to version ${version}...`)
 
   // Files/directories to preserve (not overwrite)
   const preserveList = ['data', 'config.json', 'node_modules', '.updates', '.backup', '.update-pending.json', '.git', '.gitignore']
@@ -52,7 +61,7 @@ function applyPendingUpdate() {
 
   try {
     // Step 1: Create backup
-    console.log('Creating backup...')
+    logger.info('Creating backup...')
     if (existsSync(backupDir)) {
       rmSync(backupDir, { recursive: true, force: true })
     }
@@ -66,10 +75,10 @@ function applyPendingUpdate() {
         cpSync(itemPath, backupPath, { recursive: true })
       }
     }
-    console.log('Backup created successfully')
+    logger.info('Backup created successfully')
 
     // Step 2: Extract zip
-    console.log('Extracting update...')
+    logger.info('Extracting update...')
     const extractDir = resolve(updatesDir, 'extracted')
     if (existsSync(extractDir)) {
       rmSync(extractDir, { recursive: true, force: true })
@@ -92,7 +101,7 @@ function applyPendingUpdate() {
       }
     }
 
-    console.log('Update extracted, copying files...')
+    logger.info('Update extracted, copying files...')
 
     // Step 4: Copy updated files to project root
     const sourceContents = readdirSync(sourceDir)
@@ -114,34 +123,34 @@ function applyPendingUpdate() {
       cpSync(sourcePath, destPath, { recursive: true })
     }
 
-    console.log('Files updated successfully')
+    logger.info('Files updated successfully')
 
     // Step 5: Run npm install if package.json was updated
     if (existsSync(resolve(sourceDir, 'package.json'))) {
-      console.log('Running npm install...')
+      logger.info('Running npm install...')
       try {
         execSync('npm install', { cwd: __dirname, stdio: 'inherit' })
-        console.log('npm install completed')
+        logger.info('npm install completed')
       } catch (err) {
-        console.error('npm install failed, but continuing with update...')
+        logger.error('npm install failed, but continuing with update...')
       }
     }
 
     // Step 6: Run build if needed
-    console.log('Running build...')
+    logger.info('Running build...')
     try {
       execSync('npm run build', { cwd: __dirname, stdio: 'inherit' })
-      console.log('Build completed')
+      logger.info('Build completed')
     } catch (err) {
-      console.error('Build failed:', err.message)
+      logger.error('Build failed:', err.message)
       // Rollback
-      console.log('Rolling back update...')
+      logger.info('Rolling back update...')
       rollbackUpdate(backupDir, updateList)
       throw new Error('Build failed, update rolled back')
     }
 
     // Step 7: Cleanup and mark as completed
-    console.log('Cleaning up...')
+    logger.info('Cleaning up...')
 
     // Create completed update marker for the frontend toast
     const completedUpdatePath = resolve(__dirname, '.update-completed.json')
@@ -151,15 +160,15 @@ function applyPendingUpdate() {
     rmSync(updatesDir, { recursive: true, force: true })
     rmSync(backupDir, { recursive: true, force: true })
 
-    console.log(`Update to version ${version} applied successfully!`)
+    logger.info(`Update to version ${version} applied successfully!`)
     return { applied: true, version }
 
   } catch (err) {
-    console.error('Update failed:', err.message)
+    logger.error('Update failed:', err.message)
 
     // Attempt rollback
     if (existsSync(backupDir)) {
-      console.log('Attempting rollback...')
+      logger.info('Attempting rollback...')
       rollbackUpdate(backupDir, updateList)
     }
 
@@ -187,26 +196,30 @@ function rollbackUpdate(backupDir, updateList) {
         cpSync(backupPath, destPath, { recursive: true })
       }
     }
-    console.log('Rollback completed')
+    logger.info('Rollback completed')
   } catch (err) {
-    console.error('Rollback failed:', err.message)
+    logger.error('Rollback failed:', err.message)
   }
 }
 
 // Apply pending update at startup
 const updateResult = applyPendingUpdate()
 if (updateResult.applied) {
-  console.log(`Server starting with newly applied update to version ${updateResult.version}`)
+  logger.info(`Server starting with newly applied update to version ${updateResult.version}`)
 }
 
 // ============================================
 // END STARTUP UPDATE APPLICATION
 // ============================================
 
+// Environment variables
+const NODE_ENV = process.env.NODE_ENV || 'development'
+const PORT = parseInt(process.env.PORT || '4173', 10)
+const HOST = process.env.HOST || '0.0.0.0'
+
 const CONFIG_PATH = resolve(__dirname, 'config.json')
 const DEFAULT_DATA_PATH = './data/tasks.json'
 const DEFAULT_BUG_REPORT_PATH = './data/bugReports.json'
-const PORT = 4173
 
 // Read config from disk
 function readConfig() {
@@ -228,12 +241,12 @@ function readConfig() {
 
       // Create config.json
       writeFileSync(CONFIG_PATH, JSON.stringify(defaultConfig, null, 2), 'utf-8')
-      console.log('Created config.json with default paths')
+      logger.info('Created config.json with default paths')
 
       return defaultConfig
     }
   } catch (err) {
-    console.error('Error reading config.json:', err.message)
+    logger.error('Error reading config.json:', err.message)
   }
   return { dataFilePath: DEFAULT_DATA_PATH }
 }
@@ -351,6 +364,35 @@ const DEFAULT_DATA = {
 const app = express()
 app.use(express.json({ limit: '10mb' }))
 
+// --- Security middleware ---
+app.use(helmet())
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true,
+}))
+const apiLimiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
+  message: { error: 'Too many requests, please try again later.' },
+})
+app.use('/api', apiLimiter)
+
+// --- Health check (public, no auth required) ---
+app.get('/api/health', (req, res) => {
+  const dataFileExists = existsSync(resolveDataPath())
+  res.status(dataFileExists ? 200 : 503).json({
+    status: dataFileExists ? 'healthy' : 'unhealthy',
+    uptime: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+    environment: NODE_ENV,
+    dataFileExists,
+  })
+})
+
+// --- Authentication middleware ---
+const auth = createAuthMiddleware()
+app.use('/api', auth)
+
 // --- API routes ---
 
 // GET /api/data — read JSON data file
@@ -365,7 +407,7 @@ app.get('/api/data', (req, res) => {
     const data = JSON.parse(raw)
     res.json(data)
   } catch (err) {
-    console.error('Error reading data file:', err.message)
+    logger.error('Error reading data file:', err.message)
     res.status(500).json({ error: 'Failed to read data file' })
   }
 })
@@ -378,7 +420,7 @@ app.post('/api/data', (req, res) => {
     writeFileSync(filePath, JSON.stringify(req.body, null, 2), 'utf-8')
     res.json({ ok: true })
   } catch (err) {
-    console.error('Error writing data file:', err.message)
+    logger.error('Error writing data file:', err.message)
     res.status(500).json({ error: 'Failed to write data file' })
   }
 })
@@ -445,16 +487,16 @@ app.post('/api/config', (req, res) => {
     }
 
     // Log the resolved path for debugging
-    console.log(`Saving to path: ${resolved}`)
+    logger.info(`Saving to path: ${resolved}`)
 
     try {
       if (!existsSync(resolved)) {
         ensureDir(resolved)
         writeFileSync(resolved, JSON.stringify(DEFAULT_DATA, null, 2), 'utf-8')
-        console.log(`Created new data file at: ${resolved}`)
+        logger.info(`Created new data file at: ${resolved}`)
       }
     } catch (fileErr) {
-      console.error('Error creating data file:', fileErr)
+      logger.error('Error creating data file:', fileErr)
       return res.status(500).json({
         error: `Failed to create file: ${fileErr.message}`,
         details: `Path: ${resolved}, Code: ${fileErr.code}`
@@ -463,7 +505,7 @@ app.post('/api/config', (req, res) => {
 
     res.json({ ok: true, path: resolved })
   } catch (err) {
-    console.error('Error writing config:', err)
+    logger.error('Error writing config:', err)
     res.status(500).json({
       error: `Failed to save config: ${err.message}`
     })
@@ -488,7 +530,7 @@ app.get('/api/bug-reports', (req, res) => {
     const data = JSON.parse(readFileSync(bugReportPath, 'utf-8'))
     res.json(data)
   } catch (err) {
-    console.error('Error reading bug reports:', err.message)
+    logger.error('Error reading bug reports:', err.message)
     res.status(500).json({ error: 'Failed to read bug reports' })
   }
 })
@@ -523,7 +565,7 @@ app.post('/api/bug-reports', (req, res) => {
 
     res.json({ success: true })
   } catch (err) {
-    console.error('Error saving bug report:', err.message)
+    logger.error('Error saving bug report:', err.message)
     res.status(500).json({ error: 'Failed to save bug report' })
   }
 })
@@ -611,7 +653,7 @@ app.get('/api/update/check', async (req, res) => {
       releaseName: release.name || `v${latestVersion}`,
     })
   } catch (err) {
-    console.error('Error checking for updates:', err.message)
+    logger.error('Error checking for updates:', err.message)
     res.status(500).json({ error: `Server error: ${err.message}` })
   }
 })
@@ -725,7 +767,7 @@ app.post('/api/update/download', async (req, res) => {
     // Clean up progress tracking after 5 seconds
     setTimeout(() => downloadProgress.delete(version), 5000)
   } catch (err) {
-    console.error('Error downloading update:', err.message)
+    logger.error('Error downloading update:', err.message)
     res.status(500).json({ error: 'Failed to download update' })
   }
 })
@@ -737,11 +779,11 @@ app.post('/api/update/apply', (req, res) => {
 
     // Graceful shutdown with 1 second delay to allow response to complete
     setTimeout(() => {
-      console.log('Shutting down for update...')
+      logger.info('Shutting down for update...')
       process.exit(0)
     }, 1000)
   } catch (err) {
-    console.error('Error applying update:', err.message)
+    logger.error('Error applying update:', err.message)
     res.status(500).json({ error: 'Failed to apply update' })
   }
 })
@@ -757,7 +799,7 @@ app.get('/api/update/status', (req, res) => {
     }
     res.json({ pending: false })
   } catch (err) {
-    console.error('Error checking update status:', err.message)
+    logger.error('Error checking update status:', err.message)
     res.status(500).json({ error: 'Failed to check update status' })
   }
 })
@@ -768,11 +810,11 @@ app.post('/api/update/clear-status', (req, res) => {
     const completedUpdatePath = resolve(__dirname, '.update-completed.json')
     if (existsSync(completedUpdatePath)) {
       unlinkSync(completedUpdatePath)
-      console.log('Cleared completed update flag')
+      logger.info('Cleared completed update flag')
     }
     res.json({ success: true })
   } catch (err) {
-    console.error('Error clearing update status:', err.message)
+    logger.error('Error clearing update status:', err.message)
     res.status(500).json({ error: 'Failed to clear update status' })
   }
 })
@@ -791,14 +833,14 @@ app.post('/api/update/cancel', (req, res) => {
       try {
         rmSync(updatesDir, { recursive: true, force: true })
       } catch (err) {
-        console.error('Failed to remove .updates directory:', err.message)
+        logger.error('Failed to remove .updates directory:', err.message)
       }
     }
 
-    console.log(`Download cancelled for version ${version}`)
+    logger.info(`Download cancelled for version ${version}`)
     res.json({ success: true })
   } catch (err) {
-    console.error('Error cancelling download:', err.message)
+    logger.error('Error cancelling download:', err.message)
     res.status(500).json({ error: 'Failed to cancel download' })
   }
 })
@@ -813,9 +855,10 @@ app.get('*', (req, res) => {
 })
 
 // --- Start server ---
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, HOST, () => {
   const config = readConfig()
-  console.log(`Server running at http://localhost:${PORT}`)
-  console.log(`Data file: ${config.dataFilePath}`)
-  console.log(`LAN access: http://0.0.0.0:${PORT}`)
+  logger.info(`Task Manager server started in ${NODE_ENV} mode`)
+  logger.info(`Server running at http://localhost:${PORT}`)
+  logger.info(`Data file: ${config.dataFilePath}`)
+  logger.info(`Network access: http://${HOST}:${PORT}`)
 })

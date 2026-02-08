@@ -20,3 +20,6 @@ CLAUDE.md
 .backup/
 .update-pending.json
 .update-completed.json
+
+# Logs
+logs/
