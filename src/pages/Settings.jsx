@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect } from 'react'
-import { Moon, Sun, RefreshCw } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext'
 import { useApp } from '../context/AppContext'
-import { useUpdateChecker } from '../hooks/useUpdateChecker'
 import { ColumnEditor } from '../components/Kanban/ColumnEditor'
 import { LabelManager } from '../components/Labels/LabelManager'
 import { Button } from '../components/common/Button'
@@ -26,8 +25,6 @@ export function Settings() {
   const [bugReportFilePath, setBugReportFilePath] = useState('')
   const [bugReportFilePathStatus, setBugReportFilePathStatus] = useState(null)
   const [currentVersion, setCurrentVersion] = useState(null)
-  const [checkStatus, setCheckStatus] = useState(null) // 'checking', 'upToDate', 'updateAvailable'
-  const { checkForUpdates, isChecking, updateInfo, error } = useUpdateChecker(false)
 
   // Load current file path on mount
   useEffect(() => {
@@ -88,29 +85,6 @@ export function Settings() {
     i18n.changeLanguage(langCode)
     updateSettings({ language: langCode })
   }
-
-  const handleManualCheck = async () => {
-    setCheckStatus('checking')
-    await checkForUpdates()
-  }
-
-  // Update check status based on updateInfo
-  useEffect(() => {
-    if (updateInfo?.hasUpdate) {
-      setCheckStatus('updateAvailable')
-    } else if (!isChecking && checkStatus === 'checking' && updateInfo === null) {
-      // Check just completed with no update available
-      setCheckStatus('upToDate')
-      // Trigger toast notification in main app
-      window.dispatchEvent(new CustomEvent('show-update-toast', {
-        detail: {
-          message: `${t('settings.upToDate')} Running v${currentVersion}`,
-          variant: 'success',
-          duration: 3000
-        }
-      }))
-    }
-  }, [updateInfo, isChecking, checkStatus, t, currentVersion])
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -219,110 +193,14 @@ export function Settings() {
         </div>
       </section>
 
-      {/* Auto Updates */}
+      {/* Software Version */}
       <section className="card p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {t('settings.autoUpdates')}
+          {t('settings.softwareVersion')}
         </h2>
-        <div className="space-y-4">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={settings.autoUpdateEnabled}
-              onChange={(e) => updateSettings({ autoUpdateEnabled: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <div>
-              <span className="text-gray-900 dark:text-white font-medium">
-                {t('settings.enableUpdateCheck')}
-              </span>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {t('settings.enableUpdateCheckDesc')}
-              </p>
-            </div>
-          </label>
-
-          {settings.autoUpdateEnabled && (
-            <div className="flex items-center gap-3 ml-7">
-              <span className="text-gray-700 dark:text-gray-300">{t('settings.checkEvery')}</span>
-              <select
-                value={settings.updateCheckInterval}
-                onChange={(e) =>
-                  updateSettings({ updateCheckInterval: parseInt(e.target.value) })
-                }
-                className="input w-auto"
-              >
-                <option value={3600000}>{t('settings.1hour')}</option>
-                <option value={21600000}>{t('settings.6hours')}</option>
-                <option value={43200000}>{t('settings.12hours')}</option>
-                <option value={86400000}>{t('settings.24hours')}</option>
-              </select>
-            </div>
-          )}
-
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-4">
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
-              {t('settings.securityInfo')}
-            </p>
-            <ul className="text-sm text-blue-800 dark:text-blue-200 list-disc list-inside space-y-1">
-              <li>{t('settings.securityPoint1')}</li>
-              <li>{t('settings.securityPoint2')}</li>
-              <li>{t('settings.securityPoint3')}</li>
-            </ul>
-          </div>
-
-          {/* Software Version Info */}
-          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {t('settings.softwareVersion')}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-mono mt-1">
-                  v{currentVersion || '...'}
-                </p>
-              </div>
-              <Button
-                onClick={handleManualCheck}
-                variant="secondary"
-                size="sm"
-                loading={isChecking}
-                icon={RefreshCw}
-                disabled={isChecking}
-              >
-                {t('settings.checkForUpdatesNow')}
-              </Button>
-            </div>
-
-            {/* Check Status Messages */}
-            {checkStatus === 'upToDate' && !isChecking && (
-              <div className="mt-3 text-sm text-green-600 dark:text-green-400 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                {t('settings.upToDate')}
-              </div>
-            )}
-
-            {checkStatus === 'updateAvailable' && updateInfo && (
-              <div className="mt-3 text-sm text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                {t('settings.updateAvailable', { version: updateInfo.latestVersion })}
-              </div>
-            )}
-
-            {error && !isChecking && (
-              <div className="mt-3 text-sm text-red-600 dark:text-red-400 flex items-start gap-2">
-                <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400 font-mono">
+          v{currentVersion || '...'}
+        </p>
       </section>
 
       {/* Column Editor */}
