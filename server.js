@@ -158,9 +158,7 @@ const DEFAULT_DATA = {
     bugReportFilePath: './data/bugReports.json',
     bugReportEnabled: true,
     autoRefreshEnabled: true,
-    autoRefreshInterval: 5000,
-    autoUpdateEnabled: false,
-    updateCheckInterval: 86400000,
+    autoRefreshInterval: 3000,
     language: 'en',
   },
 }

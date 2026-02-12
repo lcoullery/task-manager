@@ -16,10 +16,10 @@ export function AppProvider({ children }) {
     reload,
   } = useDataFile()
 
-  // Auto refresh based on settings
+  // Auto refresh for real-time multi-user sync (interval configurable in data settings)
   useAutoRefresh(
-    data.settings?.autoRefreshEnabled,
-    data.settings?.autoRefreshInterval,
+    data.settings?.autoRefreshEnabled ?? true,
+    data.settings?.autoRefreshInterval ?? 3000,
     reload
   )
 
