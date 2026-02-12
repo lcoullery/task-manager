@@ -14,6 +14,7 @@
   "board.archiveAllTitle": "Alle erledigten Aufgaben archivieren",
   "board.archiveAllMessage": "M\u00f6chten Sie wirklich {{count}} erledigte Aufgabe(n) archivieren?",
   "board.archiveConfirm": "Archivieren",
+  "board.autoArchived": "\u201e{{title}}\u201c wurde automatisch archiviert",
 
   "quickAdd.addTask": "Aufgabe hinzuf\u00fcgen",
   "quickAdd.placeholder": "Aufgabentitel...",
@@ -27,6 +28,7 @@
   "columnEditor.cancel": "Abbrechen",
   "columnEditor.deleteTitle": "Spalte l\u00f6schen",
   "columnEditor.deleteMessage": "M\u00f6chten Sie \u201e{{name}}\u201c wirklich l\u00f6schen? Aufgaben in dieser Spalte werden in die erste Spalte verschoben.",
+  "columnEditor.autoArchive": "Aufgaben in dieser Spalte automatisch archivieren",
 
   "assigneePicker.assignTask": "Aufgabe zuweisen",
   "assigneePicker.noProfiles": "Keine Profile",

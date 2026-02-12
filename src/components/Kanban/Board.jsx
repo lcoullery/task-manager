@@ -87,9 +87,24 @@ export function Board() {
       if (!result.destination) return
 
       const { draggableId, destination } = result
+      const targetColumn = columns.find((c) => c.id === destination.droppableId)
       moveTask(draggableId, destination.droppableId, destination.index)
+
+      // Show toast when task is auto-archived
+      if (targetColumn?.autoArchive) {
+        const task = tasks.find((t) => t.id === draggableId)
+        window.dispatchEvent(
+          new CustomEvent('show-update-toast', {
+            detail: {
+              message: t('board.autoArchived', { title: task?.title || '' }),
+              variant: 'info',
+              duration: 3000,
+            },
+          })
+        )
+      }
     },
-    [moveTask]
+    [moveTask, columns, tasks, t]
   )
 
   // Keyboard shortcuts

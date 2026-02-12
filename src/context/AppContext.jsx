@@ -155,22 +155,26 @@ export function AppProvider({ children }) {
       const task = prev.tasks.find((t) => t.id === taskId)
       if (!task) return prev
 
+      // Check if target column has auto-archive enabled
+      const targetColumn = (prev.columns || []).find((c) => c.id === newStatus)
+      const shouldArchive = targetColumn?.autoArchive === true
+
       // Get tasks in the target column
       const columnTasks = prev.tasks
         .filter((t) => t.status === newStatus && t.id !== taskId && !t.archived)
         .sort((a, b) => (a.order || 0) - (b.order || 0))
 
       // Insert at new position and recalculate orders
-      columnTasks.splice(newIndex, 0, { ...task, status: newStatus })
+      columnTasks.splice(newIndex, 0, { ...task, status: newStatus, ...(shouldArchive ? { archived: true } : {}) })
 
       const updatedColumnTasks = columnTasks.map((t, idx) => ({
         ...t,
         order: idx,
       }))
 
-      // Merge back
+      // Merge back (keep archived tasks in target column — they're excluded from columnTasks)
       const otherTasks = prev.tasks.filter(
-        (t) => t.status !== newStatus && t.id !== taskId
+        (t) => t.id !== taskId && (t.status !== newStatus || t.archived)
       )
 
       return {
@@ -232,6 +236,7 @@ export function AppProvider({ children }) {
       id: generateId(),
       name,
       order: maxOrder + 1,
+      autoArchive: false,
     }
     updateData((prev) => ({
       ...prev,

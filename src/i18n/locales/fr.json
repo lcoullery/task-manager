@@ -14,6 +14,7 @@
   "board.archiveAllTitle": "Archiver toutes les t\u00e2ches termin\u00e9es",
   "board.archiveAllMessage": "\u00cates-vous s\u00fbr de vouloir archiver {{count}} t\u00e2che(s) termin\u00e9e(s)\u00a0?",
   "board.archiveConfirm": "Archiver",
+  "board.autoArchived": "\u00ab\u00a0{{title}}\u00a0\u00bb a \u00e9t\u00e9 auto-archiv\u00e9e",
 
   "quickAdd.addTask": "Ajouter une t\u00e2che",
   "quickAdd.placeholder": "Titre de la t\u00e2che...",
@@ -27,6 +28,7 @@
   "columnEditor.cancel": "Annuler",
   "columnEditor.deleteTitle": "Supprimer la colonne",
   "columnEditor.deleteMessage": "\u00cates-vous s\u00fbr de vouloir supprimer \u00ab\u00a0{{name}}\u00a0\u00bb\u00a0? Les t\u00e2ches de cette colonne seront d\u00e9plac\u00e9es vers la premi\u00e8re colonne.",
+  "columnEditor.autoArchive": "Auto-archiver les t\u00e2ches d\u00e9pos\u00e9es dans cette colonne",
 
   "assigneePicker.assignTask": "Assigner la t\u00e2che",
   "assigneePicker.noProfiles": "Aucun profil",

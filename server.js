@@ -150,7 +150,7 @@ const DEFAULT_DATA = {
     { id: 'col-plan', name: 'Plan', order: 0 },
     { id: 'col-execute', name: 'Execute', order: 1 },
     { id: 'col-blocked', name: 'Blocked', order: 2 },
-    { id: 'col-done', name: 'Done', order: 3 },
+    { id: 'col-done', name: 'Done', order: 3, autoArchive: true },
   ],
   settings: {
     theme: 'light',

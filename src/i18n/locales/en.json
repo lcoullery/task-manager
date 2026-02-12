@@ -14,6 +14,7 @@
   "board.archiveAllTitle": "Archive All Done Tasks",
   "board.archiveAllMessage": "Are you sure you want to archive {{count}} completed task(s)?",
   "board.archiveConfirm": "Archive",
+  "board.autoArchived": "\"{{title}}\" has been auto-archived",
 
   "quickAdd.addTask": "Add task",
   "quickAdd.placeholder": "Task title...",
@@ -27,6 +28,7 @@
   "columnEditor.cancel": "Cancel",
   "columnEditor.deleteTitle": "Delete Column",
   "columnEditor.deleteMessage": "Are you sure you want to delete \"{{name}}\"? Tasks in this column will be moved to the first column.",
+  "columnEditor.autoArchive": "Auto-archive tasks dropped in this column",
 
   "assigneePicker.assignTask": "Assign task",
   "assigneePicker.noProfiles": "No profiles",

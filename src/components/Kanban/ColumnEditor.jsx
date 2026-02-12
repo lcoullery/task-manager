@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, GripVertical, Check, X } from 'lucide-react'
+import { Plus, Pencil, Trash2, GripVertical, Check, X, Archive } from 'lucide-react'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
@@ -135,6 +135,17 @@ export function ColumnEditor() {
                           <span className="flex-1 font-medium text-gray-900 dark:text-white">
                             {column.name}
                           </span>
+                          <button
+                            onClick={() => updateColumn(column.id, { autoArchive: !column.autoArchive })}
+                            className={`p-2 rounded-lg flex items-center gap-1 text-xs ${
+                              column.autoArchive
+                                ? 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/30'
+                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                            }`}
+                            title={t('columnEditor.autoArchive')}
+                          >
+                            <Archive className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => handleStartEdit(column)}
                             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"

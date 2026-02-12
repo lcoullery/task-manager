@@ -14,6 +14,7 @@
   "board.archiveAllTitle": "Archivia tutte le attivit\u00e0 completate",
   "board.archiveAllMessage": "Sei sicuro di voler archiviare {{count}} attivit\u00e0 completata/e?",
   "board.archiveConfirm": "Archivia",
+  "board.autoArchived": "\"{{title}}\" \u00e8 stata archiviata automaticamente",
 
   "quickAdd.addTask": "Aggiungi attivit\u00e0",
   "quickAdd.placeholder": "Titolo attivit\u00e0...",
@@ -27,6 +28,7 @@
   "columnEditor.cancel": "Annulla",
   "columnEditor.deleteTitle": "Elimina colonna",
   "columnEditor.deleteMessage": "Sei sicuro di voler eliminare \"{{name}}\"? Le attivit\u00e0 in questa colonna verranno spostate nella prima colonna.",
+  "columnEditor.autoArchive": "Archivia automaticamente le attivit\u00e0 rilasciate in questa colonna",
 
   "assigneePicker.assignTask": "Assegna attivit\u00e0",
   "assigneePicker.noProfiles": "Nessun profilo",
