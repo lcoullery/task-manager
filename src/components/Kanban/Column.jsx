@@ -14,34 +14,36 @@ export function Column({ column, tasks, onTaskClick }) {
         </span>
       </div>
 
-      <Droppable droppableId={column.id}>
-        {(provided, snapshot) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={`flex-1 min-h-[200px] p-2 rounded-lg transition-colors ${
-              snapshot.isDraggingOver
-                ? 'bg-blue-50 dark:bg-blue-900/20'
-                : 'bg-gray-100 dark:bg-gray-800/50'
-            }`}
-          >
-            <div className="space-y-2">
-              {tasks.map((task, index) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  index={index}
-                  onClick={() => onTaskClick(task)}
-                />
-              ))}
-              {provided.placeholder}
+      <div className="flex-1 flex flex-col min-h-0 rounded-lg bg-gray-100 dark:bg-gray-800/50">
+        <Droppable droppableId={column.id}>
+          {(provided, snapshot) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className={`flex-1 overflow-y-auto min-h-0 p-2 rounded-t-lg transition-colors ${
+                snapshot.isDraggingOver
+                  ? 'bg-blue-50 dark:bg-blue-900/20'
+                  : ''
+              }`}
+            >
+              <div className="space-y-2">
+                {tasks.map((task, index) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    index={index}
+                    onClick={() => onTaskClick(task)}
+                  />
+                ))}
+                {provided.placeholder}
+              </div>
             </div>
-            <div className="mt-2">
-              <QuickAdd columnId={column.id} />
-            </div>
-          </div>
-        )}
-      </Droppable>
+          )}
+        </Droppable>
+        <div className="p-2 pt-0 flex-shrink-0">
+          <QuickAdd columnId={column.id} />
+        </div>
+      </div>
     </div>
   )
 }

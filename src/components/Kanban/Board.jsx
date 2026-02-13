@@ -144,9 +144,9 @@ export function Board() {
 
       <ActiveFilterTags filters={filters} onChange={setFilters} />
 
-      <div className="flex-1 overflow-x-auto mt-4">
+      <div className="flex-1 overflow-x-auto mt-4 min-h-0">
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="flex gap-4 h-full pb-4">
+          <div className="flex gap-4 h-full">
             {columns.map((column) => (
               <Column
                 key={column.id}

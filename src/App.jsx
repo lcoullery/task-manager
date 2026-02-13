@@ -34,7 +34,7 @@ function App() {
   }, [showToast])
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
       <main className="flex-1 p-6 overflow-hidden">
         <Routes>
