@@ -36,7 +36,7 @@ function App() {
   return (
     <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Navbar />
-      <main className="flex-1 p-6 overflow-hidden">
+      <main className="flex-1 p-6 overflow-y-auto">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/list" element={<ListView />} />

@@ -81,11 +81,11 @@ export function TaskListView() {
 
       <ActiveFilterTags filters={filters} onChange={setFilters} />
 
-      <div className="flex-1 overflow-auto mt-4">
-        <div className="card overflow-hidden">
+      <div className="flex-1 min-h-0 mt-4">
+        <div className="card h-full overflow-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
                 <th className="px-3 py-2 w-10" />
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   {t('taskListView.headerTitle')}
