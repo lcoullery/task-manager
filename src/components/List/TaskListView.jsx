@@ -52,7 +52,7 @@ export function TaskListView() {
       }
 
       return true
-    })
+    }).sort((a, b) => (a.archived ? 1 : 0) - (b.archived ? 1 : 0))
   }, [tasks, filters])
 
   useKeyboard(

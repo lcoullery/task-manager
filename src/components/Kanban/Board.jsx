@@ -72,7 +72,7 @@ export function Board() {
     columns.forEach((col) => {
       grouped[col.id] = filteredTasks
         .filter((t) => t.status === col.id)
-        .sort((a, b) => (a.order || 0) - (b.order || 0))
+        .sort((a, b) => (a.archived ? 1 : 0) - (b.archived ? 1 : 0) || (a.order || 0) - (b.order || 0))
     })
     return grouped
   }, [columns, filteredTasks])
