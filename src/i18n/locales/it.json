@@ -106,6 +106,7 @@
   "ganttChart.quarter": "Trimestre",
   "ganttChart.year": "Anno",
   "ganttChart.hiddenTasks": "{{count}} attivit\u00e0 nascosta/e (senza date)",
+  "ganttChart.showUndated": "Mostra senza date ({{count}})",
   "ganttChart.emptyState": "Nessuna attivit\u00e0 con date da visualizzare. Aggiungi date di inizio o fine alle tue attivit\u00e0 per vederle qui.",
 
   "ganttRow.priorityLabel": "Priorit\u00e0 {{priority}}",

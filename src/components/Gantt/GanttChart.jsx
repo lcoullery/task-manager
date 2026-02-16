@@ -14,6 +14,7 @@ export function GanttChart() {
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState('month')
   const [selectedTask, setSelectedTask] = useState(null)
+  const [showUndated, setShowUndated] = useState(false)
   const scrollRef = useRef(null)
 
   const VIEW_MODE_LABELS = {
@@ -27,17 +28,17 @@ export function GanttChart() {
   const activeTasks = useMemo(() => tasks.filter((t) => !t.archived), [tasks])
 
   // Split tasks into those with dates vs without
-  const { datedTasks, hiddenCount } = useMemo(() => {
+  const { datedTasks, undatedTasks } = useMemo(() => {
     const dated = []
-    let hidden = 0
+    const undated = []
     for (const t of activeTasks) {
       if (t.startDate || t.endDate) {
         dated.push(t)
       } else {
-        hidden++
+        undated.push(t)
       }
     }
-    return { datedTasks: dated, hiddenCount: hidden }
+    return { datedTasks: dated, undatedTasks: undated }
   }, [activeTasks])
 
   // Compute timeline range and header cells
@@ -70,6 +71,9 @@ export function GanttChart() {
     return tasks.find((t) => t.id === selectedTask.id) || null
   }, [selectedTask, tasks])
 
+  const allRowTasks = showUndated ? [...datedTasks, ...undatedTasks] : datedTasks
+  const showChart = allRowTasks.length > 0
+
   return (
     <div className="flex flex-col h-full">
       {/* Toolbar */}
@@ -90,15 +94,25 @@ export function GanttChart() {
             </button>
           ))}
         </div>
-        {hiddenCount > 0 && (
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {t('ganttChart.hiddenTasks', { count: hiddenCount })}
-          </span>
-        )}
+        <div className="flex items-center gap-4">
+          {undatedTasks.length > 0 && (
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showUndated}
+                onChange={(e) => setShowUndated(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {t('ganttChart.showUndated', { count: undatedTasks.length })}
+              </span>
+            </label>
+          )}
+        </div>
       </div>
 
       {/* Scrollable chart area */}
-      {datedTasks.length === 0 ? (
+      {!showChart ? (
         <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900
           rounded-b-lg border border-t-0 border-gray-200 dark:border-gray-700">
           <p className="text-gray-500 dark:text-gray-400">
@@ -129,7 +143,7 @@ export function GanttChart() {
               )}
 
               {/* Task rows */}
-              {datedTasks.map((task, i) => (
+              {allRowTasks.map((task, i) => (
                 <GanttRow
                   key={task.id}
                   task={task}

@@ -106,6 +106,7 @@
   "ganttChart.quarter": "Quartal",
   "ganttChart.year": "Jahr",
   "ganttChart.hiddenTasks": "{{count}} Aufgabe(n) ausgeblendet (keine Daten)",
+  "ganttChart.showUndated": "Ohne Datum anzeigen ({{count}})",
   "ganttChart.emptyState": "Keine Aufgaben mit Daten zum Anzeigen. F\u00fcgen Sie Ihren Aufgaben Start- oder Enddaten hinzu, um sie hier zu sehen.",
 
   "ganttRow.priorityLabel": "{{priority}} Priorit\u00e4t",

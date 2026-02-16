@@ -106,6 +106,7 @@
   "ganttChart.quarter": "Trimestre",
   "ganttChart.year": "Ann\u00e9e",
   "ganttChart.hiddenTasks": "{{count}} t\u00e2che(s) masqu\u00e9e(s) (sans dates)",
+  "ganttChart.showUndated": "Afficher sans dates ({{count}})",
   "ganttChart.emptyState": "Aucune t\u00e2che avec des dates \u00e0 afficher. Ajoutez des dates de d\u00e9but ou de fin \u00e0 vos t\u00e2ches pour les voir ici.",
 
   "ganttRow.priorityLabel": "Priorit\u00e9 {{priority}}",

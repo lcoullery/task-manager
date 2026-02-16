@@ -1,5 +1,6 @@
+import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { daysBetween, VIEW_CONFIGS } from '../../utils/gantt'
+import { daysBetween, addDays } from '../../utils/gantt'
 import { PRIORITY_COLORS, getInitials, generateAvatarColor } from '../../utils/colors'
 import { GanttBar } from './GanttBar'
 
@@ -21,6 +22,10 @@ export function GanttRow({
 
   const hasBothDates = task.startDate && task.endDate
   const hasSingleDate = (task.startDate || task.endDate) && !hasBothDates
+  const hasNoDates = !task.startDate && !task.endDate
+
+  // Drag-to-create state for undated tasks
+  const [dragCreate, setDragCreate] = useState(null)
 
   let barLeft = 0
   let barWidth = 0
@@ -35,6 +40,40 @@ export function GanttRow({
     const singleDate = task.startDate || task.endDate
     markerLeft = daysBetween(timelineStart, singleDate) * pxPerDay
   }
+
+  const handleTimelineMouseDown = useCallback((e) => {
+    if (!hasNoDates) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const startX = e.clientX - rect.left
+
+    const handleMouseMove = (moveE) => {
+      const currentX = moveE.clientX - rect.left
+      const left = Math.min(startX, currentX)
+      const width = Math.abs(currentX - startX)
+      setDragCreate({ left, width })
+    }
+
+    const handleMouseUp = (upE) => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+
+      const endX = upE.clientX - rect.left
+      const minX = Math.min(startX, endX)
+      const maxX = Math.max(startX, endX)
+
+      const startDay = Math.round(minX / pxPerDay)
+      const endDay = Math.round(maxX / pxPerDay)
+
+      const newStart = addDays(timelineStart, startDay)
+      const newEnd = addDays(timelineStart, Math.max(endDay, startDay))
+
+      onUpdateDates(task.id, newStart, newEnd)
+      setDragCreate(null)
+    }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }, [hasNoDates, pxPerDay, timelineStart, task.id, onUpdateDates])
 
   return (
     <div className={`flex h-10 border-b border-gray-100 dark:border-gray-700/50
@@ -66,7 +105,11 @@ export function GanttRow({
       </div>
 
       {/* Right area: timeline bar */}
-      <div className="relative" style={{ width: `${totalWidth}px`, minWidth: `${totalWidth}px` }}>
+      <div
+        className={`relative ${hasNoDates ? 'cursor-crosshair' : ''}`}
+        style={{ width: `${totalWidth}px`, minWidth: `${totalWidth}px` }}
+        onMouseDown={hasNoDates ? handleTimelineMouseDown : undefined}
+      >
         {hasBothDates && (
           <GanttBar
             task={task}
@@ -84,6 +127,12 @@ export function GanttRow({
             }`}
             style={{ left: `${markerLeft - 6}px` }}
             title={`${task.startDate ? t('ganttRow.start') : t('ganttRow.end')}: ${task.startDate || task.endDate}`}
+          />
+        )}
+        {dragCreate && (
+          <div
+            className="absolute top-1 h-8 bg-blue-300/50 dark:bg-blue-500/30 rounded border border-blue-400 dark:border-blue-500 pointer-events-none"
+            style={{ left: `${dragCreate.left}px`, width: `${Math.max(dragCreate.width, 4)}px` }}
           />
         )}
       </div>

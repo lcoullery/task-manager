@@ -106,6 +106,7 @@
   "ganttChart.quarter": "Quarter",
   "ganttChart.year": "Year",
   "ganttChart.hiddenTasks": "{{count}} task(s) hidden (no dates)",
+  "ganttChart.showUndated": "Show undated ({{count}})",
   "ganttChart.emptyState": "No tasks with dates to display. Add start or end dates to your tasks to see them here.",
 
   "ganttRow.priorityLabel": "{{priority}} priority",
