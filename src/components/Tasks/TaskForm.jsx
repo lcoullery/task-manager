@@ -26,6 +26,19 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
     endDate: '',
     labels: [],
   })
+  const [duration, setDuration] = useState('')
+
+  const computeDuration = (start, end) => {
+    if (!start || !end) return ''
+    const diff = Math.round((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24))
+    return diff >= 0 ? String(diff + 1) : ''
+  }
+
+  const addDaysToDate = (dateStr, days) => {
+    const d = new Date(dateStr)
+    d.setDate(d.getDate() + days - 1)
+    return d.toISOString().split('T')[0]
+  }
 
   useEffect(() => {
     if (task) {
@@ -39,11 +52,32 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
         endDate: task.endDate || '',
         labels: task.labels || [],
       })
+      setDuration(computeDuration(task.startDate, task.endDate))
     }
   }, [task?.id])
 
   const handleChange = (field) => (e) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+    const value = e.target.value
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value }
+      if (field === 'startDate' && duration && value) {
+        next.endDate = addDaysToDate(value, Number(duration))
+      } else if (field === 'startDate' || field === 'endDate') {
+        setDuration(computeDuration(
+          field === 'startDate' ? value : prev.startDate,
+          field === 'endDate' ? value : prev.endDate
+        ))
+      }
+      return next
+    })
+  }
+
+  const handleDurationChange = (e) => {
+    const val = e.target.value
+    setDuration(val)
+    if (val && formData.startDate && Number(val) > 0) {
+      setFormData((prev) => ({ ...prev, endDate: addDaysToDate(prev.startDate, Number(val)) }))
+    }
   }
 
   const handleLabelsChange = (labels) => {
@@ -119,7 +153,7 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
         name="assignedTo"
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Input
           label={t('taskForm.startDate')}
           type="date"
@@ -134,6 +168,15 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
           value={formData.endDate}
           onChange={handleChange('endDate')}
           name="endDate"
+        />
+
+        <Input
+          label={t('taskForm.duration')}
+          type="number"
+          value={duration}
+          onChange={handleDurationChange}
+          name="duration"
+          min="1"
         />
       </div>
 

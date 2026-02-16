@@ -46,6 +46,7 @@
   "taskForm.unassigned": "Unassigned",
   "taskForm.startDate": "Start Date",
   "taskForm.endDate": "End Date",
+  "taskForm.duration": "Duration (days)",
   "taskForm.cancel": "Cancel",
   "taskForm.saveChanges": "Save Changes",
   "taskForm.createTask": "Create Task",

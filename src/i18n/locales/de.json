@@ -46,6 +46,7 @@
   "taskForm.unassigned": "Nicht zugewiesen",
   "taskForm.startDate": "Startdatum",
   "taskForm.endDate": "Enddatum",
+  "taskForm.duration": "Dauer (Tage)",
   "taskForm.cancel": "Abbrechen",
   "taskForm.saveChanges": "\u00c4nderungen speichern",
   "taskForm.createTask": "Aufgabe erstellen",
