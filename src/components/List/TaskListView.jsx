@@ -15,9 +15,9 @@ export function TaskListView() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [filters, setFilters] = useState({
     search: '',
-    assignee: '',
-    priority: '',
-    labelId: '',
+    assignee: [],
+    priority: [],
+    labelId: [],
     showArchived: true,
   })
 
@@ -35,19 +35,18 @@ export function TaskListView() {
         }
       }
 
-      if (filters.assignee) {
-        if (filters.assignee === 'unassigned') {
-          if (task.assignedTo) return false
-        } else if (task.assignedTo !== filters.assignee) {
-          return false
-        }
+      if (filters.assignee.length > 0) {
+        const matchesAssignee = filters.assignee.some((a) =>
+          a === 'unassigned' ? !task.assignedTo : task.assignedTo === a
+        )
+        if (!matchesAssignee) return false
       }
 
-      if (filters.priority && task.priority !== filters.priority) {
+      if (filters.priority.length > 0 && !filters.priority.includes(task.priority)) {
         return false
       }
 
-      if (filters.labelId && !task.labels?.includes(filters.labelId)) {
+      if (filters.labelId.length > 0 && !task.labels?.some((l) => filters.labelId.includes(l))) {
         return false
       }
 
