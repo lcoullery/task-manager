@@ -93,6 +93,7 @@
   "taskListView.headerAssignee": "Assignee",
   "taskListView.headerDueDate": "Due Date",
   "taskListView.headerLabels": "Labels",
+  "taskListView.headerLinks": "Links",
   "taskListView.headerComments": "Comments",
   "taskListView.emptyState": "No tasks found. Try adjusting your filters or create a new task.",
 
@@ -231,6 +232,11 @@
   "bugReport.submitError": "Failed to submit bug report. Please try again.",
   "bugReport.submitSuccess": "Bug report submitted successfully!",
   "bugReport.submit": "Submit Report",
+
+  "fileLinks.title": "Links ({{count}})",
+  "fileLinks.urlPlaceholder": "Paste URL...",
+  "fileLinks.titlePlaceholder": "Link title (optional)",
+  "fileLinks.deleteLink": "Delete link",
 
   "common.cancel": "Cancel"
 }

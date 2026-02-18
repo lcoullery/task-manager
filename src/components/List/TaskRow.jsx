@@ -1,4 +1,4 @@
-import { Circle, CheckCircle2, Calendar, MessageSquare } from 'lucide-react'
+import { Circle, CheckCircle2, Calendar, MessageSquare, Link } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { ProfileAvatar } from '../Profiles/ProfileCard'
@@ -126,6 +126,25 @@ export function TaskRow({ task, onClick }) {
               </span>
             )}
           </div>
+        ) : (
+          <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
+        )}
+      </td>
+
+      {/* Links */}
+      <td className="px-3 py-3">
+        {task.fileLinks && task.fileLinks.length > 0 ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              task.fileLinks.forEach((l) => window.open(l.url, '_blank', 'noopener,noreferrer'))
+            }}
+            className="inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+            title={task.fileLinks.map((l) => l.title || l.url).join(', ')}
+          >
+            <Link className="w-3 h-3" />
+            {task.fileLinks.length}
+          </button>
         ) : (
           <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
         )}

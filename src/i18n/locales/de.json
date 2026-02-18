@@ -93,6 +93,7 @@
   "taskListView.headerAssignee": "Zust\u00e4ndig",
   "taskListView.headerDueDate": "F\u00e4lligkeitsdatum",
   "taskListView.headerLabels": "Labels",
+  "taskListView.headerLinks": "Links",
   "taskListView.headerComments": "Kommentare",
   "taskListView.emptyState": "Keine Aufgaben gefunden. Passen Sie Ihre Filter an oder erstellen Sie eine neue Aufgabe.",
 
@@ -212,5 +213,10 @@
   "updates.downloadCompleteMessage": "Update ist bereit. Änderungen werden beim nächsten Serverstart angewendet.",
   "updates.downloadErrorMessage": "Fehler beim Herunterladen des Updates. Bitte versuchen Sie es später erneut.",
   "updates.close": "Schließen",
-  "updates.securityNote": "Updates werden nur aus dem offiziellen GitHub-Repository heruntergeladen"
+  "updates.securityNote": "Updates werden nur aus dem offiziellen GitHub-Repository heruntergeladen",
+
+  "fileLinks.title": "Links ({{count}})",
+  "fileLinks.urlPlaceholder": "URL einfügen...",
+  "fileLinks.titlePlaceholder": "Link-Titel (optional)",
+  "fileLinks.deleteLink": "Link löschen"
 }

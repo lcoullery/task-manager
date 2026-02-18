@@ -1,5 +1,5 @@
 import { Draggable } from '@hello-pangea/dnd'
-import { Calendar, MessageSquare } from 'lucide-react'
+import { Calendar, MessageSquare, Link } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { ProfileAvatar } from '../Profiles/ProfileCard'
 import { LabelBadge } from '../Labels/LabelBadge'
@@ -53,6 +53,19 @@ export function TaskCard({ task, index, onClick }) {
                   <Calendar className="w-3 h-3" />
                   {new Date(task.endDate).toLocaleDateString()}
                 </span>
+              )}
+              {task.fileLinks && task.fileLinks.length > 0 && (
+                <button
+                  className="flex items-center gap-1 hover:text-blue-500 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    task.fileLinks.forEach((l) => window.open(l.url, '_blank', 'noopener,noreferrer'))
+                  }}
+                  title={task.fileLinks.map((l) => l.title || l.url).join(', ')}
+                >
+                  <Link className="w-3 h-3" />
+                  {task.fileLinks.length}
+                </button>
               )}
               {task.comments && task.comments.length > 0 && (
                 <span className="flex items-center gap-1">

@@ -93,6 +93,7 @@
   "taskListView.headerAssignee": "Responsable",
   "taskListView.headerDueDate": "Date d'\u00e9ch\u00e9ance",
   "taskListView.headerLabels": "Labels",
+  "taskListView.headerLinks": "Liens",
   "taskListView.headerComments": "Commentaires",
   "taskListView.emptyState": "Aucune t\u00e2che trouv\u00e9e. Essayez d'ajuster vos filtres ou cr\u00e9ez une nouvelle t\u00e2che.",
 
@@ -212,5 +213,10 @@
   "updates.downloadCompleteMessage": "La mise à jour est prête. Les changements seront appliqués au prochain démarrage du serveur.",
   "updates.downloadErrorMessage": "Échec du téléchargement de la mise à jour. Veuillez réessayer plus tard.",
   "updates.close": "Fermer",
-  "updates.securityNote": "Les mises à jour sont téléchargées uniquement depuis le référentiel GitHub officiel"
+  "updates.securityNote": "Les mises à jour sont téléchargées uniquement depuis le référentiel GitHub officiel",
+
+  "fileLinks.title": "Liens ({{count}})",
+  "fileLinks.urlPlaceholder": "Coller l'URL...",
+  "fileLinks.titlePlaceholder": "Titre du lien (optionnel)",
+  "fileLinks.deleteLink": "Supprimer le lien"
 }

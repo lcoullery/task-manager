@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
 import { Modal, ConfirmModal } from '../common/Modal'
 import { TaskForm } from './TaskForm'
+import { FileLinks } from './FileLinks'
 import { CommentList } from './CommentList'
 import { Button } from '../common/Button'
 
@@ -58,6 +59,10 @@ export function TaskModal({ isOpen, onClose, task }) {
             onCancel={onClose}
             hideButtons={true}
           />
+
+          {/* File links section */}
+          <hr className="border-gray-200 dark:border-gray-700" />
+          <FileLinks taskId={currentTask.id} fileLinks={currentTask.fileLinks} />
 
           {/* Comment section above buttons */}
           <hr className="border-gray-200 dark:border-gray-700" />

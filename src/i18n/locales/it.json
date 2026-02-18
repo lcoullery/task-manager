@@ -93,6 +93,7 @@
   "taskListView.headerAssignee": "Assegnatario",
   "taskListView.headerDueDate": "Data di scadenza",
   "taskListView.headerLabels": "Etichette",
+  "taskListView.headerLinks": "Link",
   "taskListView.headerComments": "Commenti",
   "taskListView.emptyState": "Nessuna attivit\u00e0 trovata. Prova a modificare i filtri o crea una nuova attivit\u00e0.",
 
@@ -212,5 +213,10 @@
   "updates.downloadCompleteMessage": "Aggiornamento pronto. Le modifiche verranno applicate al prossimo avvio del server.",
   "updates.downloadErrorMessage": "Impossibile scaricare l'aggiornamento. Riprova più tardi.",
   "updates.close": "Chiudi",
-  "updates.securityNote": "Gli aggiornamenti vengono scaricati solo dal repository GitHub ufficiale"
+  "updates.securityNote": "Gli aggiornamenti vengono scaricati solo dal repository GitHub ufficiale",
+
+  "fileLinks.title": "Link ({{count}})",
+  "fileLinks.urlPlaceholder": "Incolla URL...",
+  "fileLinks.titlePlaceholder": "Titolo del link (opzionale)",
+  "fileLinks.deleteLink": "Elimina link"
 }

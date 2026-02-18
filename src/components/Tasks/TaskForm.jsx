@@ -25,6 +25,7 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
     startDate: '',
     endDate: '',
     labels: [],
+    fileLinks: [],
   })
   const [duration, setDuration] = useState('')
 
@@ -51,6 +52,7 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
         startDate: task.startDate || '',
         endDate: task.endDate || '',
         labels: task.labels || [],
+        fileLinks: task.fileLinks || [],
       })
       setDuration(computeDuration(task.startDate, task.endDate))
     }
@@ -88,8 +90,9 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
     if (e) e.preventDefault()
     if (!formData.title.trim()) return
 
+    const { fileLinks, ...rest } = formData
     onSubmit({
-      ...formData,
+      ...rest,
       title: formData.title.trim(),
       assignedTo: formData.assignedTo || null,
       startDate: formData.startDate || null,

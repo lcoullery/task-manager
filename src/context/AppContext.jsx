@@ -78,6 +78,7 @@ export function AppProvider({ children }) {
       startDate: task.startDate || null,
       endDate: task.endDate || null,
       labels: task.labels || [],
+      fileLinks: task.fileLinks || [],
       comments: [],
       archived: false,
       createdAt: new Date().toISOString(),
@@ -145,6 +146,34 @@ export function AppProvider({ children }) {
       tasks: prev.tasks.map((t) =>
         t.id === taskId
           ? { ...t, comments: t.comments.filter((c) => c.id !== commentId) }
+          : t
+      ),
+    }))
+  }, [updateData])
+
+  const addFileLink = useCallback((taskId, url, title) => {
+    const newLink = {
+      id: generateId(),
+      url,
+      title: title || '',
+      createdAt: new Date().toISOString(),
+    }
+    updateData((prev) => ({
+      ...prev,
+      tasks: prev.tasks.map((t) =>
+        t.id === taskId
+          ? { ...t, fileLinks: [...(t.fileLinks || []), newLink] }
+          : t
+      ),
+    }))
+  }, [updateData])
+
+  const deleteFileLink = useCallback((taskId, linkId) => {
+    updateData((prev) => ({
+      ...prev,
+      tasks: prev.tasks.map((t) =>
+        t.id === taskId
+          ? { ...t, fileLinks: (t.fileLinks || []).filter((l) => l.id !== linkId) }
           : t
       ),
     }))
@@ -312,6 +341,8 @@ export function AppProvider({ children }) {
     archiveAllDone,
     addComment,
     deleteComment,
+    addFileLink,
+    deleteFileLink,
     moveTask,
 
     // Labels
