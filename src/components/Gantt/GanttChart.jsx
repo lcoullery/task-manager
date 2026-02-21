@@ -5,6 +5,7 @@ import { VIEW_CONFIGS, getTimelineRange, getHeaderCells, daysBetween, getTodaySt
 import { GanttHeader } from './GanttHeader'
 import { GanttRow } from './GanttRow'
 import { TaskModal } from '../Tasks/TaskModal'
+import { Filters, ActiveFilterTags } from '../Tasks/Filters'
 
 const VIEW_MODES = ['week', 'month', 'quarter', 'year']
 const TASK_LIST_WIDTH = 240
@@ -15,6 +16,13 @@ export function GanttChart() {
   const [viewMode, setViewMode] = useState('month')
   const [selectedTask, setSelectedTask] = useState(null)
   const [showUndated, setShowUndated] = useState(false)
+  const [filters, setFilters] = useState({
+    search: '',
+    assignee: [],
+    priority: [],
+    labelId: [],
+    showArchived: false,
+  })
   const scrollRef = useRef(null)
 
   const VIEW_MODE_LABELS = {
@@ -24,8 +32,39 @@ export function GanttChart() {
     year: t('ganttChart.year'),
   }
 
-  // Filter out archived tasks
-  const activeTasks = useMemo(() => tasks.filter((t) => !t.archived), [tasks])
+  // Filter tasks
+  const activeTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (!filters.showArchived && task.archived) return false
+
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase()
+        if (
+          !task.title.toLowerCase().includes(searchLower) &&
+          !(task.description || '').toLowerCase().includes(searchLower)
+        ) {
+          return false
+        }
+      }
+
+      if (filters.assignee.length > 0) {
+        const matchesAssignee = filters.assignee.some((a) =>
+          a === 'unassigned' ? !task.assignedTo : task.assignedTo === a
+        )
+        if (!matchesAssignee) return false
+      }
+
+      if (filters.priority.length > 0 && !filters.priority.includes(task.priority)) {
+        return false
+      }
+
+      if (filters.labelId.length > 0 && !task.labels?.some((l) => filters.labelId.includes(l))) {
+        return false
+      }
+
+      return true
+    })
+  }, [tasks, filters])
 
   // Split tasks into those with dates vs without
   const { datedTasks, undatedTasks } = useMemo(() => {
@@ -76,6 +115,10 @@ export function GanttChart() {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Filters */}
+      <Filters filters={filters} onChange={setFilters} />
+      <ActiveFilterTags filters={filters} onChange={setFilters} />
+
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800
         border-b border-gray-200 dark:border-gray-700 rounded-t-lg">
