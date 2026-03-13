@@ -76,7 +76,7 @@ export function GanttHeader({ topCells, bottomCells, viewMode, taskListWidth }) 
                 ${cell.isToday
                   ? 'bg-blue-100 dark:bg-blue-900/40 font-bold text-blue-700 dark:text-blue-300'
                   : cell.isWeekend
-                    ? 'bg-gray-100 dark:bg-gray-750 text-gray-400 dark:text-gray-500'
+                    ? 'bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                     : 'text-gray-500 dark:text-gray-400'
                 }`}
               style={{ width: `${getCellWidth(cell)}px` }}

@@ -231,23 +231,22 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
             </div>
           )}
         </div>
-      </div>
 
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={formData.weekendTask}
-          onChange={handleWeekendTaskChange}
-          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          name="weekendTask"
-        />
-        <span className="text-sm text-gray-700 dark:text-gray-300">
-          {t('taskForm.weekendTask')}
-        </span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
-          ({t('taskForm.weekendTaskHelp')})
-        </span>
-      </label>
+        <div className="flex items-center">
+          <label className="flex items-center gap-2 cursor-pointer" title={t('taskForm.weekendTaskHelp')}>
+            <input
+              type="checkbox"
+              checked={formData.weekendTask}
+              onChange={handleWeekendTaskChange}
+              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              name="weekendTask"
+            />
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {t('taskForm.weekendTask')}
+            </span>
+          </label>
+        </div>
+      </div>
 
       <LabelPicker
         selectedLabels={formData.labels}
