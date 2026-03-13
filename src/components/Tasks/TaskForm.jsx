@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext'
 import { Input, Textarea, Select } from '../common/Input'
 import { Button } from '../common/Button'
 import { LabelPicker } from './LabelPicker'
+import { countWeekdaysBetween, addWeekdays } from '../../utils/gantt'
 
 export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel, hideButtons = false }, ref) {
   const { profiles, columns } = useApp()
@@ -27,19 +28,30 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
     labels: [],
     fileLinks: [],
     workloadHours: 0,
+    weekendTask: false,
   })
   const [duration, setDuration] = useState('')
 
-  const computeDuration = (start, end) => {
+  const computeDuration = (start, end, includeWeekends = false) => {
     if (!start || !end) return ''
-    const diff = Math.round((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24))
-    return diff >= 0 ? String(diff + 1) : ''
+
+    if (includeWeekends) {
+      const diff = Math.round((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24))
+      return diff >= 0 ? String(diff + 1) : ''
+    } else {
+      const weekdayCount = countWeekdaysBetween(start, end)
+      return weekdayCount >= 0 ? String(weekdayCount) : ''
+    }
   }
 
-  const addDaysToDate = (dateStr, days) => {
-    const d = new Date(dateStr)
-    d.setDate(d.getDate() + days - 1)
-    return d.toISOString().split('T')[0]
+  const addDaysToDate = (dateStr, days, includeWeekends = false) => {
+    if (includeWeekends) {
+      const d = new Date(dateStr)
+      d.setDate(d.getDate() + days - 1)
+      return d.toISOString().split('T')[0]
+    } else {
+      return addWeekdays(dateStr, days - 1)
+    }
   }
 
   useEffect(() => {
@@ -55,8 +67,9 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
         labels: task.labels || [],
         fileLinks: task.fileLinks || [],
         workloadHours: task.workloadHours || 0,
+        weekendTask: task.weekendTask ?? false,
       })
-      setDuration(computeDuration(task.startDate, task.endDate))
+      setDuration(computeDuration(task.startDate, task.endDate, task.weekendTask ?? false))
     }
   }, [task?.id])
 
@@ -65,11 +78,12 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
     setFormData((prev) => {
       const next = { ...prev, [field]: value }
       if (field === 'startDate' && duration && value) {
-        next.endDate = addDaysToDate(value, Number(duration))
+        next.endDate = addDaysToDate(value, Number(duration), prev.weekendTask)
       } else if (field === 'startDate' || field === 'endDate') {
         setDuration(computeDuration(
           field === 'startDate' ? value : prev.startDate,
-          field === 'endDate' ? value : prev.endDate
+          field === 'endDate' ? value : prev.endDate,
+          prev.weekendTask
         ))
       }
       return next
@@ -80,8 +94,24 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
     const val = e.target.value
     setDuration(val)
     if (val && formData.startDate && Number(val) > 0) {
-      setFormData((prev) => ({ ...prev, endDate: addDaysToDate(prev.startDate, Number(val)) }))
+      setFormData((prev) => ({ ...prev, endDate: addDaysToDate(prev.startDate, Number(val), prev.weekendTask) }))
     }
+  }
+
+  const handleWeekendTaskChange = (e) => {
+    const includeWeekends = e.target.checked
+    setFormData((prev) => {
+      const next = { ...prev, weekendTask: includeWeekends }
+
+      if (prev.startDate && prev.endDate) {
+        const newDuration = computeDuration(prev.startDate, prev.endDate, includeWeekends)
+        setDuration(newDuration)
+      } else if (prev.startDate && duration && Number(duration) > 0) {
+        next.endDate = addDaysToDate(prev.startDate, Number(duration), includeWeekends)
+      }
+
+      return next
+    })
   }
 
   const handleLabelsChange = (labels) => {
@@ -202,6 +232,22 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
           )}
         </div>
       </div>
+
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={formData.weekendTask}
+          onChange={handleWeekendTaskChange}
+          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          name="weekendTask"
+        />
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          {t('taskForm.weekendTask')}
+        </span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          ({t('taskForm.weekendTaskHelp')})
+        </span>
+      </label>
 
       <LabelPicker
         selectedLabels={formData.labels}

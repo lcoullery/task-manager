@@ -17,7 +17,7 @@ export function addDays(dateStr, n) {
   return toDateStr(d)
 }
 
-function toDateStr(date) {
+export function toDateStr(date) {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const d = String(date.getDate()).padStart(2, '0')
@@ -100,6 +100,41 @@ export function getTimelineRange(tasks, viewMode) {
 export function isWeekend(dateStr) {
   const d = new Date(dateStr + 'T00:00:00')
   return d.getDay() === 0 || d.getDay() === 6
+}
+
+export function countWeekdaysBetween(startDateStr, endDateStr) {
+  const start = new Date(startDateStr + 'T00:00:00')
+  const end = new Date(endDateStr + 'T00:00:00')
+
+  if (start > end) return 0
+
+  let count = 0
+  const current = new Date(start)
+
+  while (current <= end) {
+    if (!isWeekend(toDateStr(current))) {
+      count++
+    }
+    current.setDate(current.getDate() + 1)
+  }
+
+  return count
+}
+
+export function addWeekdays(dateStr, weekdays) {
+  if (weekdays <= 0) return dateStr
+
+  let current = new Date(dateStr + 'T00:00:00')
+  let added = 0
+
+  while (added < weekdays) {
+    current.setDate(current.getDate() + 1)
+    if (!isWeekend(toDateStr(current))) {
+      added++
+    }
+  }
+
+  return toDateStr(current)
 }
 
 export function isToday(dateStr) {

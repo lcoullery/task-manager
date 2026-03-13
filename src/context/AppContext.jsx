@@ -3,6 +3,7 @@ import { useDataFile } from '../hooks/useDataFile'
 import { useAutoRefresh } from '../hooks/useAutoRefresh'
 import { generateId } from '../utils/storage'
 import { generateAvatarColor } from '../utils/colors'
+import { isWeekend } from '../utils/gantt'
 
 const AppContext = createContext(null)
 
@@ -80,6 +81,7 @@ export function AppProvider({ children }) {
       labels: task.labels || [],
       fileLinks: task.fileLinks || [],
       workloadHours: task.workloadHours || 0,
+      weekendTask: task.weekendTask ?? false,
       comments: [],
       archived: false,
       createdAt: new Date().toISOString(),
@@ -328,6 +330,14 @@ export function AppProvider({ children }) {
         let current = new Date(overlapStart)
         while (current <= overlapEnd) {
           const dateKey = current.toISOString().split('T')[0]
+
+          // Skip weekends if task has weekendTask=false
+          const includeWeekends = task.weekendTask ?? false
+          if (!includeWeekends && isWeekend(dateKey)) {
+            current.setDate(current.getDate() + 1)
+            continue
+          }
+
           workloadMap[dateKey] = (workloadMap[dateKey] || 0) + Number(task.workloadHours || 0)
           current.setDate(current.getDate() + 1)
         }

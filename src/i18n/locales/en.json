@@ -50,6 +50,8 @@
   "taskForm.duration": "Duration (days)",
   "taskForm.workloadHours": "Hours/Day",
   "taskForm.totalWorkload": "Total",
+  "taskForm.weekendTask": "Include weekends in calculations",
+  "taskForm.weekendTaskHelp": "Unchecked: weekdays only",
   "taskForm.cancel": "Cancel",
   "taskForm.saveChanges": "Save Changes",
   "taskForm.createTask": "Create Task",

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../context/AppContext'
+import { isWeekend } from '../utils/gantt'
 
 export function WorkloadView() {
   const { profiles, getUserWorkload, settings } = useApp()
@@ -66,6 +67,44 @@ export function WorkloadView() {
     return viewMode === 'week' ? `${dayName} ${dayNum}` : String(dayNum)
   }
 
+  // Group dates by month for header
+  const monthGroups = useMemo(() => {
+    const groups = []
+    let currentMonth = null
+    let monthStart = 0
+    let monthDayCount = 0
+
+    dates.forEach((dateStr, i) => {
+      const date = new Date(dateStr)
+      const monthKey = `${date.getFullYear()}-${date.getMonth()}`
+
+      if (monthKey !== currentMonth) {
+        if (currentMonth !== null) {
+          groups.push({
+            label: new Date(dates[monthStart]).toLocaleDateString(settings.language || 'en', { month: 'long', year: 'numeric' }),
+            span: monthDayCount,
+            startIndex: monthStart,
+          })
+        }
+        currentMonth = monthKey
+        monthStart = i
+        monthDayCount = 0
+      }
+      monthDayCount++
+    })
+
+    // Push last month group
+    if (currentMonth !== null) {
+      groups.push({
+        label: new Date(dates[monthStart]).toLocaleDateString(settings.language || 'en', { month: 'long', year: 'numeric' }),
+        span: monthDayCount,
+        startIndex: monthStart,
+      })
+    }
+
+    return groups
+  }, [dates, settings.language])
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -97,26 +136,6 @@ export function WorkloadView() {
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="mb-4 flex items-center gap-4 text-sm">
-        <span className="text-gray-600 dark:text-gray-400">{t('workload.legend')}:</span>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-100 dark:bg-green-900/30 border border-green-300"></div>
-          <span className="text-gray-700 dark:text-gray-300">&lt; 100%</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300"></div>
-          <span className="text-gray-700 dark:text-gray-300">100%</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-red-100 dark:bg-red-900/30 border border-red-300"></div>
-          <span className="text-gray-700 dark:text-gray-300">&gt; 100%</span>
-        </div>
-        <span className="text-gray-500 dark:text-gray-400 ml-4">
-          {t('workload.maxCapacity')}: {maxHoursPerDay}h/day
-        </span>
-      </div>
-
       {/* Workload Table */}
       {profiles.length === 0 ? (
         <div className="text-center py-12 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -127,12 +146,29 @@ export function WorkloadView() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
+                {/* Month header row */}
                 <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                  <th className="sticky left-0 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+                  <th className="sticky left-0 bg-gray-50 dark:bg-gray-800 px-4 py-2 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
                     {t('workload.user')}
                   </th>
+                  {monthGroups.map((group, idx) => (
+                    <th key={idx} colSpan={group.span} className="px-2 py-2 text-center text-sm font-semibold text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+                      {group.label}
+                    </th>
+                  ))}
+                </tr>
+                {/* Day header row */}
+                <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <th className="sticky left-0 bg-gray-50 dark:bg-gray-800 px-4 py-2 border-r border-gray-200 dark:border-gray-700"></th>
                   {dates.map(date => (
-                    <th key={date} className="px-2 py-3 text-center text-xs font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    <th
+                      key={date}
+                      className={`px-2 py-2 text-center text-xs font-medium whitespace-nowrap ${
+                        isWeekend(date)
+                          ? 'bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                          : 'text-gray-600 dark:text-gray-400'
+                      }`}
+                    >
                       {formatDate(date)}
                     </th>
                   ))}
@@ -154,8 +190,12 @@ export function WorkloadView() {
                     </td>
                     {dates.map(date => {
                       const hours = workload[date] || 0
+                      const weekend = isWeekend(date)
                       return (
-                        <td key={date} className="px-2 py-3 text-center">
+                        <td
+                          key={date}
+                          className={`px-2 py-3 text-center ${weekend ? 'bg-white dark:bg-gray-800' : ''}`}
+                        >
                           <div className={`inline-block min-w-[3rem] px-2 py-1 rounded text-sm ${getColorClass(hours)}`}>
                             {hours > 0 ? `${hours}h` : '-'}
                           </div>

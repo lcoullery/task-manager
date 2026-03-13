@@ -3,7 +3,7 @@
   "nav.dashboard": "Tableau de bord",
   "nav.list": "Liste",
   "nav.gantt": "Gantt",
-  "nav.workload": "Charge de travail",
+  "nav.workload": "Effort",
   "nav.profiles": "Profils",
   "nav.settings": "Param\u00e8tres",
 
@@ -50,6 +50,8 @@
   "taskForm.duration": "Dur\u00e9e (jours)",
   "taskForm.workloadHours": "Heures/jour",
   "taskForm.totalWorkload": "Total",
+  "taskForm.weekendTask": "Inclure les week-ends dans les calculs",
+  "taskForm.weekendTaskHelp": "Non coch\u00e9 : jours ouvrables uniquement",
   "taskForm.cancel": "Annuler",
   "taskForm.saveChanges": "Enregistrer",
   "taskForm.createTask": "Cr\u00e9er la t\u00e2che",
@@ -223,14 +225,14 @@
   "fileLinks.titlePlaceholder": "Titre du lien (optionnel)",
   "fileLinks.deleteLink": "Supprimer le lien",
 
-  "workload.title": "Charge de travail",
+  "workload.title": "Effort",
   "workload.week": "Semaine",
   "workload.month": "Mois",
   "workload.user": "Utilisateur",
   "workload.legend": "L\u00e9gende",
   "workload.maxCapacity": "Capacit\u00e9 max",
-  "workload.noProfiles": "Aucun profil. Cr\u00e9ez des profils pour suivre la charge de travail.",
+  "workload.noProfiles": "Aucun profil. Cr\u00e9ez des profils pour suivre l'effort.",
 
-  "settings.maxHoursPerDay": "Charge max (heures/jour)",
+  "settings.maxHoursPerDay": "Effort max (heures/jour)",
   "settings.maxHoursPerDayDesc": "Nombre maximum d'heures qu'un utilisateur peut travailler par jour"
 }
