@@ -160,6 +160,7 @@ const DEFAULT_DATA = {
     autoRefreshEnabled: true,
     autoRefreshInterval: 3000,
     language: 'en',
+    maxHoursPerDay: 8,
   },
 }
 

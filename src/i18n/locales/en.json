@@ -3,6 +3,7 @@
   "nav.dashboard": "Dashboard",
   "nav.list": "List",
   "nav.gantt": "Gantt",
+  "nav.workload": "Workload",
   "nav.profiles": "Profiles",
   "nav.settings": "Settings",
 
@@ -47,6 +48,8 @@
   "taskForm.startDate": "Start Date",
   "taskForm.endDate": "End Date",
   "taskForm.duration": "Duration (days)",
+  "taskForm.workloadHours": "Hours/Day",
+  "taskForm.totalWorkload": "Total",
   "taskForm.cancel": "Cancel",
   "taskForm.saveChanges": "Save Changes",
   "taskForm.createTask": "Create Task",
@@ -237,6 +240,17 @@
   "fileLinks.urlPlaceholder": "Paste URL...",
   "fileLinks.titlePlaceholder": "Link title (optional)",
   "fileLinks.deleteLink": "Delete link",
+
+  "workload.title": "Workload",
+  "workload.week": "Week",
+  "workload.month": "Month",
+  "workload.user": "User",
+  "workload.legend": "Legend",
+  "workload.maxCapacity": "Max capacity",
+  "workload.noProfiles": "No profiles yet. Create profiles to track workload.",
+
+  "settings.maxHoursPerDay": "Max Workload (hours/day)",
+  "settings.maxHoursPerDayDesc": "Maximum number of hours a user can work per day",
 
   "common.cancel": "Cancel"
 }

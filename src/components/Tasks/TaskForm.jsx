@@ -26,6 +26,7 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
     endDate: '',
     labels: [],
     fileLinks: [],
+    workloadHours: 0,
   })
   const [duration, setDuration] = useState('')
 
@@ -53,13 +54,14 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
         endDate: task.endDate || '',
         labels: task.labels || [],
         fileLinks: task.fileLinks || [],
+        workloadHours: task.workloadHours || 0,
       })
       setDuration(computeDuration(task.startDate, task.endDate))
     }
   }, [task?.id])
 
   const handleChange = (field) => (e) => {
-    const value = e.target.value
+    let value = e.target.value
     setFormData((prev) => {
       const next = { ...prev, [field]: value }
       if (field === 'startDate' && duration && value) {
@@ -97,6 +99,7 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
       assignedTo: formData.assignedTo || null,
       startDate: formData.startDate || null,
       endDate: formData.endDate || null,
+      workloadHours: formData.workloadHours === '' ? 0 : Number(formData.workloadHours),
     })
   }
 
@@ -181,6 +184,23 @@ export const TaskForm = forwardRef(function TaskForm({ task, onSubmit, onCancel,
           name="duration"
           min="1"
         />
+
+        <div>
+          <Input
+            label={t('taskForm.workloadHours')}
+            type="number"
+            value={formData.workloadHours}
+            onChange={handleChange('workloadHours')}
+            name="workloadHours"
+            min="0"
+            step="0.5"
+          />
+          {duration && formData.workloadHours > 0 && (
+            <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              {t('taskForm.totalWorkload')}: {(Number(formData.workloadHours) * Number(duration)).toFixed(1)}h
+            </div>
+          )}
+        </div>
       </div>
 
       <LabelPicker

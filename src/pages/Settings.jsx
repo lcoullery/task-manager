@@ -95,6 +95,29 @@ export function Settings() {
         </div>
       </section>
 
+      {/* Workload Settings */}
+      <section className="card p-6">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {t('settings.maxHoursPerDay')}
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          {t('settings.maxHoursPerDayDesc')}
+        </p>
+        <div className="flex items-center gap-4">
+          <input
+            type="number"
+            min="1"
+            max="24"
+            step="0.5"
+            value={settings.maxHoursPerDay || 8}
+            onChange={(e) => updateSettings({ maxHoursPerDay: Number(e.target.value) })}
+            className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+              bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          />
+          <span className="text-gray-700 dark:text-gray-300">hours/day</span>
+        </div>
+      </section>
+
       {/* Column Editor */}
       <section className="card p-6">
         <ColumnEditor />

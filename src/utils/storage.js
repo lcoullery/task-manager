@@ -23,6 +23,7 @@ export const DEFAULT_DATA = {
     autoUpdateEnabled: false,
     updateCheckInterval: 86400000,
     language: 'en',
+    maxHoursPerDay: 8,
   },
 }
 

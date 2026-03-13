@@ -3,6 +3,7 @@
   "nav.dashboard": "Pannello",
   "nav.list": "Lista",
   "nav.gantt": "Gantt",
+  "nav.workload": "Carico di lavoro",
   "nav.profiles": "Profili",
   "nav.settings": "Impostazioni",
 
@@ -47,6 +48,8 @@
   "taskForm.startDate": "Data di inizio",
   "taskForm.endDate": "Data di fine",
   "taskForm.duration": "Durata (giorni)",
+  "taskForm.workloadHours": "Ore/giorno",
+  "taskForm.totalWorkload": "Totale",
   "taskForm.cancel": "Annulla",
   "taskForm.saveChanges": "Salva modifiche",
   "taskForm.createTask": "Crea attivit\u00e0",
@@ -218,5 +221,16 @@
   "fileLinks.title": "Link ({{count}})",
   "fileLinks.urlPlaceholder": "Incolla URL...",
   "fileLinks.titlePlaceholder": "Titolo del link (opzionale)",
-  "fileLinks.deleteLink": "Elimina link"
+  "fileLinks.deleteLink": "Elimina link",
+
+  "workload.title": "Carico di lavoro",
+  "workload.week": "Settimana",
+  "workload.month": "Mese",
+  "workload.user": "Utente",
+  "workload.legend": "Legenda",
+  "workload.maxCapacity": "Capacit\u00e0 max",
+  "workload.noProfiles": "Nessun profilo. Crea profili per monitorare il carico di lavoro.",
+
+  "settings.maxHoursPerDay": "Carico max (ore/giorno)",
+  "settings.maxHoursPerDayDesc": "Numero massimo di ore che un utente pu\u00f2 lavorare al giorno"
 }

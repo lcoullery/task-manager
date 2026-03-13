@@ -3,6 +3,7 @@
   "nav.dashboard": "\u00dcbersicht",
   "nav.list": "Liste",
   "nav.gantt": "Gantt",
+  "nav.workload": "Arbeitslast",
   "nav.profiles": "Profile",
   "nav.settings": "Einstellungen",
 
@@ -47,6 +48,8 @@
   "taskForm.startDate": "Startdatum",
   "taskForm.endDate": "Enddatum",
   "taskForm.duration": "Dauer (Tage)",
+  "taskForm.workloadHours": "Stunden/Tag",
+  "taskForm.totalWorkload": "Gesamt",
   "taskForm.cancel": "Abbrechen",
   "taskForm.saveChanges": "\u00c4nderungen speichern",
   "taskForm.createTask": "Aufgabe erstellen",
@@ -218,5 +221,16 @@
   "fileLinks.title": "Links ({{count}})",
   "fileLinks.urlPlaceholder": "URL einfügen...",
   "fileLinks.titlePlaceholder": "Link-Titel (optional)",
-  "fileLinks.deleteLink": "Link löschen"
+  "fileLinks.deleteLink": "Link löschen",
+
+  "workload.title": "Arbeitslast",
+  "workload.week": "Woche",
+  "workload.month": "Monat",
+  "workload.user": "Benutzer",
+  "workload.legend": "Legende",
+  "workload.maxCapacity": "Max. Kapazität",
+  "workload.noProfiles": "Noch keine Profile. Erstellen Sie Profile, um die Arbeitslast zu verfolgen.",
+
+  "settings.maxHoursPerDay": "Max. Arbeitslast (Stunden/Tag)",
+  "settings.maxHoursPerDayDesc": "Maximale Anzahl der Stunden, die ein Benutzer pro Tag arbeiten kann"
 }

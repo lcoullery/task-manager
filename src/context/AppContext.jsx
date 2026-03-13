@@ -79,6 +79,7 @@ export function AppProvider({ children }) {
       endDate: task.endDate || null,
       labels: task.labels || [],
       fileLinks: task.fileLinks || [],
+      workloadHours: task.workloadHours || 0,
       comments: [],
       archived: false,
       createdAt: new Date().toISOString(),
@@ -305,6 +306,37 @@ export function AppProvider({ children }) {
     }))
   }, [updateData])
 
+  // ============ WORKLOAD ============
+  const getUserWorkload = useCallback((userId, startDate, endDate) => {
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const workloadMap = {}
+
+    // Iterate through all tasks assigned to this user
+    tasks.filter(t => t.assignedTo === userId && !t.archived).forEach(task => {
+      if (!task.startDate || !task.endDate || !task.workloadHours) return
+
+      const taskStart = new Date(task.startDate)
+      const taskEnd = new Date(task.endDate)
+
+      // Calculate overlap between task range and query range
+      const overlapStart = taskStart > start ? taskStart : start
+      const overlapEnd = taskEnd < end ? taskEnd : end
+
+      if (overlapStart <= overlapEnd) {
+        // Iterate through each day in the overlap
+        let current = new Date(overlapStart)
+        while (current <= overlapEnd) {
+          const dateKey = current.toISOString().split('T')[0]
+          workloadMap[dateKey] = (workloadMap[dateKey] || 0) + Number(task.workloadHours || 0)
+          current.setDate(current.getDate() + 1)
+        }
+      }
+    })
+
+    return workloadMap
+  }, [tasks])
+
   // ============ SETTINGS ============
   const settings = useMemo(() => data.settings || {}, [data.settings])
 
@@ -362,6 +394,9 @@ export function AppProvider({ children }) {
     // Settings
     settings,
     updateSettings,
+
+    // Workload
+    getUserWorkload,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
