@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
+import { useKeyboard, createShortcuts } from '../../hooks/useKeyboard'
 import { VIEW_CONFIGS, getTimelineRange, getHeaderCells, daysBetween, getTodayStr } from '../../utils/gantt'
 import { GanttHeader } from './GanttHeader'
 import { GanttRow } from './GanttRow'
@@ -24,6 +25,14 @@ export function GanttChart() {
     showArchived: false,
   })
   const scrollRef = useRef(null)
+
+  useKeyboard(
+    createShortcuts({
+      focusSearch: () => {
+        document.getElementById('task-search')?.focus()
+      },
+    })
+  )
 
   const VIEW_MODE_LABELS = {
     week: t('ganttChart.week'),
