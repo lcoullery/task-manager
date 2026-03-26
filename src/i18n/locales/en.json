@@ -301,5 +301,20 @@
   "users.pendingInvitations": "Pending Invitations",
   "users.expiresIn": "Expires in {{time}}",
   "users.noUsers": "No users yet",
-  "users.noPendingInvites": "No pending invitations"
+  "users.noPendingInvites": "No pending invitations",
+  "users.nameRequired": "Name is required",
+  "users.emailRequired": "Email is required",
+  "users.invalidEmail": "Please enter a valid email address",
+  "users.inviteFailed": "Failed to send invitation",
+  "users.inviteSent": "Invitation sent successfully!",
+  "users.pending": "Pending",
+  "users.emailNotConfigured": "Email not configured - Share this link manually:",
+  "users.copyInviteLinkManually": "Copy the invite link below and send it to the user:",
+  "users.copy": "Copy",
+
+  "common.actions": "Actions",
+  "common.loading": "Loading...",
+  "common.delete": "Delete",
+  "common.cancel": "Cancel",
+  "common.send": "Send"
 }

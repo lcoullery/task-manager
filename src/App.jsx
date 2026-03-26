@@ -7,6 +7,7 @@ import { Settings } from './pages/Settings'
 import { ListView } from './pages/ListView'
 import { GanttView } from './pages/GanttView'
 import { WorkloadView } from './pages/WorkloadView'
+import Users from './pages/Users'
 import { BugReportButton } from './components/BugReport/BugReportButton'
 import { Toast } from './components/common/Toast'
 import { useApp } from './context/AppContext'
@@ -54,6 +55,7 @@ function App() {
                 <Route path="/gantt" element={<GanttView />} />
                 <Route path="/workload" element={<WorkloadView />} />
                 <Route path="/profiles" element={<Profiles />} />
+                <Route path="/users" element={<Users />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>
             </main>
