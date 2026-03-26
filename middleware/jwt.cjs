@@ -12,8 +12,8 @@
  * - Check if they're allowed in this area (authorize)
  */
 
-const { verifyAccessToken } = require('../utils/jwt');
-const { findUserById } = require('../db/users');
+const { verifyAccessToken } = require('../utils/jwt.cjs');
+const { findUserById } = require('../db/users.cjs');
 
 /**
  * Authentication middleware
@@ -214,8 +214,8 @@ function requireAdmin(req, res, next) {
 const rateLimit = require('express-rate-limit');
 
 const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 requests per window
+  windowMs: parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MS || '900000', 10), // 15 minutes default
+  max: parseInt(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS || '5000', 10), // 5000 requests default
   message: {
     error: 'Too many attempts',
     message: 'Too many login attempts. Please try again in 15 minutes.',

@@ -10,7 +10,7 @@
  * - Manage invitations
  */
 
-const { db } = require('./init');
+const { db } = require('./init.cjs');
 const crypto = require('crypto');
 
 // ============================================================================
@@ -227,6 +227,20 @@ function findRefreshToken(tokenHash) {
 }
 
 /**
+ * Find refresh token by ID
+ * @param {string} tokenId - Token ID
+ * @returns {Object|null} Token object or null if not found
+ */
+function findRefreshTokenById(tokenId) {
+  const stmt = db.prepare(`
+    SELECT * FROM refresh_tokens
+    WHERE id = ? AND revoked = 0
+  `);
+
+  return stmt.get(tokenId);
+}
+
+/**
  * Revoke refresh token (logout)
  * @param {string} tokenHash - Hashed token
  * @returns {boolean} True if revoked, false if not found
@@ -401,6 +415,7 @@ module.exports = {
   // Token operations
   storeRefreshToken,
   findRefreshToken,
+  findRefreshTokenById,
   revokeRefreshToken,
   revokeAllUserTokens,
   deleteExpiredTokens,

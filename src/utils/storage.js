@@ -1,3 +1,5 @@
+import api from './api';
+
 // Default data structure
 export const DEFAULT_DATA = {
   profiles: [],
@@ -66,9 +68,7 @@ export function saveData(data) {
 // Load data from the Express server, updating localStorage cache
 export async function loadDataFromServer() {
   try {
-    const res = await fetch('/api/data')
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
+    const data = await api.get('/api/data')
     // Merge with defaults
     const merged = {
       ...DEFAULT_DATA,
@@ -86,13 +86,7 @@ export async function loadDataFromServer() {
 
 // Push data to the Express server
 export async function saveDataToServer(data) {
-  const res = await fetch('/api/data', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return res.json()
+  return await api.post('/api/data', data)
 }
 
 // Load server config (dataFilePath)

@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useCallback } from 'react'
 import { useDataFile } from '../hooks/useDataFile'
 import { useAutoRefresh } from '../hooks/useAutoRefresh'
+import { useAuth } from './AuthContext'
 import { generateId } from '../utils/storage'
 import { generateAvatarColor } from '../utils/colors'
 import { isWeekend } from '../utils/gantt'
@@ -8,6 +9,8 @@ import { isWeekend } from '../utils/gantt'
 const AppContext = createContext(null)
 
 export function AppProvider({ children }) {
+  const { isAuthenticated } = useAuth()
+
   const {
     data,
     loading,
@@ -17,9 +20,9 @@ export function AppProvider({ children }) {
     reload,
   } = useDataFile()
 
-  // Auto refresh for real-time multi-user sync (interval configurable in data settings)
+  // Auto refresh for real-time multi-user sync (only when authenticated)
   useAutoRefresh(
-    data.settings?.autoRefreshEnabled ?? true,
+    isAuthenticated && (data.settings?.autoRefreshEnabled ?? true),
     data.settings?.autoRefreshInterval ?? 3000,
     reload
   )

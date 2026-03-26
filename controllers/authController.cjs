@@ -23,7 +23,7 @@ const {
   verifyRefreshToken,
   hashToken,
   calculateExpiration
-} = require('../utils/jwt');
+} = require('../utils/jwt.cjs');
 const {
   findUserByEmail,
   findUserById,
@@ -31,12 +31,13 @@ const {
   updateLastLogin,
   storeRefreshToken,
   findRefreshToken,
+  findRefreshTokenById,
   revokeRefreshToken,
   revokeAllUserTokens,
   findInvitation,
   markInvitationUsed,
   countUsers
-} = require('../db/users');
+} = require('../db/users.cjs');
 
 /**
  * POST /api/auth/login
@@ -171,9 +172,8 @@ async function refresh(req, res) {
       });
     }
 
-    // Check if token exists in database and is not revoked
-    const tokenHash = hashToken(refreshToken);
-    const storedToken = findRefreshToken(tokenHash);
+    // Check if token exists in database and is not revoked (use tokenId from JWT)
+    const storedToken = findRefreshTokenById(decoded.tokenId);
 
     if (!storedToken) {
       return res.status(401).json({

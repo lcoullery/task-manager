@@ -20,9 +20,9 @@ const {
   createInvitation,
   getPendingInvitations,
   findUserByEmail
-} = require('../db/users');
-const { generateInviteToken, hashToken, calculateExpiration } = require('../utils/jwt');
-const { sendInviteEmail } = require('../utils/email');
+} = require('../db/users.cjs');
+const { generateInviteToken, hashToken, calculateExpiration } = require('../utils/jwt.cjs');
+const { sendInviteEmail } = require('../utils/email.cjs');
 
 /**
  * GET /api/users

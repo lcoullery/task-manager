@@ -17,7 +17,7 @@ const dotenv = require('dotenv');
 const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const logger = require('./utils/logger.js');
+const logger = require('./utils/logger.cjs');
 
 // Load environment variables
 dotenv.config();
@@ -51,11 +51,11 @@ let db = null;
 
 if (IS_MIGRATED) {
   // Initialize database connection
-  const { db: dbConnection, closeDatabase } = require('./db/init');
+  const { db: dbConnection, closeDatabase } = require('./db/init.cjs');
   db = dbConnection;
 
   // Initialize email service
-  const { initializeEmailService } = require('./utils/email');
+  const { initializeEmailService } = require('./utils/email.cjs');
   initializeEmailService();
 
   // Graceful shutdown
@@ -216,7 +216,7 @@ app.use(cors({
 // Rate limiting
 const apiLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10), // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '10000', 10),
   message: { error: 'Too many requests, please try again later.' },
 });
 
@@ -257,8 +257,8 @@ app.get('/api/version', (req, res) => {
 // ============================================================================
 
 if (IS_MIGRATED) {
-  const authController = require('./controllers/authController');
-  const { authRateLimiter } = require('./middleware/jwt');
+  const authController = require('./controllers/authController.cjs');
+  const { authRateLimiter } = require('./middleware/jwt.cjs');
 
   // Public auth endpoints (no JWT required, but rate limited)
   app.post('/api/auth/login', authRateLimiter, authController.login);
@@ -266,7 +266,7 @@ if (IS_MIGRATED) {
   app.post('/api/auth/first-admin', authController.createFirstAdmin); // Only works if no users exist
 
   // Authenticated auth endpoints (JWT required)
-  const { authenticateJWT } = require('./middleware/jwt');
+  const { authenticateJWT } = require('./middleware/jwt.cjs');
   app.get('/api/auth/me', authenticateJWT, authController.getCurrentUser);
   app.post('/api/auth/refresh', authController.refresh);
   app.post('/api/auth/logout', authenticateJWT, authController.logout);
@@ -280,8 +280,8 @@ if (IS_MIGRATED) {
 // ============================================================================
 
 if (IS_MIGRATED) {
-  const userController = require('./controllers/userController');
-  const { authenticateJWT, requireAdmin } = require('./middleware/jwt');
+  const userController = require('./controllers/userController.cjs');
+  const { authenticateJWT, requireAdmin } = require('./middleware/jwt.cjs');
 
   // User management (admin only)
   app.get('/api/users', authenticateJWT, requireAdmin, userController.listUsers);
@@ -298,19 +298,21 @@ if (IS_MIGRATED) {
 // ============================================================================
 
 if (IS_MIGRATED) {
-  // Use database controllers (TODO: create these in next phase)
-  const { authenticateJWT } = require('./middleware/jwt');
+  // Use database controllers
+  const { authenticateJWT } = require('./middleware/jwt.cjs');
+  const dataController = require('./controllers/dataController.cjs');
+
+  // Middleware to attach database to request
+  app.use('/api/data', (req, res, next) => {
+    req.db = db;
+    next();
+  });
 
   // Authenticated data endpoints
-  app.get('/api/data', authenticateJWT, (req, res) => {
-    // TODO: Implement database-backed data endpoint
-    res.status(501).json({ error: 'Database data endpoints not yet implemented. Use migration script.' });
-  });
+  app.get('/api/data', authenticateJWT, dataController.getData);
+  app.post('/api/data', authenticateJWT, dataController.saveData);
 
-  app.post('/api/data', authenticateJWT, (req, res) => {
-    // TODO: Implement database-backed data endpoint
-    res.status(501).json({ error: 'Database data endpoints not yet implemented. Use migration script.' });
-  });
+  console.log('✓ Database data endpoints enabled');
 } else {
   // Legacy file-based storage (before migration)
   const { createAuthMiddleware } = require('./middleware/auth.js');
