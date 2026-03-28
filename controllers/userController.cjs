@@ -77,7 +77,7 @@ function listUsers(req, res) {
  */
 async function inviteUser(req, res) {
   try {
-    const { email, name, role } = req.body;
+    const { email, name, role, color } = req.body;
 
     // Validate input
     if (!email || !name || !role) {
@@ -86,6 +86,9 @@ async function inviteUser(req, res) {
         message: 'Email, name, and role are required'
       });
     }
+
+    // Default color if not provided
+    const userColor = color || '#3B82F6';
 
     // Validate role
     if (!['admin', 'member'].includes(role)) {
@@ -122,14 +125,17 @@ async function inviteUser(req, res) {
     const invitation = createInvitation({
       email,
       name,
+      color: userColor, // Avatar color
       role,
       tokenHash,
       invitedBy: req.user.id, // Admin who sent invite
       expiresAt
     });
 
-    // Build invite URL
-    const inviteUrl = `${process.env.APP_URL || 'http://localhost:5173'}/accept-invite/${token}`;
+    // Build invite URL dynamically from request (works on localhost and VPS behind reverse proxy)
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const inviteUrl = `${protocol}://${host}/accept-invite/${token}`;
 
     // Send invite email
     try {

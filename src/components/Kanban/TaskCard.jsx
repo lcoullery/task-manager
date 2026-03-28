@@ -1,7 +1,7 @@
 import { Draggable } from '@hello-pangea/dnd'
 import { Calendar, MessageSquare, Link } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
-import { ProfileAvatar } from '../Profiles/ProfileCard'
+import { ProfileAvatar } from '../common/Avatar'
 import { LabelBadge } from '../Labels/LabelBadge'
 import { PRIORITY_COLORS } from '../../utils/colors'
 import { AssigneeQuickPicker } from './AssigneeQuickPicker'

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Send, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
-import { ProfileAvatar } from '../Profiles/ProfileCard'
+import { Avatar } from '../common/Avatar'
 
 export function CommentList({ taskId, comments = [] }) {
   const { profiles, getProfile, addComment, deleteComment } = useApp()
@@ -36,7 +36,7 @@ export function CommentList({ taskId, comments = [] }) {
                 key={comment.id}
                 className="flex gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50"
               >
-                <ProfileAvatar profile={author} size="sm" />
+                <Avatar profile={author} size="sm" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-medium text-gray-900 dark:text-white">

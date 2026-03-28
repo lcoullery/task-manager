@@ -48,8 +48,19 @@ function toSnakeCase(obj) {
  */
 function getAllData(db) {
   try {
-    // Get profiles
-    const profiles = db.prepare('SELECT * FROM profiles ORDER BY created_at').all().map(toCamelCase);
+    // Get profiles (mapped from users table for backward compatibility)
+    // Only include id, name, color, createdAt - exclude sensitive fields
+    const profiles = db.prepare(`
+      SELECT id, name, color, created_at
+      FROM users
+      WHERE is_active = 1
+      ORDER BY created_at
+    `).all().map(user => ({
+      id: user.id,
+      name: user.name,
+      color: user.color,
+      createdAt: user.created_at
+    }));
 
     // Get labels
     const labels = db.prepare('SELECT * FROM labels ORDER BY created_at').all().map(toCamelCase);
@@ -195,26 +206,9 @@ function saveAllData(db, data, userId) {
     // Start transaction
     db.prepare('BEGIN').run();
 
-    // Save profiles
-    if (data.profiles) {
-      // Delete all existing profiles
-      db.prepare('DELETE FROM profiles').run();
-
-      // Insert new profiles
-      const insertProfile = db.prepare(`
-        INSERT INTO profiles (id, name, color, created_at)
-        VALUES (?, ?, ?, ?)
-      `);
-
-      for (const profile of data.profiles) {
-        insertProfile.run(
-          profile.id,
-          profile.name,
-          profile.color,
-          profile.createdAt || new Date().toISOString()
-        );
-      }
-    }
+    // Note: Profiles are now managed via the users table
+    // They should be updated through the /api/users endpoints, not here
+    // Skip saving profiles in saveAllData to prevent issues
 
     // Save labels
     if (data.labels) {

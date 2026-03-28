@@ -23,6 +23,7 @@ const crypto = require('crypto');
  * @param {string} userData.email - User email
  * @param {string} userData.password_hash - Hashed password
  * @param {string} userData.name - Display name
+ * @param {string} userData.color - Avatar color (hex)
  * @param {string} userData.role - User role (admin/member)
  * @returns {Object} Created user (without password hash)
  */
@@ -31,8 +32,8 @@ function createUser(userData) {
   const now = new Date().toISOString();
 
   const stmt = db.prepare(`
-    INSERT INTO users (id, email, password_hash, name, role, created_at, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, 1)
+    INSERT INTO users (id, email, password_hash, name, color, role, created_at, is_active)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 1)
   `);
 
   stmt.run(
@@ -40,6 +41,7 @@ function createUser(userData) {
     userData.email.toLowerCase(), // Normalize email to lowercase
     userData.password_hash,
     userData.name,
+    userData.color || '#3B82F6', // Default blue if not provided
     userData.role,
     now
   );
@@ -49,6 +51,7 @@ function createUser(userData) {
     id,
     email: userData.email.toLowerCase(),
     name: userData.name,
+    color: userData.color || '#3B82F6',
     role: userData.role,
     created_at: now,
     is_active: true
@@ -87,7 +90,7 @@ function findUserById(id) {
  */
 function getAllUsers() {
   const stmt = db.prepare(`
-    SELECT id, email, name, role, created_at, last_login_at, is_active
+    SELECT id, email, name, color, role, created_at, last_login_at, is_active
     FROM users
     ORDER BY created_at DESC
   `);
@@ -98,11 +101,11 @@ function getAllUsers() {
 /**
  * Update user
  * @param {string} id - User ID
- * @param {Object} updates - Fields to update (name, role, is_active)
+ * @param {Object} updates - Fields to update (name, color, role, is_active)
  * @returns {boolean} True if updated, false if user not found
  */
 function updateUser(id, updates) {
-  const allowedFields = ['name', 'role', 'is_active'];
+  const allowedFields = ['name', 'color', 'role', 'is_active'];
   const fields = [];
   const values = [];
 
@@ -296,6 +299,7 @@ function deleteExpiredTokens() {
  * @param {Object} inviteData - Invitation data
  * @param {string} inviteData.email - Invited user's email
  * @param {string} inviteData.name - Invited user's name
+ * @param {string} inviteData.color - Avatar color (hex)
  * @param {string} inviteData.role - Role to assign
  * @param {string} inviteData.invitedBy - Admin user ID
  * @param {string} inviteData.tokenHash - Hashed invite token
@@ -308,15 +312,16 @@ function createInvitation(inviteData) {
 
   const stmt = db.prepare(`
     INSERT INTO user_invitations (
-      id, email, name, role, token_hash, invited_by, created_at, expires_at, used
+      id, email, name, color, role, token_hash, invited_by, created_at, expires_at, used
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
   `);
 
   stmt.run(
     id,
     inviteData.email.toLowerCase(),
     inviteData.name,
+    inviteData.color || '#3B82F6', // Default blue if not provided
     inviteData.role,
     inviteData.tokenHash,
     inviteData.invitedBy,
@@ -328,6 +333,7 @@ function createInvitation(inviteData) {
     id,
     email: inviteData.email.toLowerCase(),
     name: inviteData.name,
+    color: inviteData.color || '#3B82F6',
     role: inviteData.role,
     invited_by: inviteData.invitedBy,
     created_at: now,
@@ -357,13 +363,17 @@ function findInvitation(tokenHash) {
  * @returns {boolean} True if marked, false if not found
  */
 function markInvitationUsed(id) {
+  // Get the email from this invitation
+  const invitation = db.prepare('SELECT email FROM user_invitations WHERE id = ?').get(id);
+
+  // Mark ALL invitations for this email as used (not just this one)
   const stmt = db.prepare(`
     UPDATE user_invitations
     SET used = 1
-    WHERE id = ?
+    WHERE email = ?
   `);
 
-  const result = stmt.run(id);
+  const result = stmt.run(invitation ? invitation.email : '');
   return result.changes > 0;
 }
 

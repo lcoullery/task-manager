@@ -6,12 +6,14 @@
 -- ============================================================================
 
 -- Users table: Stores user accounts for authentication
+-- NOTE: Users handle both authentication AND task assignment (profiles merged)
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,                    -- Unique user ID (UUID)
   email TEXT UNIQUE NOT NULL,             -- Email (used for login)
   password_hash TEXT NOT NULL,            -- Hashed password (never store plain text!)
   role TEXT NOT NULL CHECK(role IN ('admin', 'member')), -- User role
-  name TEXT NOT NULL,                     -- Display name
+  name TEXT NOT NULL,                     -- Display name (shown in task assignment)
+  color TEXT NOT NULL DEFAULT '#3B82F6',  -- Avatar color (hex)
   created_at TEXT NOT NULL,               -- When account was created
   last_login_at TEXT,                     -- Last login timestamp
   is_active INTEGER DEFAULT 1             -- 1 = active, 0 = disabled
@@ -33,6 +35,7 @@ CREATE TABLE IF NOT EXISTS user_invitations (
   id TEXT PRIMARY KEY,                    -- Invitation ID
   email TEXT NOT NULL,                    -- Invited user's email
   name TEXT NOT NULL,                     -- Invited user's name
+  color TEXT NOT NULL DEFAULT '#3B82F6',  -- Avatar color (hex)
   role TEXT NOT NULL CHECK(role IN ('admin', 'member')), -- Role to assign
   token_hash TEXT NOT NULL,               -- Invite token (sent via email)
   invited_by TEXT NOT NULL,               -- Admin who sent invite
@@ -40,21 +43,6 @@ CREATE TABLE IF NOT EXISTS user_invitations (
   expires_at TEXT NOT NULL,               -- Expiration (48 hours)
   used INTEGER DEFAULT 0,                 -- 1 = invite accepted
   FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- ============================================================================
--- PROFILES (TEAM MEMBERS)
--- ============================================================================
-
--- Profiles: Team members that can be assigned to tasks
--- NOTE: Profiles are separate from users!
--- - Users = authentication accounts (login credentials)
--- - Profiles = team members (task assignment, workload tracking)
-CREATE TABLE IF NOT EXISTS profiles (
-  id TEXT PRIMARY KEY,                    -- Profile ID
-  name TEXT NOT NULL,                     -- Display name
-  color TEXT NOT NULL,                    -- Avatar color (hex)
-  created_at TEXT NOT NULL                -- When profile was created
 );
 
 -- ============================================================================
@@ -68,7 +56,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   description TEXT,                       -- Task description (markdown)
   status TEXT NOT NULL,                   -- Status (todo, in-progress, done, etc.)
   priority TEXT NOT NULL DEFAULT 'medium', -- Priority (low, medium, high)
-  assigned_to TEXT,                       -- Profile ID (who's assigned)
+  assigned_to TEXT,                       -- User ID (who's assigned)
   start_date TEXT,                        -- Start date (ISO 8601)
   end_date TEXT,                          -- End date (ISO 8601)
   workload_hours REAL DEFAULT 0,          -- Estimated hours
@@ -78,7 +66,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   created_at TEXT NOT NULL,               -- When task was created
   updated_at TEXT NOT NULL,               -- Last update timestamp
   created_by TEXT,                        -- User who created task
-  FOREIGN KEY (assigned_to) REFERENCES profiles(id) ON DELETE SET NULL,
+  FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 

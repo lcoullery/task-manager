@@ -378,6 +378,7 @@ async function acceptInvite(req, res) {
       email: invitation.email,
       password_hash,
       name: invitation.name,
+      color: invitation.color || '#3B82F6', // Default color if not in invitation
       role: invitation.role
     });
 

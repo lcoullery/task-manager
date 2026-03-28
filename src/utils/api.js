@@ -11,7 +11,7 @@
  *   const response = await api.get('/api/users')
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4173';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 class ApiClient {
   constructor() {

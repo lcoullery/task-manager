@@ -9,7 +9,6 @@ const navItems = [
   { to: '/list', labelKey: 'nav.list', icon: List },
   { to: '/gantt', labelKey: 'nav.gantt', icon: GanttChart },
   { to: '/workload', labelKey: 'nav.workload', icon: Calendar },
-  { to: '/profiles', labelKey: 'nav.profiles', icon: Users },
   { to: '/settings', labelKey: 'nav.settings', icon: Settings },
 ]
 

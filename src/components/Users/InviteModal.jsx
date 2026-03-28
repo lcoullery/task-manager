@@ -8,6 +8,7 @@ export default function InviteModal({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    color: '#3B82F6', // Default blue
     role: 'member',
   });
   const [loading, setLoading] = useState(false);
@@ -47,11 +48,12 @@ export default function InviteModal({ onClose, onSuccess }) {
       const response = await api.post('/api/users/invite', {
         name: formData.name,
         email: formData.email,
+        color: formData.color,
         role: formData.role,
       });
 
       setSuccess(true);
-      setFormData({ name: '', email: '', role: 'member' });
+      setFormData({ name: '', email: '', color: '#3B82F6', role: 'member' });
 
       // If invite URL is returned (email not configured), show it to admin
       if (response.inviteUrl) {
@@ -146,6 +148,26 @@ export default function InviteModal({ onClose, onSuccess }) {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               disabled={loading}
             />
+          </div>
+
+          {/* Color Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {t('users.avatarColor')}
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                name="color"
+                value={formData.color}
+                onChange={handleChange}
+                className="h-10 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+                disabled={loading}
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {formData.color}
+              </span>
+            </div>
           </div>
 
           {/* Email Field */}

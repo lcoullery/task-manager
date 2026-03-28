@@ -13,6 +13,17 @@ export default function UsersPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [deleting, setDeleting] = useState(null);
 
+  // Get initials from name (e.g., "John Doe" -> "JD")
+  function getInitials(name) {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
   useEffect(() => {
     loadData();
   }, []);
@@ -96,6 +107,9 @@ export default function UsersPage() {
             <thead>
               <tr className="border-b border-gray-200 dark:border-gray-700">
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+                  {/* Avatar column */}
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
                   {t('users.userName')}
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
@@ -118,13 +132,23 @@ export default function UsersPage() {
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                     {t('users.noUsers')}
                   </td>
                 </tr>
               ) : (
                 users.map(user => (
                   <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td className="px-6 py-4">
+                      {/* Avatar */}
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+                        style={{ backgroundColor: user.color || '#3B82F6' }}
+                        title={user.name}
+                      >
+                        {getInitials(user.name)}
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="font-medium text-gray-900 dark:text-white">
                         {user.name}

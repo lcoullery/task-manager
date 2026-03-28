@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { UserPlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
-import { ProfileAvatar } from '../Profiles/ProfileCard'
+import { ProfileAvatar } from '../common/Avatar'
 
 export function AssigneeQuickPicker({ taskId }) {
   const { profiles, updateTask } = useApp()

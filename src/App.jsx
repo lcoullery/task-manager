@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Navbar } from './components/Layout/Navbar'
 import { Dashboard } from './pages/Dashboard'
-import { Profiles } from './pages/Profiles'
 import { Settings } from './pages/Settings'
 import { ListView } from './pages/ListView'
 import { GanttView } from './pages/GanttView'
@@ -14,6 +13,7 @@ import { useApp } from './context/AppContext'
 import { useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/Auth/ProtectedRoute'
 import Login from './pages/Login'
+import AcceptInvite from './pages/AcceptInvite'
 
 function App() {
   const { settings } = useApp()
@@ -42,6 +42,7 @@ function App() {
     <Routes>
       {/* Public route */}
       <Route path="/login" element={<Login />} />
+      <Route path="/accept-invite/:token" element={<AcceptInvite />} />
 
       {/* Protected routes */}
       <Route path="/*" element={
@@ -54,7 +55,7 @@ function App() {
                 <Route path="/list" element={<ListView />} />
                 <Route path="/gantt" element={<GanttView />} />
                 <Route path="/workload" element={<WorkloadView />} />
-                <Route path="/profiles" element={<Profiles />} />
+                <Route path="/profiles" element={<Navigate to="/users" replace />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>

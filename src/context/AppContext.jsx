@@ -28,41 +28,9 @@ export function AppProvider({ children }) {
   )
 
   // ============ PROFILES ============
+  // Note: Profiles are now managed via Users API (admin only)
+  // This is populated from backend (users mapped to profiles)
   const profiles = useMemo(() => data.profiles || [], [data.profiles])
-
-  const addProfile = useCallback((name, color) => {
-    const newProfile = {
-      id: generateId(),
-      name,
-      color: color || generateAvatarColor(name),
-      createdAt: new Date().toISOString(),
-    }
-    updateData((prev) => ({
-      ...prev,
-      profiles: [...prev.profiles, newProfile],
-    }))
-    return newProfile
-  }, [updateData])
-
-  const updateProfile = useCallback((id, updates) => {
-    updateData((prev) => ({
-      ...prev,
-      profiles: prev.profiles.map((p) =>
-        p.id === id ? { ...p, ...updates } : p
-      ),
-    }))
-  }, [updateData])
-
-  const deleteProfile = useCallback((id) => {
-    updateData((prev) => ({
-      ...prev,
-      profiles: prev.profiles.filter((p) => p.id !== id),
-      // Unassign tasks from deleted profile
-      tasks: prev.tasks.map((t) =>
-        t.assignedTo === id ? { ...t, assignedTo: null } : t
-      ),
-    }))
-  }, [updateData])
 
   const getProfile = useCallback((id) => {
     return profiles.find((p) => p.id === id)
@@ -369,11 +337,8 @@ export function AppProvider({ children }) {
     // Data management
     reload,
 
-    // Profiles
+    // Profiles (managed via Users API)
     profiles,
-    addProfile,
-    updateProfile,
-    deleteProfile,
     getProfile,
 
     // Tasks
