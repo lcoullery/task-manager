@@ -53,7 +53,10 @@ export function UserMenu() {
         className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
       >
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold">
+        <div
+          className="w-8 h-8 rounded-full text-white flex items-center justify-center text-xs font-semibold"
+          style={{ backgroundColor: user.color || '#3B82F6' }}
+        >
           {initials}
         </div>
 
@@ -84,6 +87,15 @@ export function UserMenu() {
 
           {/* Menu Items */}
           <div className="py-1">
+            {/* My Profile */}
+            <button
+              onClick={() => { setIsOpen(false); navigate('/profile'); }}
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+            >
+              <User className="w-4 h-4" />
+              {t('userMenu.myProfile')}
+            </button>
+
             {/* User Management (Admin Only) */}
             {user.role === 'admin' && (
               <button

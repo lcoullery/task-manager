@@ -14,6 +14,7 @@ import { useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/Auth/ProtectedRoute'
 import Login from './pages/Login'
 import AcceptInvite from './pages/AcceptInvite'
+import Profile from './pages/Profile'
 
 function App() {
   const { settings } = useApp()
@@ -57,6 +58,7 @@ function App() {
                 <Route path="/workload" element={<WorkloadView />} />
                 <Route path="/profiles" element={<Navigate to="/users" replace />} />
                 <Route path="/users" element={<Users />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>
             </main>

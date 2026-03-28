@@ -77,6 +77,7 @@ function authenticateJWT(req, res, next) {
       id: user.id,
       email: user.email,
       name: user.name,
+      color: user.color,
       role: user.role
     };
 

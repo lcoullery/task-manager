@@ -406,6 +406,18 @@ function deleteExpiredInvitations() {
   return result.changes;
 }
 
+/**
+ * Update user password
+ * @param {string} id - User ID
+ * @param {string} passwordHash - New hashed password
+ * @returns {boolean} True if updated
+ */
+function updatePassword(id, passwordHash) {
+  const stmt = db.prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+  const result = stmt.run(passwordHash, id);
+  return result.changes > 0;
+}
+
 // ============================================================================
 // EXPORTS
 // ============================================================================
@@ -421,6 +433,7 @@ module.exports = {
   deleteUser,
   hardDeleteUser,
   countUsers,
+  updatePassword,
 
   // Token operations
   storeRefreshToken,

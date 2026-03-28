@@ -271,6 +271,8 @@ if (IS_MIGRATED) {
   app.post('/api/auth/refresh', authController.refresh);
   app.post('/api/auth/logout', authenticateJWT, authController.logout);
   app.post('/api/auth/logout-all', authenticateJWT, authController.logoutAll);
+  app.put('/api/auth/profile', authenticateJWT, authController.updateProfile);
+  app.put('/api/auth/password', authenticateJWT, authController.changePassword);
 
   console.log('✓ Authentication routes enabled');
 }
