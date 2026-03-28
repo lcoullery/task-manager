@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../context/AppContext'
 import { isWeekend } from '../utils/gantt'
+import { getInitials } from '../utils/colors'
 
 export function WorkloadView() {
   const { profiles, getUserWorkload, settings } = useApp()
@@ -183,7 +184,7 @@ export function WorkloadView() {
                           className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
                           style={{ backgroundColor: profile.color }}
                         >
-                          {profile.name.charAt(0).toUpperCase()}
+                          {getInitials(profile.name)}
                         </div>
                         {profile.name}
                       </div>

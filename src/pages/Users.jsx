@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Users, Plus, Trash2, Clock, Mail, Shield } from 'lucide-react';
 import api from '../utils/api';
 import InviteModal from '../components/Users/InviteModal';
+import { getInitials } from '../utils/colors';
 
 export default function UsersPage() {
   const { t } = useTranslation();
@@ -13,16 +14,7 @@ export default function UsersPage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [deleting, setDeleting] = useState(null);
 
-  // Get initials from name (e.g., "John Doe" -> "JD")
-  function getInitials(name) {
-    if (!name) return '?';
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  }
+  // getInitials imported from utils/colors
 
   useEffect(() => {
     loadData();

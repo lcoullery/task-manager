@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LogOut, User, Users, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
+import { getInitials } from '../../utils/colors';
 
 export function UserMenu() {
   const { t } = useTranslation();
@@ -37,13 +38,7 @@ export function UserMenu() {
 
   if (!user) return null;
 
-  // Get user initials for avatar
-  const initials = user.name
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  const initials = getInitials(user.name);
 
   return (
     <div className="relative" ref={menuRef}>

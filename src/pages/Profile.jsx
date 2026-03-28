@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Input } from '../components/common/Input';
 import { Button } from '../components/common/Button';
 import api from '../utils/api';
+import { getInitials } from '../utils/colors';
 
 export default function Profile() {
   const { t } = useTranslation();
@@ -113,7 +114,7 @@ export default function Profile() {
                 className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
                 style={{ backgroundColor: color }}
               >
-                {name ? name.charAt(0).toUpperCase() : '?'}
+                {getInitials(name)}
               </div>
             </div>
           </div>
