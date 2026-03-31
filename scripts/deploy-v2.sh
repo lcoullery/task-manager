@@ -49,7 +49,7 @@ echo ""
 
 # === 6. Create admin user ===
 echo "=== Step 6/6: Create admin user ==="
-node scripts/create-admin.js
+node scripts/create-admin.cjs
 echo ""
 
 # === Restart with PM2 ===
