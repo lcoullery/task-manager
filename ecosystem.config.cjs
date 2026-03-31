@@ -1,7 +1,7 @@
 module.exports = {
   apps: [{
     name: 'task-manager',
-    script: './server.js',
+    script: './server.cjs',
     instances: 1,
     autorestart: true,
     max_memory_restart: '500M',
