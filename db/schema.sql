@@ -46,6 +46,21 @@ CREATE TABLE IF NOT EXISTS user_invitations (
 );
 
 -- ============================================================================
+-- PASSWORD RESETS
+-- ============================================================================
+
+-- Password Resets: Admin-triggered password reset tokens
+CREATE TABLE IF NOT EXISTS password_resets (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  token_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  used INTEGER DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- ============================================================================
 -- TASKS
 -- ============================================================================
 
@@ -131,6 +146,7 @@ CREATE TABLE IF NOT EXISTS columns (
   name TEXT NOT NULL,                     -- Column name
   color TEXT,                             -- Column color (hex)
   order_index INTEGER DEFAULT 0,          -- Display order
+  auto_archive INTEGER DEFAULT 0,         -- Auto-archive tasks in this column
   created_at TEXT NOT NULL                -- When column was created
 );
 

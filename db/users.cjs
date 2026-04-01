@@ -393,6 +393,61 @@ function getPendingInvitations() {
 }
 
 /**
+ * Delete (cancel) an invitation
+ * @param {string} id - Invitation ID
+ * @returns {boolean} True if deleted
+ */
+function deleteInvitation(id) {
+  const stmt = db.prepare('DELETE FROM user_invitations WHERE id = ? AND used = 0');
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
+/**
+ * Create a password reset token
+ * @param {string} userId - User ID
+ * @param {string} tokenHash - Hashed reset token
+ * @param {Date} expiresAt - Expiration date
+ * @returns {string} Reset ID
+ */
+function createPasswordReset(userId, tokenHash, expiresAt) {
+  const id = crypto.randomUUID();
+  // Invalidate any existing reset tokens for this user
+  db.prepare('DELETE FROM password_resets WHERE user_id = ?').run(userId);
+
+  const stmt = db.prepare(`
+    INSERT INTO password_resets (id, user_id, token_hash, expires_at, created_at, used)
+    VALUES (?, ?, ?, ?, ?, 0)
+  `);
+  stmt.run(id, userId, tokenHash, expiresAt.toISOString(), new Date().toISOString());
+  return id;
+}
+
+/**
+ * Find a valid password reset token
+ * @param {string} tokenHash - Hashed token
+ * @returns {Object|null} Reset record or null
+ */
+function findPasswordReset(tokenHash) {
+  const stmt = db.prepare(`
+    SELECT * FROM password_resets
+    WHERE token_hash = ? AND used = 0 AND expires_at > ?
+  `);
+  return stmt.get(tokenHash, new Date().toISOString());
+}
+
+/**
+ * Mark password reset as used
+ * @param {string} id - Reset ID
+ * @returns {boolean} True if marked
+ */
+function markPasswordResetUsed(id) {
+  const stmt = db.prepare('UPDATE password_resets SET used = 1 WHERE id = ?');
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
+/**
  * Delete expired invitations (cleanup)
  * @returns {number} Number of invitations deleted
  */
@@ -448,5 +503,11 @@ module.exports = {
   findInvitation,
   markInvitationUsed,
   getPendingInvitations,
-  deleteExpiredInvitations
+  deleteInvitation,
+  deleteExpiredInvitations,
+
+  // Password reset operations
+  createPasswordReset,
+  findPasswordReset,
+  markPasswordResetUsed
 };

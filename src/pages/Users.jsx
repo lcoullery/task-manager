@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Users, Plus, Trash2, Clock, Mail, Shield } from 'lucide-react';
+import { Users, Plus, Trash2, Clock, Mail, Shield, X, KeyRound } from 'lucide-react';
 import api from '../utils/api';
 import InviteModal from '../components/Users/InviteModal';
 import { getInitials } from '../utils/colors';
@@ -41,6 +41,33 @@ export default function UsersPage() {
   async function handleInviteSuccess() {
     setShowInviteModal(false);
     await loadData();
+  }
+
+  async function handleCancelInvitation(invId) {
+    if (!confirm(t('users.confirmCancelInvite', 'Cancel this invitation?'))) return;
+
+    try {
+      await api.delete(`/api/users/invitations/${invId}`);
+      setInvitations(invitations.filter(i => i.id !== invId));
+    } catch (err) {
+      setError(err.message || 'Failed to cancel invitation');
+    }
+  }
+
+  async function handleResetPassword(userId) {
+    if (!confirm(t('users.confirmResetPassword', 'Send a password reset email to this user?'))) return;
+
+    try {
+      const result = await api.post(`/api/users/${userId}/reset-password`);
+      if (result.resetUrl) {
+        // Email failed, show URL
+        prompt(t('users.copyResetLink', 'Email failed. Copy this reset link:'), result.resetUrl);
+      } else {
+        alert(t('users.resetEmailSent', 'Password reset email sent!'));
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to send reset email');
+    }
   }
 
   async function handleDeleteUser(userId) {
@@ -178,14 +205,23 @@ export default function UsersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        disabled={deleting === user.id}
-                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
-                        title={t('common.delete')}
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleResetPassword(user.id)}
+                          className="text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
+                          title={t('users.resetPassword', 'Reset password')}
+                        >
+                          <KeyRound className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={deleting === user.id}
+                          className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
+                          title={t('common.delete')}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -214,10 +250,17 @@ export default function UsersPage() {
                     {t('users.expiresIn', { time: `${Math.ceil((new Date(inv.expires_at) - new Date()) / (1000 * 60 * 60))}h` })}
                   </p>
                 </div>
-                <div>
+                <div className="flex items-center gap-2">
                   <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-400 rounded-full text-sm font-medium">
                     {t('users.pending')}
                   </span>
+                  <button
+                    onClick={() => handleCancelInvitation(inv.id)}
+                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                    title={t('users.cancelInvite', 'Cancel invitation')}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             ))}

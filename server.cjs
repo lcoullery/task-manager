@@ -263,6 +263,7 @@ if (IS_MIGRATED) {
   // Public auth endpoints (no JWT required, but rate limited)
   app.post('/api/auth/login', authRateLimiter, authController.login);
   app.post('/api/auth/accept-invite', authRateLimiter, authController.acceptInvite);
+  app.post('/api/auth/reset-password', authRateLimiter, authController.resetPassword);
   app.post('/api/auth/first-admin', authController.createFirstAdmin); // Only works if no users exist
 
   // Authenticated auth endpoints (JWT required)
@@ -289,6 +290,8 @@ if (IS_MIGRATED) {
   app.get('/api/users', authenticateJWT, requireAdmin, userController.listUsers);
   app.post('/api/users/invite', authenticateJWT, requireAdmin, userController.inviteUser);
   app.get('/api/users/invitations', authenticateJWT, requireAdmin, userController.listInvitations);
+  app.delete('/api/users/invitations/:id', authenticateJWT, requireAdmin, userController.cancelInvitation);
+  app.post('/api/users/:id/reset-password', authenticateJWT, requireAdmin, userController.resetUserPassword);
   app.put('/api/users/:id', authenticateJWT, requireAdmin, userController.updateUserById);
   app.delete('/api/users/:id', authenticateJWT, requireAdmin, userController.deleteUserById);
 

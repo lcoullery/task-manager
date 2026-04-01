@@ -238,6 +238,163 @@ ${APP_URL}
 }
 
 /**
+ * Send password reset email
+ *
+ * @param {Object} options - Email options
+ * @param {string} options.to - Recipient email
+ * @param {string} options.name - Recipient name
+ * @param {string} options.resetUrl - Password reset URL
+ * @param {Date} options.expiresAt - Expiration date
+ * @returns {Promise<void>}
+ */
+async function sendPasswordResetEmail({ to, name, resetUrl, expiresAt }) {
+  if (!isEmailConfigured()) {
+    throw new Error('Email service not configured');
+  }
+
+  const subject = `Password Reset - ${APP_NAME}`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .container {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      padding: 30px;
+      border: 1px solid #e0e0e0;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #2563eb;
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      background-color: white;
+      padding: 25px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #2563eb;
+      color: white !important;
+      text-decoration: none;
+      padding: 12px 30px;
+      border-radius: 6px;
+      font-weight: 500;
+      margin: 20px 0;
+    }
+    .footer {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+    .expiry-warning {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .link-fallback {
+      background-color: #f3f4f6;
+      padding: 10px;
+      border-radius: 4px;
+      word-break: break-all;
+      font-size: 12px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>${APP_NAME}</h1>
+    </div>
+
+    <div class="content">
+      <p>Hi <strong>${name}</strong>,</p>
+
+      <p>An administrator has requested a password reset for your account.</p>
+
+      <p>Click the button below to set a new password:</p>
+
+      <center>
+        <a href="${resetUrl}" class="button">Reset Password</a>
+      </center>
+
+      <div class="expiry-warning">
+        ⏰ This link expires in <strong>24 hours</strong>.
+      </div>
+
+      <p>If the button doesn't work, copy and paste this link into your browser:</p>
+      <div class="link-fallback">
+        <a href="${resetUrl}">${resetUrl}</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>If you didn't request this, please contact your administrator.</p>
+      <p>This is an automated email from ${APP_NAME}.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const text = `
+Hi ${name},
+
+An administrator has requested a password reset for your account.
+
+To set a new password, visit this link:
+${resetUrl}
+
+This link expires in 24 hours.
+
+If you didn't request this, please contact your administrator.
+
+---
+${APP_NAME}
+${APP_URL}
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"${APP_NAME}" <${FROM_EMAIL}>`,
+      to,
+      subject,
+      text,
+      html
+    });
+
+    console.log(`✓ Password reset email sent to ${to} (Message ID: ${info.messageId})`);
+    return info;
+  } catch (error) {
+    console.error(`❌ Failed to send reset email to ${to}:`, error.message);
+    throw error;
+  }
+}
+
+/**
  * Send test email (for debugging SMTP configuration)
  *
  * @param {string} to - Recipient email
@@ -278,5 +435,6 @@ module.exports = {
   initializeEmailService,
   isEmailConfigured,
   sendInviteEmail,
+  sendPasswordResetEmail,
   sendTestEmail
 };

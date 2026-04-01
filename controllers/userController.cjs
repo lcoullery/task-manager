@@ -19,10 +19,14 @@ const {
   deleteUser,
   createInvitation,
   getPendingInvitations,
-  findUserByEmail
+  deleteInvitation,
+  findUserByEmail,
+  findUserById,
+  createPasswordReset,
+  updatePassword
 } = require('../db/users.cjs');
 const { generateInviteToken, hashToken, calculateExpiration } = require('../utils/jwt.cjs');
-const { sendInviteEmail } = require('../utils/email.cjs');
+const { sendInviteEmail, sendPasswordResetEmail } = require('../utils/email.cjs');
 
 /**
  * GET /api/users
@@ -138,6 +142,7 @@ async function inviteUser(req, res) {
     const inviteUrl = `${protocol}://${host}/accept-invite/${token}`;
 
     // Send invite email
+    let emailSent = false;
     try {
       await sendInviteEmail({
         to: email,
@@ -146,13 +151,15 @@ async function inviteUser(req, res) {
         invitedBy: req.user.name,
         expiresAt
       });
+      emailSent = true;
     } catch (emailError) {
       console.error('Failed to send invite email:', emailError);
       // Continue anyway - admin can manually share the link
     }
 
     res.status(201).json({
-      message: 'Invitation sent successfully',
+      message: emailSent ? 'Invitation sent successfully' : 'Invitation created, email failed',
+      emailSent,
       invitation: {
         id: invitation.id,
         email: invitation.email,
@@ -160,7 +167,7 @@ async function inviteUser(req, res) {
         role: invitation.role,
         expires_at: invitation.expires_at
       },
-      inviteUrl // Return URL so admin can manually share if email fails
+      inviteUrl: emailSent ? undefined : inviteUrl // Only show URL if email failed
     });
   } catch (error) {
     console.error('Invite user error:', error);
@@ -314,11 +321,99 @@ function deleteUserById(req, res) {
   }
 }
 
+/**
+ * DELETE /api/users/invitations/:id
+ *
+ * Cancel a pending invitation (admin only).
+ */
+function cancelInvitation(req, res) {
+  try {
+    const { id } = req.params;
+    const success = deleteInvitation(id);
+
+    if (!success) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Invitation not found or already used'
+      });
+    }
+
+    res.json({ message: 'Invitation cancelled' });
+  } catch (error) {
+    console.error('Cancel invitation error:', error);
+    res.status(500).json({
+      error: 'Server error',
+      message: 'Failed to cancel invitation'
+    });
+  }
+}
+
+/**
+ * POST /api/users/:id/reset-password
+ *
+ * Send a password reset email to a user (admin only).
+ * Generates a reset token and sends an email with a link.
+ */
+async function resetUserPassword(req, res) {
+  try {
+    const { id } = req.params;
+
+    const user = findUserById(id);
+    if (!user) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'User not found'
+      });
+    }
+
+    // Generate reset token (reuse invite token generation)
+    const token = generateInviteToken();
+    const tokenHash = hashToken(token);
+    const expiresAt = calculateExpiration('24h');
+
+    // Store reset token
+    createPasswordReset(user.id, tokenHash, expiresAt);
+
+    // Build reset URL
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+    const host = req.headers['x-forwarded-host'] || req.headers.host;
+    const resetUrl = `${protocol}://${host}/reset-password/${token}`;
+
+    // Send email
+    let emailSent = false;
+    try {
+      await sendPasswordResetEmail({
+        to: user.email,
+        name: user.name,
+        resetUrl,
+        expiresAt
+      });
+      emailSent = true;
+    } catch (emailError) {
+      console.error('Failed to send reset email:', emailError);
+    }
+
+    res.json({
+      message: emailSent ? 'Password reset email sent' : 'Reset created, email failed',
+      emailSent,
+      resetUrl: emailSent ? undefined : resetUrl
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      error: 'Server error',
+      message: 'Failed to reset password'
+    });
+  }
+}
+
 // Export all controller functions
 module.exports = {
   listUsers,
   inviteUser,
   listInvitations,
+  cancelInvitation,
+  resetUserPassword,
   updateUserById,
   deleteUserById
 };

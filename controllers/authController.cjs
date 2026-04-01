@@ -38,7 +38,9 @@ const {
   markInvitationUsed,
   countUsers,
   updateUser,
-  updatePassword
+  updatePassword,
+  findPasswordReset,
+  markPasswordResetUsed
 } = require('../db/users.cjs');
 
 /**
@@ -586,6 +588,55 @@ async function changePassword(req, res) {
   }
 }
 
+/**
+ * POST /api/auth/reset-password
+ *
+ * Reset password using a reset token (from email link).
+ * Public endpoint, rate limited.
+ */
+async function resetPassword(req, res) {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        error: 'Missing fields',
+        message: 'Token and password are required'
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        error: 'Weak password',
+        message: 'Password must be at least 8 characters'
+      });
+    }
+
+    const tokenHash = hashToken(token);
+    const resetRecord = findPasswordReset(tokenHash);
+
+    if (!resetRecord) {
+      return res.status(404).json({
+        error: 'Invalid token',
+        message: 'Reset link is invalid, expired, or already used'
+      });
+    }
+
+    // Hash new password and update
+    const password_hash = await bcrypt.hash(password, 10);
+    updatePassword(resetRecord.user_id, password_hash);
+    markPasswordResetUsed(resetRecord.id);
+
+    res.json({ message: 'Password reset successfully. You can now login.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      error: 'Server error',
+      message: 'Failed to reset password'
+    });
+  }
+}
+
 // Export all controller functions
 module.exports = {
   login,
@@ -596,5 +647,6 @@ module.exports = {
   acceptInvite,
   createFirstAdmin,
   updateProfile,
-  changePassword
+  changePassword,
+  resetPassword
 };

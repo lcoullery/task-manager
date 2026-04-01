@@ -14,6 +14,7 @@ import { useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/Auth/ProtectedRoute'
 import Login from './pages/Login'
 import AcceptInvite from './pages/AcceptInvite'
+import ResetPassword from './pages/ResetPassword'
 import Profile from './pages/Profile'
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
       {/* Public route */}
       <Route path="/login" element={<Login />} />
       <Route path="/accept-invite/:token" element={<AcceptInvite />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
       {/* Protected routes */}
       <Route path="/*" element={
