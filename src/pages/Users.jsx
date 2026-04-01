@@ -27,7 +27,7 @@ export default function UsersPage() {
         api.get('/api/users'),
         api.get('/api/users/invitations'),
       ]);
-      setUsers(usersData.users || []);
+      setUsers((usersData.users || []).filter(u => u.is_active));
       setInvitations(invitationsData.invitations || []);
       setError(null);
     } catch (err) {
@@ -70,13 +70,13 @@ export default function UsersPage() {
     }
   }
 
-  async function handleDeleteUser(userId) {
-    if (!confirm('Are you sure? This cannot be undone.')) return;
+  async function handleDeleteUser(user) {
+    if (!confirm(t('users.confirmDelete', 'Delete {{email}}? This cannot be undone.', { email: user.email }))) return;
 
     try {
-      setDeleting(userId);
-      await api.delete(`/api/users/${userId}`);
-      setUsers(users.filter(u => u.id !== userId));
+      setDeleting(user.id);
+      await api.delete(`/api/users/${user.id}`);
+      setUsers(users.filter(u => u.id !== user.id));
     } catch (err) {
       setError(err.message || 'Failed to delete user');
       console.error('Error deleting user:', err);
@@ -138,9 +138,6 @@ export default function UsersPage() {
                   {t('users.userRole')}
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
-                  {t('users.userStatus')}
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
                   {t('users.lastLogin')}
                 </th>
                 <th className="px-6 py-3 text-right text-sm font-semibold text-gray-900 dark:text-white">
@@ -151,7 +148,7 @@ export default function UsersPage() {
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
                     {t('users.noUsers')}
                   </td>
                 </tr>
@@ -188,40 +185,31 @@ export default function UsersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                          user.is_active
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
-                        }`}
-                      >
-                        {user.is_active ? t('users.statusActive') : t('users.statusDisabled')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 text-sm">
                         <Clock className="w-4 h-4" />
                         {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : '—'}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleResetPassword(user.id)}
-                          className="text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
-                          title={t('users.resetPassword', 'Reset password')}
-                        >
-                          <KeyRound className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user.id)}
-                          disabled={deleting === user.id}
-                          className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
-                          title={t('common.delete')}
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
+                      {user.is_active ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleResetPassword(user.id)}
+                            className="text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors"
+                            title={t('users.resetPassword', 'Reset password')}
+                          >
+                            <KeyRound className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={deleting === user.id}
+                            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
+                            title={t('common.delete')}
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      ) : null}
                     </td>
                   </tr>
                 ))
