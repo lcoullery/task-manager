@@ -14,6 +14,7 @@ git pull origin main
 
 echo "=== Installing dependencies ==="
 npm install
+npm audit fix 2>/dev/null || true
 
 echo "=== Building frontend ==="
 npm run build
