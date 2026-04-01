@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+const env = dotenv.config().parsed || {};
+
 module.exports = {
   apps: [{
     name: 'task-manager',
@@ -8,6 +11,7 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       PORT: 4173,
+      ...env,
     },
     error_file: './logs/pm2-error.log',
     out_file: './logs/pm2-out.log',
