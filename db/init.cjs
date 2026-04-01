@@ -108,13 +108,9 @@ function closeDatabase() {
   console.log('✓ Database connection closed');
 }
 
-// Initialize schema if not already done
-if (!isDatabaseInitialized()) {
-  console.log('⚠ Database not initialized, creating tables...');
-  initializeSchema();
-} else {
-  console.log('✓ Database already initialized');
-}
+// Always run schema to ensure new tables are created
+// (CREATE TABLE IF NOT EXISTS is safe to run multiple times)
+initializeSchema();
 
 // Export database connection and utilities
 module.exports = {
