@@ -9,6 +9,7 @@ echo "=== Backup before deploy ==="
 ./scripts/backup.sh
 
 echo "=== Pulling latest code ==="
+git checkout -- .
 git pull origin main
 
 echo "=== Installing dependencies ==="
