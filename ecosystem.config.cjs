@@ -1,5 +1,6 @@
+const path = require('path');
 const dotenv = require('dotenv');
-const env = dotenv.config().parsed || {};
+const env = dotenv.config({ path: path.join(__dirname, '.env') }).parsed || {};
 
 module.exports = {
   apps: [{
