@@ -11,7 +11,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, List, ListOrdered, CheckSquare,
   Code, Quote, Minus, Link as LinkIcon, Image as ImageIcon,
-  Undo, Redo, Lock, Globe, Save, Check
+  Undo, Redo, Save, Check, ChevronRight
 } from 'lucide-react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 
@@ -33,7 +33,7 @@ function ToolbarButton({ onClick, isActive, disabled, title, children }) {
   );
 }
 
-function Toolbar({ editor, visibility, onVisibilityChange, readOnly }) {
+function Toolbar({ editor, readOnly }) {
   const { t } = useTranslation();
 
   if (!editor || readOnly) return null;
@@ -119,32 +119,14 @@ function Toolbar({ editor, visibility, onVisibilityChange, readOnly }) {
       <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Redo">
         <Redo className={iconSize} />
       </ToolbarButton>
-
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Visibility toggle */}
-      <button
-        type="button"
-        onClick={() => onVisibilityChange(visibility === 'private' ? 'shared' : 'private')}
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-          visibility === 'shared'
-            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-            : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-        }`}
-        title={t(`notebook.${visibility}`)}
-      >
-        {visibility === 'private' ? <Lock className="w-3.5 h-3.5" /> : <Globe className="w-3.5 h-3.5" />}
-        {t(`notebook.${visibility}`)}
-      </button>
     </div>
   );
 }
 
-export default function NotebookEditor({ note, onUpdate, saveStatus }) {
+export default function NotebookEditor({ note, projectName, onUpdate, saveStatus }) {
   const { t } = useTranslation();
   const [title, setTitle] = useState(note.title);
-  const readOnly = note.visibility === 'shared' && note.created_by !== note.currentUserId;
+  const readOnly = note.created_by !== note.currentUserId;
   const titleTimeoutRef = useRef(null);
 
   const editor = useEditor({
@@ -188,6 +170,15 @@ export default function NotebookEditor({ note, onUpdate, saveStatus }) {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Breadcrumb */}
+      {projectName && (
+        <div className="flex items-center gap-1 px-6 pt-3 text-xs text-gray-400 dark:text-gray-500">
+          <span>{projectName}</span>
+          <ChevronRight className="w-3 h-3" />
+          <span className="text-gray-500 dark:text-gray-400">{note.title || t('notebook.untitled', 'Untitled')}</span>
+        </div>
+      )}
+
       {/* Title */}
       <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <input
@@ -217,12 +208,7 @@ export default function NotebookEditor({ note, onUpdate, saveStatus }) {
       )}
 
       {/* Toolbar */}
-      <Toolbar
-        editor={editor}
-        visibility={note.visibility}
-        onVisibilityChange={(v) => onUpdate({ visibility: v })}
-        readOnly={readOnly}
-      />
+      <Toolbar editor={editor} readOnly={readOnly} />
 
       {/* Editor */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
