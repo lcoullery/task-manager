@@ -61,6 +61,40 @@ CREATE TABLE IF NOT EXISTS password_resets (
 );
 
 -- ============================================================================
+-- NOTEBOOKS
+-- ============================================================================
+
+-- Notebook Projects: Groups of pages (Personal = private, others = shared)
+CREATE TABLE IF NOT EXISTS notebook_projects (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  is_personal INTEGER NOT NULL DEFAULT 0,   -- 1 = personal project (private, undeletable)
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notebook_projects_user ON notebook_projects(created_by);
+
+-- Notebooks: Rich text pages within a project
+CREATE TABLE IF NOT EXISTS notebooks (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL DEFAULT 'Untitled',
+  content TEXT,                              -- Tiptap JSON stored as TEXT
+  visibility TEXT NOT NULL DEFAULT 'private' CHECK(visibility IN ('private', 'shared')),
+  project_id TEXT,
+  order_index INTEGER NOT NULL DEFAULT 0,
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (project_id) REFERENCES notebook_projects(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notebooks_created_by ON notebooks(created_by);
+
+-- ============================================================================
 -- TASKS
 -- ============================================================================
 

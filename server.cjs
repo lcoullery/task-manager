@@ -299,6 +299,29 @@ if (IS_MIGRATED) {
 }
 
 // ============================================================================
+// NOTEBOOK ROUTES
+// ============================================================================
+
+if (IS_MIGRATED) {
+  const notebookController = require('./controllers/notebookController.cjs');
+  const { authenticateJWT } = require('./middleware/jwt.cjs');
+
+  // Project routes (must be before /:id routes)
+  app.get('/api/notebooks/projects', authenticateJWT, notebookController.listProjects);
+  app.post('/api/notebooks/projects', authenticateJWT, notebookController.createProject);
+  app.put('/api/notebooks/projects/:id', authenticateJWT, notebookController.updateProject);
+  app.delete('/api/notebooks/projects/:id', authenticateJWT, notebookController.deleteProject);
+
+  // Page routes
+  app.post('/api/notebooks', authenticateJWT, notebookController.createNote);
+  app.get('/api/notebooks/:id', authenticateJWT, notebookController.getNote);
+  app.put('/api/notebooks/:id', authenticateJWT, notebookController.updateNote);
+  app.delete('/api/notebooks/:id', authenticateJWT, notebookController.deleteNote);
+
+  console.log('✓ Notebook routes enabled');
+}
+
+// ============================================================================
 // DATA ROUTES
 // ============================================================================
 

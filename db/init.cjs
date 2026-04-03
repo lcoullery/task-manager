@@ -112,6 +112,11 @@ function closeDatabase() {
 // (CREATE TABLE IF NOT EXISTS is safe to run multiple times)
 initializeSchema();
 
+// Add new columns to notebooks if they don't exist (safe migration)
+try { db.exec('ALTER TABLE notebooks ADD COLUMN project_id TEXT REFERENCES notebook_projects(id) ON DELETE CASCADE'); } catch (e) {}
+try { db.exec('ALTER TABLE notebooks ADD COLUMN order_index INTEGER NOT NULL DEFAULT 0'); } catch (e) {}
+try { db.exec('CREATE INDEX IF NOT EXISTS idx_notebooks_project_id ON notebooks(project_id)'); } catch (e) {}
+
 // Export database connection and utilities
 module.exports = {
   db,
