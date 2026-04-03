@@ -16,6 +16,7 @@ import Login from './pages/Login'
 import AcceptInvite from './pages/AcceptInvite'
 import ResetPassword from './pages/ResetPassword'
 import Profile from './pages/Profile'
+import NotebookPage from './pages/NotebookPage'
 
 function App() {
   const { settings } = useApp()
@@ -60,6 +61,7 @@ function App() {
                 <Route path="/workload" element={<WorkloadView />} />
                 <Route path="/profiles" element={<Navigate to="/users" replace />} />
                 <Route path="/users" element={<Users />} />
+                <Route path="/notebook" element={<NotebookPage />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>

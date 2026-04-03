@@ -61,6 +61,24 @@ CREATE TABLE IF NOT EXISTS password_resets (
 );
 
 -- ============================================================================
+-- NOTEBOOKS
+-- ============================================================================
+
+-- Notebooks: Rich text notes (private or shared)
+CREATE TABLE IF NOT EXISTS notebooks (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL DEFAULT 'Untitled',
+  content TEXT,                              -- Tiptap JSON stored as TEXT
+  visibility TEXT NOT NULL DEFAULT 'private' CHECK(visibility IN ('private', 'shared')),
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notebooks_created_by ON notebooks(created_by);
+
+-- ============================================================================
 -- TASKS
 -- ============================================================================
 

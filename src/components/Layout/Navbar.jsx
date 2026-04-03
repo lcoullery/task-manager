@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, List, GanttChart, Users, Settings, Calendar } from 'lucide-react'
+import { LayoutDashboard, List, GanttChart, Users, Settings, Calendar, BookOpen } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from './ThemeToggle'
 import { UserMenu } from './UserMenu'
@@ -9,6 +9,7 @@ const navItems = [
   { to: '/list', labelKey: 'nav.list', icon: List },
   { to: '/gantt', labelKey: 'nav.gantt', icon: GanttChart },
   { to: '/workload', labelKey: 'nav.workload', icon: Calendar },
+  { to: '/notebook', labelKey: 'nav.notebook', icon: BookOpen },
   { to: '/settings', labelKey: 'nav.settings', icon: Settings },
 ]
 
