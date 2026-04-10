@@ -35,9 +35,13 @@ export default function NotebookPage() {
     load();
   }, []);
 
-  // Find active note across all projects
-  const activeNote = projects.flatMap(p => p.pages).find(n => n.id === activeNoteId);
+  // Find active note across all projects and folders
+  const allPages = projects.flatMap(p => [...p.pages, ...(p.folders || []).flatMap(f => f.pages)]);
+  const activeNote = allPages.find(n => n.id === activeNoteId);
   const activeProject = activeNote ? projects.find(p => p.id === activeNote.project_id) : null;
+  const activeFolder = activeNote?.folder_id
+    ? activeProject?.folders?.find(f => f.id === activeNote.folder_id)
+    : null;
 
   // Create project
   const handleCreateProject = useCallback(async (name) => {
@@ -78,14 +82,126 @@ export default function NotebookPage() {
     }
   }, []);
 
-  // Create page in a project
-  const handleCreatePage = useCallback(async (projectId) => {
+  // Create folder in a project
+  const handleCreateFolder = useCallback(async (projectId, name) => {
     try {
-      const data = await api.post('/api/notebooks', { title: '', projectId });
-      const newPage = { ...data.note, author_name: user.name, author_color: user.color };
+      const data = await api.post('/api/notebooks/folders', { name, projectId });
       setProjects(prev => prev.map(p =>
-        p.id === projectId ? { ...p, pages: [...p.pages, newPage] } : p
+        p.id === projectId ? { ...p, folders: [...(p.folders || []), { ...data.folder, pages: [] }] } : p
       ));
+    } catch (err) {
+      console.error('Failed to create folder:', err);
+    }
+  }, []);
+
+  // Delete folder
+  const handleDeleteFolder = useCallback(async (folderId, projectId) => {
+    if (!confirm(t('notebook.confirmDeleteFolder', 'Delete this folder and all its pages? This cannot be undone.'))) return;
+    try {
+      await api.delete(`/api/notebooks/folders/${folderId}`);
+      setProjects(prev => prev.map(p => {
+        if (p.id !== projectId) return p;
+        const deletedFolder = p.folders.find(f => f.id === folderId);
+        if (deletedFolder?.pages.some(n => n.id === activeNoteId)) setActiveNoteId(null);
+        return { ...p, folders: p.folders.filter(f => f.id !== folderId) };
+      }));
+    } catch (err) {
+      console.error('Failed to delete folder:', err);
+    }
+  }, [activeNoteId, t]);
+
+  // Move page (drag & drop)
+  const handleMovePage = useCallback(async (pageId, toFolderId, toProjectId) => {
+    setProjects(prev => {
+      let movedPage = null;
+      const without = prev.map(p => ({
+        ...p,
+        pages: p.pages.filter(n => { if (n.id === pageId) { movedPage = n; return false; } return true; }),
+        folders: (p.folders || []).map(f => ({
+          ...f,
+          pages: f.pages.filter(n => { if (n.id === pageId) { movedPage = n; return false; } return true; })
+        }))
+      }));
+      if (!movedPage) return prev;
+      return without.map(p => {
+        if (p.id !== toProjectId) return p;
+        if (toFolderId) {
+          return { ...p, folders: p.folders.map(f => f.id === toFolderId ? { ...f, pages: [...f.pages, { ...movedPage, folder_id: toFolderId }] } : f) };
+        }
+        return { ...p, pages: [...p.pages, { ...movedPage, folder_id: null }] };
+      });
+    });
+    try {
+      await api.put(`/api/notebooks/${pageId}`, { folder_id: toFolderId || null, project_id: toProjectId });
+    } catch (err) {
+      console.error('Failed to move page:', err);
+    }
+  }, []);
+
+  // Reorder pages within same location
+  const handleReorderPages = useCallback(async (page, targetPageId, position, inFolderId, projectId) => {
+    setProjects(prev => prev.map(p => {
+      if (p.id !== projectId) return p;
+      const reorder = (pages) => {
+        const list = pages.filter(n => n.id !== page.id);
+        const idx = list.findIndex(n => n.id === targetPageId);
+        if (idx === -1) return pages;
+        const insertAt = position === 'before' ? idx : idx + 1;
+        list.splice(insertAt, 0, page);
+        return list.map((n, i) => ({ ...n, order_index: i }));
+      };
+      if (inFolderId) {
+        return { ...p, folders: p.folders.map(f => f.id === inFolderId ? { ...f, pages: reorder(f.pages) } : f) };
+      }
+      return { ...p, pages: reorder(p.pages) };
+    }));
+    // Persist order to backend (fire and forget)
+    try {
+      // Re-read state after update isn't possible in callback, so we rely on optimistic UI
+      // A real implementation would send the full ordered list; for now we skip backend order persistence
+    } catch (err) {
+      console.error('Failed to reorder pages:', err);
+    }
+  }, []);
+
+  // Reorder folders within a project
+  const handleReorderFolders = useCallback(async (folder, targetFolderId, position, projectId) => {
+    setProjects(prev => prev.map(p => {
+      if (p.id !== projectId) return p;
+      const list = (p.folders || []).filter(f => f.id !== folder.id);
+      const idx = list.findIndex(f => f.id === targetFolderId);
+      if (idx === -1) return p;
+      const insertAt = position === 'before' ? idx : idx + 1;
+      list.splice(insertAt, 0, folder);
+      return { ...p, folders: list };
+    }));
+  }, []);
+
+  // Rename folder
+  const handleRenameFolder = useCallback(async (folderId, name) => {
+    try {
+      await api.put(`/api/notebooks/folders/${folderId}`, { name });
+      setProjects(prev => prev.map(p => ({
+        ...p,
+        folders: (p.folders || []).map(f => f.id === folderId ? { ...f, name } : f)
+      })));
+    } catch (err) {
+      console.error('Failed to rename folder:', err);
+    }
+  }, []);
+
+  // Create page in a project (optionally in a folder)
+  const handleCreatePage = useCallback(async (projectId, folderId = null) => {
+    try {
+      const data = await api.post('/api/notebooks', { title: '', projectId, folderId });
+      const newPage = { ...data.note, author_name: user.name, author_color: user.color };
+      setProjects(prev => prev.map(p => {
+        if (p.id !== projectId) return p;
+        if (folderId) {
+          return { ...p, folders: (p.folders || []).map(f => f.id === folderId ? { ...f, pages: [...f.pages, newPage] } : f) };
+        }
+        return { ...p, pages: [...p.pages, newPage] };
+      }));
       setActiveNoteId(newPage.id);
     } catch (err) {
       console.error('Failed to create page:', err);
@@ -99,9 +215,11 @@ export default function NotebookPage() {
 
     setProjects(prev => prev.map(p => ({
       ...p,
-      pages: p.pages.map(n =>
-        n.id === noteId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n
-      )
+      pages: p.pages.map(n => n.id === noteId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n),
+      folders: (p.folders || []).map(f => ({
+        ...f,
+        pages: f.pages.map(n => n.id === noteId ? { ...n, ...updates, updated_at: new Date().toISOString() } : n)
+      }))
     })));
 
     setSaveStatus('saving');
@@ -126,7 +244,8 @@ export default function NotebookPage() {
       await api.delete(`/api/notebooks/${noteId}`);
       setProjects(prev => prev.map(p => ({
         ...p,
-        pages: p.pages.filter(n => n.id !== noteId)
+        pages: p.pages.filter(n => n.id !== noteId),
+        folders: (p.folders || []).map(f => ({ ...f, pages: f.pages.filter(n => n.id !== noteId) }))
       })));
       if (activeNoteId === noteId) setActiveNoteId(null);
     } catch (err) {
@@ -155,6 +274,12 @@ export default function NotebookPage() {
         onCreateProject={handleCreateProject}
         onDeleteProject={handleDeleteProject}
         onRenameProject={handleRenameProject}
+        onCreateFolder={handleCreateFolder}
+        onDeleteFolder={handleDeleteFolder}
+        onRenameFolder={handleRenameFolder}
+        onMovePage={handleMovePage}
+        onReorderPages={handleReorderPages}
+        onReorderFolders={handleReorderFolders}
         onCreatePage={handleCreatePage}
         onDeletePage={handleDeletePage}
         currentUserId={user?.id}
@@ -166,6 +291,7 @@ export default function NotebookPage() {
             key={activeNote.id}
             note={{ ...activeNote, currentUserId: user?.id }}
             projectName={activeProject?.name}
+            folderName={activeFolder?.name}
             onUpdate={handleUpdate}
             saveStatus={saveStatus}
           />

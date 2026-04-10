@@ -5,6 +5,10 @@ const {
   getProjectById,
   updateProject,
   deleteProject,
+  createFolder,
+  getFolderById,
+  updateFolder,
+  deleteFolder,
   createNote,
   getNoteById,
   updateNote,
@@ -73,6 +77,56 @@ function deleteProjectHandler(req, res) {
 }
 
 // ============================================================================
+// FOLDER HANDLERS
+// ============================================================================
+
+function createFolderHandler(req, res) {
+  try {
+    const { name, projectId } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'Folder name is required' });
+    if (!projectId) return res.status(400).json({ error: 'Project ID is required' });
+    const project = getProjectById(projectId);
+    if (!project) return res.status(404).json({ error: 'Project not found' });
+    if (project.is_personal && project.created_by !== req.user.id) {
+      return res.status(403).json({ error: 'Cannot add folders to another user\'s personal project' });
+    }
+    const folder = createFolder({ name: name.trim(), projectId, createdBy: req.user.id });
+    res.status(201).json({ folder });
+  } catch (error) {
+    console.error('Create folder error:', error);
+    res.status(500).json({ error: 'Failed to create folder' });
+  }
+}
+
+function updateFolderHandler(req, res) {
+  try {
+    const folder = getFolderById(req.params.id);
+    if (!folder) return res.status(404).json({ error: 'Folder not found' });
+    if (folder.created_by !== req.user.id) return res.status(403).json({ error: 'Only the author can rename this folder' });
+    const { name } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'Folder name is required' });
+    updateFolder(req.params.id, { name: name.trim() });
+    res.json({ message: 'Folder updated' });
+  } catch (error) {
+    console.error('Update folder error:', error);
+    res.status(500).json({ error: 'Failed to update folder' });
+  }
+}
+
+function deleteFolderHandler(req, res) {
+  try {
+    const folder = getFolderById(req.params.id);
+    if (!folder) return res.status(404).json({ error: 'Folder not found' });
+    if (folder.created_by !== req.user.id) return res.status(403).json({ error: 'Only the author can delete this folder' });
+    deleteFolder(req.params.id);
+    res.json({ message: 'Folder deleted' });
+  } catch (error) {
+    console.error('Delete folder error:', error);
+    res.status(500).json({ error: 'Failed to delete folder' });
+  }
+}
+
+// ============================================================================
 // PAGE (NOTE) HANDLERS
 // ============================================================================
 
@@ -93,7 +147,8 @@ function createNoteHandler(req, res) {
       }
     }
 
-    const note = createNote({ title, content, projectId, createdBy: req.user.id });
+    const { folderId } = req.body;
+    const note = createNote({ title, content, projectId, folderId: folderId || null, createdBy: req.user.id });
     res.status(201).json({ note });
   } catch (error) {
     console.error('Create note error:', error);
@@ -132,6 +187,7 @@ function updateNoteHandler(req, res) {
     if (req.body.content !== undefined) updates.content = req.body.content;
     if (req.body.order_index !== undefined) updates.order_index = req.body.order_index;
     if (req.body.project_id !== undefined) updates.project_id = req.body.project_id;
+    if (req.body.folder_id !== undefined) updates.folder_id = req.body.folder_id;
 
     updateNote(req.params.id, updates);
     res.json({ message: 'Page updated' });
@@ -160,6 +216,9 @@ module.exports = {
   createProject: createProjectHandler,
   updateProject: updateProjectHandler,
   deleteProject: deleteProjectHandler,
+  createFolder: createFolderHandler,
+  updateFolder: updateFolderHandler,
+  deleteFolder: deleteFolderHandler,
   createNote: createNoteHandler,
   getNote,
   updateNote: updateNoteHandler,

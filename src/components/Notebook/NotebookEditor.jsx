@@ -123,7 +123,7 @@ function Toolbar({ editor, readOnly }) {
   );
 }
 
-export default function NotebookEditor({ note, projectName, onUpdate, saveStatus }) {
+export default function NotebookEditor({ note, projectName, folderName, onUpdate, saveStatus }) {
   const { t } = useTranslation();
   const [title, setTitle] = useState(note.title);
   const readOnly = note.created_by !== note.currentUserId;
@@ -174,6 +174,7 @@ export default function NotebookEditor({ note, projectName, onUpdate, saveStatus
       {projectName && (
         <div className="flex items-center gap-1 px-6 pt-3 text-xs text-gray-400 dark:text-gray-500">
           <span>{projectName}</span>
+          {folderName && <><ChevronRight className="w-3 h-3" /><span>{folderName}</span></>}
           <ChevronRight className="w-3 h-3" />
           <span className="text-gray-500 dark:text-gray-400">{note.title || t('notebook.untitled', 'Untitled')}</span>
         </div>

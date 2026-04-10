@@ -312,6 +312,11 @@ if (IS_MIGRATED) {
   app.put('/api/notebooks/projects/:id', authenticateJWT, notebookController.updateProject);
   app.delete('/api/notebooks/projects/:id', authenticateJWT, notebookController.deleteProject);
 
+  // Folder routes
+  app.post('/api/notebooks/folders', authenticateJWT, notebookController.createFolder);
+  app.put('/api/notebooks/folders/:id', authenticateJWT, notebookController.updateFolder);
+  app.delete('/api/notebooks/folders/:id', authenticateJWT, notebookController.deleteFolder);
+
   // Page routes
   app.post('/api/notebooks', authenticateJWT, notebookController.createNote);
   app.get('/api/notebooks/:id', authenticateJWT, notebookController.getNote);

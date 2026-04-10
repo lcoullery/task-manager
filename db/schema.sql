@@ -77,6 +77,21 @@ CREATE TABLE IF NOT EXISTS notebook_projects (
 
 CREATE INDEX IF NOT EXISTS idx_notebook_projects_user ON notebook_projects(created_by);
 
+-- Notebook Folders: Optional subgroups within a project
+CREATE TABLE IF NOT EXISTS notebook_folders (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  project_id TEXT NOT NULL,
+  order_index INTEGER NOT NULL DEFAULT 0,
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (project_id) REFERENCES notebook_projects(id) ON DELETE CASCADE,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notebook_folders_project ON notebook_folders(project_id);
+
 -- Notebooks: Rich text pages within a project
 CREATE TABLE IF NOT EXISTS notebooks (
   id TEXT PRIMARY KEY,
