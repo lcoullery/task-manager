@@ -216,6 +216,7 @@ export default function NotebookEditor({ note, projectName, onUpdate, saveStatus
           editor={editor}
           className="prose prose-sm dark:prose-invert max-w-none min-h-[200px] focus:outline-none
             [&_.tiptap]:outline-none [&_.tiptap]:min-h-[200px]
+            [&_.tiptap_p]:my-0.5 [&_.tiptap_p]:leading-5
             [&_.tiptap_p.is-editor-empty:first-child::before]:text-gray-400
             [&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]
             [&_.tiptap_p.is-editor-empty:first-child::before]:float-left
@@ -224,9 +225,14 @@ export default function NotebookEditor({ note, projectName, onUpdate, saveStatus
             [&_.tiptap_ul[data-type=taskList]]:list-none
             [&_.tiptap_ul[data-type=taskList]]:pl-0
             [&_.tiptap_ul[data-type=taskList]_li]:flex
-            [&_.tiptap_ul[data-type=taskList]_li]:items-start
+            [&_.tiptap_ul[data-type=taskList]_li]:items-center
             [&_.tiptap_ul[data-type=taskList]_li]:gap-2
-            [&_.tiptap_ul[data-type=taskList]_li_label]:mt-0.5
+            [&_.tiptap_ul[data-type=taskList]_li]:my-0.5
+            [&_.tiptap_ul[data-type=taskList]_li_label]:flex
+            [&_.tiptap_ul[data-type=taskList]_li_label]:items-center
+            [&_.tiptap_ul[data-type=taskList]_li_label]:mt-0
+            [&_.tiptap_ul[data-type=taskList]_li_>div]:flex-1
+            [&_.tiptap_ul[data-type=taskList]_li_>div_p]:my-0
           "
         />
       </div>
