@@ -141,20 +141,6 @@ function resolveDataPath() {
   return resolve(__dirname, filePath);
 }
 
-function resolveBugReportPath(configPath) {
-  if (!configPath) {
-    return resolve(__dirname, 'data', 'bugReports.json');
-  }
-
-  let filePath = configPath.trim();
-  filePath = convertWindowsPathToWSL(filePath);
-
-  if (filePath.startsWith('/') || /^[A-Za-z]:\//.test(filePath)) {
-    return filePath;
-  }
-
-  return resolve(__dirname, filePath);
-}
 
 function ensureDir(filePath) {
   const dir = dirname(filePath);
@@ -462,56 +448,54 @@ app.post('/api/config', (req, res) => {
 // BUG REPORT ROUTES (Legacy)
 // ============================================================================
 
-app.get('/api/bug-reports', (req, res) => {
-  try {
-    const config = readConfig();
-    const bugReportPath = resolveBugReportPath(config.bugReportFilePath || './data/bugReports.json');
+if (IS_MIGRATED) {
+  const { authenticateJWT, requireAdmin } = require('./middleware/jwt.cjs');
+  const crypto = require('crypto');
 
-    if (!existsSync(bugReportPath)) {
-      const dir = dirname(bugReportPath);
-      if (!existsSync(dir)) {
-        mkdirSync(dir, { recursive: true });
-      }
-      writeFileSync(bugReportPath, JSON.stringify({ bugReports: [] }, null, 2), 'utf-8');
+  app.post('/api/bug-reports', authenticateJWT, (req, res) => {
+    try {
+      const { description, route } = req.body;
+      if (!description?.trim()) return res.status(400).json({ error: 'Description required' });
+      const id = crypto.randomUUID();
+      const now = new Date().toISOString();
+      db.prepare(`INSERT INTO bug_reports (id, user_id, description, route, status, created_at) VALUES (?, ?, ?, ?, 'open', ?)`)
+        .run(id, req.user.id, description.trim(), route || null, now);
+      res.json({ success: true });
+    } catch (err) {
+      logger.error('Error saving bug report:', err.message);
+      res.status(500).json({ error: 'Failed to save bug report' });
     }
+  });
 
-    const data = JSON.parse(readFileSync(bugReportPath, 'utf-8'));
-    res.json(data);
-  } catch (err) {
-    logger.error('Error reading bug reports:', err.message);
-    res.status(500).json({ error: 'Failed to read bug reports' });
-  }
-});
-
-app.post('/api/bug-reports', (req, res) => {
-  try {
-    const config = readConfig();
-    const bugReportPath = resolveBugReportPath(config.bugReportFilePath || './data/bugReports.json');
-    const { bugReport } = req.body;
-
-    if (!bugReport || !bugReport.profileId || !bugReport.message) {
-      return res.status(400).json({ error: 'Missing required fields' });
+  app.get('/api/bug-reports', authenticateJWT, requireAdmin, (_req, res) => {
+    try {
+      const reports = db.prepare(`
+        SELECT r.*, u.name as user_name, u.color as user_color
+        FROM bug_reports r
+        LEFT JOIN users u ON r.user_id = u.id
+        ORDER BY r.created_at DESC
+      `).all();
+      res.json({ bugReports: reports });
+    } catch (err) {
+      logger.error('Error reading bug reports:', err.message);
+      res.status(500).json({ error: 'Failed to read bug reports' });
     }
+  });
 
-    let data = { bugReports: [] };
-    if (existsSync(bugReportPath)) {
-      data = JSON.parse(readFileSync(bugReportPath, 'utf-8'));
-    } else {
-      const dir = dirname(bugReportPath);
-      if (!existsSync(dir)) {
-        mkdirSync(dir, { recursive: true });
-      }
+  app.put('/api/bug-reports/:id', authenticateJWT, requireAdmin, (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!status) return res.status(400).json({ error: 'Status required' });
+      db.prepare('UPDATE bug_reports SET status = ? WHERE id = ?').run(status, req.params.id);
+      res.json({ success: true });
+    } catch (err) {
+      logger.error('Error updating bug report:', err.message);
+      res.status(500).json({ error: 'Failed to update bug report' });
     }
+  });
 
-    data.bugReports.push(bugReport);
-    writeFileSync(bugReportPath, JSON.stringify(data, null, 2), 'utf-8');
-
-    res.json({ success: true });
-  } catch (err) {
-    logger.error('Error saving bug report:', err.message);
-    res.status(500).json({ error: 'Failed to save bug report' });
-  }
-});
+  console.log('✓ Bug report routes enabled');
+}
 
 // ============================================================================
 // STATIC FILES & SPA FALLBACK
