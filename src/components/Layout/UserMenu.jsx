@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, User, Users, ChevronDown } from 'lucide-react';
+import { LogOut, User, Users, ChevronDown, Bug } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { getInitials } from '../../utils/colors';
@@ -91,15 +91,24 @@ export function UserMenu() {
               {t('userMenu.myProfile')}
             </button>
 
-            {/* User Management (Admin Only) */}
+            {/* Admin Only */}
             {user.role === 'admin' && (
-              <button
-                onClick={handleUserManagement}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Users className="w-4 h-4" />
-                {t('userMenu.manageUsers')}
-              </button>
+              <>
+                <button
+                  onClick={handleUserManagement}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <Users className="w-4 h-4" />
+                  {t('userMenu.manageUsers')}
+                </button>
+                <button
+                  onClick={() => { setIsOpen(false); navigate('/bug-reports'); }}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <Bug className="w-4 h-4" />
+                  {t('userMenu.bugReports', 'Bug Reports')}
+                </button>
+              </>
             )}
 
             {/* Logout */}

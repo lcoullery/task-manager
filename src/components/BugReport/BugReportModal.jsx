@@ -3,16 +3,13 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 import { Modal } from '../common/Modal'
 import { Button } from '../common/Button'
-import { Select, Textarea } from '../common/Input'
-import { useApp } from '../../context/AppContext'
-import { generateId } from '../../utils/storage'
+import { Textarea } from '../common/Input'
+import api from '../../utils/api'
 
 export function BugReportModal({ isOpen, onClose }) {
   const { t } = useTranslation()
-  const { profiles, getProfile } = useApp()
   const location = useLocation()
 
-  const [selectedProfileId, setSelectedProfileId] = useState('')
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
@@ -21,7 +18,7 @@ export function BugReportModal({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!selectedProfileId || !message.trim()) {
+    if (!message.trim()) {
       setError(t('bugReport.fillAllFields'))
       return
     }
@@ -30,30 +27,13 @@ export function BugReportModal({ isOpen, onClose }) {
     setError(null)
 
     try {
-      const profile = getProfile(selectedProfileId)
-      const bugReport = {
-        id: generateId(),
-        profileId: selectedProfileId,
-        profileName: profile?.name || 'Unknown',
-        message: message.trim(),
+      await api.post('/api/bug-reports', {
+        description: message.trim(),
         route: location.pathname,
-        timestamp: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      }
-
-      const response = await fetch('/api/bug-reports', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bugReport }),
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit bug report')
-      }
 
       setSuccess(true)
       setMessage('')
-      setSelectedProfileId('')
 
       setTimeout(() => {
         setSuccess(false)
@@ -67,11 +47,6 @@ export function BugReportModal({ isOpen, onClose }) {
     }
   }
 
-  const profileOptions = profiles.map(p => ({
-    value: p.id,
-    label: p.name,
-  }))
-
   return (
     <Modal
       isOpen={isOpen}
@@ -80,21 +55,6 @@ export function BugReportModal({ isOpen, onClose }) {
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Profile Selector */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {t('bugReport.reportedBy')} *
-          </label>
-          <Select
-            value={selectedProfileId}
-            onChange={(e) => setSelectedProfileId(e.target.value)}
-            options={profileOptions}
-            placeholder={t('bugReport.selectProfile')}
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-
         {/* Message Textarea */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
