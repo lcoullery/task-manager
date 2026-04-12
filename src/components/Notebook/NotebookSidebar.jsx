@@ -250,17 +250,19 @@ function ProjectView({ project, activeNoteId, onSelectNote, onDeleteProject, onR
 }
 
 // ── Projects list (drill-down level 1) ───────────────────────────────────────
-function ProjectsList({ projects, activeNoteId, onSelectProject, onCreateProject }) {
+function ProjectsList({ projects, activeNoteId, onSelectProject, onCreateProject, onReorderProjects }) {
   const { t } = useTranslation();
   const [creatingProject, setCreatingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
+  const [dropState, setDropState] = useState(null);
+  const dragRef = useRef(null);
+  const rowRefs = useRef({});
   const inputRef = useRef(null);
 
   const startCreate = () => { setNewProjectName(''); setCreatingProject(true); setTimeout(() => inputRef.current?.focus(), 0); };
   const commit = () => { const v = newProjectName.trim(); if (v) onCreateProject(v); setCreatingProject(false); setNewProjectName(''); };
   const cancel = () => { setCreatingProject(false); setNewProjectName(''); };
 
-  // Count active pages per project
   const countPages = (p) => p.pages.length + (p.folders || []).reduce((s, f) => s + f.pages.length, 0);
   const hasActive = (p) => p.pages.some(n => n.id === activeNoteId) ||
     (p.folders || []).some(f => f.pages.some(n => n.id === activeNoteId));
@@ -268,27 +270,59 @@ function ProjectsList({ projects, activeNoteId, onSelectProject, onCreateProject
   const personal = projects.find(p => p.is_personal === 1);
   const shared = projects.filter(p => p.is_personal === 0);
 
-  const renderProject = (p) => (
-    <button
-      key={p.id}
-      onClick={() => onSelectProject(p)}
-      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-colors group ${
-        hasActive(p)
-          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-          : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'
-      }`}
-    >
-      {p.is_personal === 1
-        ? <Lock className="w-4 h-4 shrink-0 text-gray-400" />
-        : <Globe className="w-4 h-4 shrink-0 text-gray-400" />
-      }
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium truncate">{p.name}</div>
-        <div className="text-xs text-gray-400">{countPages(p)} {t('notebook.pages', 'pages')}</div>
+  const getPosition = (e, id) => {
+    const rect = rowRefs.current[id]?.getBoundingClientRect();
+    return rect && e.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+  };
+
+  const handleDrop = (targetId, position) => {
+    const dragged = dragRef.current;
+    dragRef.current = null;
+    setDropState(null);
+    if (!dragged || dragged.id === targetId) return;
+    onReorderProjects(dragged, targetId, position);
+  };
+
+  const renderProject = (p) => {
+    const isShared = p.is_personal === 0;
+    const isDropBefore = dropState?.projectId === p.id && dropState.position === 'before';
+    const isDropAfter  = dropState?.projectId === p.id && dropState.position === 'after';
+
+    return (
+      <div key={p.id} ref={el => rowRefs.current[p.id] = el}>
+        <DropLine visible={isDropBefore} />
+        <button
+          draggable={isShared}
+          onDragStart={isShared ? e => { e.stopPropagation(); dragRef.current = p; } : undefined}
+          onDragOver={isShared ? e => {
+            if (!dragRef.current || !dragRef.current.is_personal === 0) return;
+            e.preventDefault(); e.stopPropagation();
+            setDropState({ projectId: p.id, position: getPosition(e, p.id) });
+          } : undefined}
+          onDragLeave={isShared ? e => { if (!e.currentTarget.contains(e.relatedTarget)) setDropState(null); } : undefined}
+          onDrop={isShared ? e => { e.preventDefault(); e.stopPropagation(); handleDrop(p.id, getPosition(e, p.id)); } : undefined}
+          onDragEnd={isShared ? () => { dragRef.current = null; setDropState(null); } : undefined}
+          onClick={() => onSelectProject(p)}
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-colors group ${
+            hasActive(p)
+              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+              : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'
+          } ${isShared ? 'cursor-grab active:cursor-grabbing' : ''}`}
+        >
+          {p.is_personal === 1
+            ? <Lock className="w-4 h-4 shrink-0 text-gray-400" />
+            : <Globe className="w-4 h-4 shrink-0 text-gray-400" />
+          }
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium truncate">{p.name}</div>
+            <div className="text-xs text-gray-400">{countPages(p)} {t('notebook.pages', 'pages')}</div>
+          </div>
+          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+        <DropLine visible={isDropAfter} />
       </div>
-      <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-    </button>
-  );
+    );
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -329,7 +363,7 @@ function ProjectsList({ projects, activeNoteId, onSelectProject, onCreateProject
 }
 
 // ── Main sidebar ──────────────────────────────────────────────────────────────
-export default function NotebookSidebar({ projects, activeNoteId, onSelectNote, onCreateProject, onDeleteProject, onRenameProject, onCreateFolder, onDeleteFolder, onRenameFolder, onCreatePage, onDeletePage, onMovePage, onReorderPages, onReorderFolders, currentUserId }) {
+export default function NotebookSidebar({ projects, activeNoteId, onSelectNote, onCreateProject, onDeleteProject, onRenameProject, onCreateFolder, onDeleteFolder, onRenameFolder, onCreatePage, onDeletePage, onMovePage, onReorderPages, onReorderFolders, onReorderProjects, currentUserId }) {
   const { t } = useTranslation();
   const [selectedProject, setSelectedProject] = useState(null);
   const [dropState, setDropState] = useState(null);
@@ -469,6 +503,7 @@ export default function NotebookSidebar({ projects, activeNoteId, onSelectNote, 
             activeNoteId={activeNoteId}
             onSelectProject={setSelectedProject}
             onCreateProject={onCreateProject}
+            onReorderProjects={onReorderProjects}
           />
         )}
       </div>

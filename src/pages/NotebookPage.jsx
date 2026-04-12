@@ -191,6 +191,27 @@ export default function NotebookPage() {
     }
   }, []);
 
+  // Reorder shared projects
+  const handleReorderProjects = useCallback(async (project, targetProjectId, position) => {
+    setProjects(prev => {
+      const shared = prev.filter(p => p.is_personal === 0);
+      const list = shared.filter(p => p.id !== project.id);
+      const idx = list.findIndex(p => p.id === targetProjectId);
+      if (idx === -1) return prev;
+      list.splice(position === 'before' ? idx : idx + 1, 0, project);
+      const personal = prev.filter(p => p.is_personal === 1);
+      return [...personal, ...list];
+    });
+    // Persist order_index for each shared project after reorder
+    setProjects(current => {
+      const shared = current.filter(p => p.is_personal === 0);
+      shared.forEach((p, i) => {
+        api.put(`/api/notebooks/projects/${p.id}`, { order_index: i }).catch(console.error);
+      });
+      return current;
+    });
+  }, []);
+
   // Reorder folders within a project
   const handleReorderFolders = useCallback(async (folder, targetFolderId, position, projectId) => {
     setProjects(prev => prev.map(p => {
@@ -307,6 +328,7 @@ export default function NotebookPage() {
         onMovePage={handleMovePage}
         onReorderPages={handleReorderPages}
         onReorderFolders={handleReorderFolders}
+        onReorderProjects={handleReorderProjects}
         onCreatePage={handleCreatePage}
         onDeletePage={handleDeletePage}
         currentUserId={user?.id}

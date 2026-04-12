@@ -41,7 +41,7 @@ function getProjectsForUser(userId) {
     LEFT JOIN users u ON p.created_by = u.id
     WHERE (p.created_by = ? AND p.is_personal = 1)
        OR p.is_personal = 0
-    ORDER BY p.is_personal DESC, p.created_at ASC
+    ORDER BY p.is_personal DESC, p.order_index ASC, p.created_at ASC
   `).all(userId);
 
   const projectIds = projects.map(p => p.id);
@@ -130,10 +130,25 @@ function getProjectById(id) {
   return db.prepare('SELECT * FROM notebook_projects WHERE id = ?').get(id);
 }
 
-function updateProject(id, { name }) {
-  const result = db.prepare(`
-    UPDATE notebook_projects SET name = ?, updated_at = ? WHERE id = ?
-  `).run(name, new Date().toISOString(), id);
+function updateProject(id, updates) {
+  const allowedFields = ['name', 'order_index'];
+  const fields = [];
+  const values = [];
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (allowedFields.includes(key)) {
+      fields.push(`${key} = ?`);
+      values.push(value);
+    }
+  }
+
+  if (fields.length === 0) return false;
+
+  fields.push('updated_at = ?');
+  values.push(new Date().toISOString());
+  values.push(id);
+
+  const result = db.prepare(`UPDATE notebook_projects SET ${fields.join(', ')} WHERE id = ?`).run(...values);
   return result.changes > 0;
 }
 

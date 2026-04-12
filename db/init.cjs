@@ -118,6 +118,7 @@ try { db.exec('ALTER TABLE notebooks ADD COLUMN order_index INTEGER NOT NULL DEF
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_notebooks_project_id ON notebooks(project_id)'); } catch (e) {}
 try { db.exec('ALTER TABLE notebooks ADD COLUMN folder_id TEXT REFERENCES notebook_folders(id) ON DELETE SET NULL'); } catch (e) {}
 try { db.exec('CREATE INDEX IF NOT EXISTS idx_notebooks_folder_id ON notebooks(folder_id)'); } catch (e) {}
+try { db.exec('ALTER TABLE notebook_projects ADD COLUMN order_index INTEGER NOT NULL DEFAULT 0'); } catch (e) {}
 
 // Export database connection and utilities
 module.exports = {

@@ -47,13 +47,21 @@ function updateProjectHandler(req, res) {
   try {
     const project = getProjectById(req.params.id);
     if (!project) return res.status(404).json({ error: 'Project not found' });
-    if (project.created_by !== req.user.id) return res.status(403).json({ error: 'Only the author can rename this project' });
-    if (project.is_personal) return res.status(403).json({ error: 'Cannot rename the personal project' });
+    if (project.created_by !== req.user.id) return res.status(403).json({ error: 'Only the author can update this project' });
 
-    const { name } = req.body;
-    if (!name || !name.trim()) return res.status(400).json({ error: 'Project name is required' });
+    const updates = {};
 
-    updateProject(req.params.id, { name: name.trim() });
+    if (req.body.name !== undefined) {
+      if (project.is_personal) return res.status(403).json({ error: 'Cannot rename the personal project' });
+      if (!req.body.name.trim()) return res.status(400).json({ error: 'Project name is required' });
+      updates.name = req.body.name.trim();
+    }
+
+    if (req.body.order_index !== undefined) {
+      updates.order_index = req.body.order_index;
+    }
+
+    updateProject(req.params.id, updates);
     res.json({ message: 'Project updated' });
   } catch (error) {
     console.error('Update project error:', error);
