@@ -138,29 +138,56 @@ export default function NotebookPage() {
     }
   }, []);
 
-  // Reorder pages within same location
+  // Reorder pages (handles same-project reorder, cross-folder, and cross-project moves)
   const handleReorderPages = useCallback(async (page, targetPageId, position, inFolderId, projectId) => {
+    const fromFolderId = page.folder_id || null;
+    const fromProjectId = page.project_id;
+    const toFolderId = inFolderId || null;
+    const crossProject = fromProjectId !== projectId;
+
+    const insertInto = (pages) => {
+      const idx = pages.findIndex(n => n.id === targetPageId);
+      if (idx === -1) return [...pages, { ...page, folder_id: toFolderId, project_id: projectId }];
+      const list = [...pages];
+      list.splice(position === 'before' ? idx : idx + 1, 0, { ...page, folder_id: toFolderId, project_id: projectId });
+      return list;
+    };
+
     setProjects(prev => prev.map(p => {
-      if (p.id !== projectId) return p;
-      const reorder = (pages) => {
-        const list = pages.filter(n => n.id !== page.id);
-        const idx = list.findIndex(n => n.id === targetPageId);
-        if (idx === -1) return pages;
-        const insertAt = position === 'before' ? idx : idx + 1;
-        list.splice(insertAt, 0, page);
-        return list.map((n, i) => ({ ...n, order_index: i }));
-      };
-      if (inFolderId) {
-        return { ...p, folders: p.folders.map(f => f.id === inFolderId ? { ...f, pages: reorder(f.pages) } : f) };
+      // Remove from source project (if cross-project)
+      if (crossProject && p.id === fromProjectId) {
+        if (fromFolderId) {
+          return { ...p, folders: p.folders.map(f => f.id === fromFolderId ? { ...f, pages: f.pages.filter(n => n.id !== page.id) } : f) };
+        }
+        return { ...p, pages: p.pages.filter(n => n.id !== page.id) };
       }
-      return { ...p, pages: reorder(p.pages) };
+
+      if (p.id !== projectId) return p;
+
+      // Remove from same-project source
+      let updated = p;
+      if (!crossProject) {
+        if (fromFolderId) {
+          updated = { ...updated, folders: updated.folders.map(f => f.id === fromFolderId ? { ...f, pages: f.pages.filter(n => n.id !== page.id) } : f) };
+        } else {
+          updated = { ...updated, pages: updated.pages.filter(n => n.id !== page.id) };
+        }
+      }
+
+      // Insert at target
+      if (toFolderId) {
+        return { ...updated, folders: updated.folders.map(f => f.id === toFolderId ? { ...f, pages: insertInto(f.pages) } : f) };
+      }
+      return { ...updated, pages: insertInto(updated.pages) };
     }));
-    // Persist order to backend (fire and forget)
-    try {
-      // Re-read state after update isn't possible in callback, so we rely on optimistic UI
-      // A real implementation would send the full ordered list; for now we skip backend order persistence
-    } catch (err) {
-      console.error('Failed to reorder pages:', err);
+
+    // Persist to backend if location changed
+    if (fromFolderId !== toFolderId || crossProject) {
+      try {
+        await api.put(`/api/notebooks/${page.id}`, { folder_id: toFolderId, project_id: projectId });
+      } catch (err) {
+        console.error('Failed to move page:', err);
+      }
     }
   }, []);
 
