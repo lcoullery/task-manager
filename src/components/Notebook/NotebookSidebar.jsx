@@ -16,8 +16,11 @@ function timeAgo(dateStr) {
 }
 
 function DropLine({ visible }) {
-  if (!visible) return null;
-  return <div className="h-0.5 bg-blue-500 rounded mx-2 my-0.5" />;
+  return (
+    <div className="relative h-0 pointer-events-none">
+      <div className={`absolute inset-x-2 h-0.5 rounded z-10 ${visible ? 'bg-blue-500' : 'bg-transparent'}`} />
+    </div>
+  );
 }
 
 // ── Page item ─────────────────────────────────────────────────────────────────
