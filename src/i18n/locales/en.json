@@ -383,6 +383,12 @@
   "notebook.noPages": "No pages",
   "notebook.selectOrCreate": "Select a page or create a new one",
   "notebook.personal": "Personal",
+  "notebook.newFolder": "New folder",
+  "notebook.newFolderName": "New folder",
+  "notebook.renameFolder": "Rename folder",
+  "notebook.deleteFolder": "Delete folder",
+  "notebook.confirmDeleteFolder": "Delete this folder and all its pages? This cannot be undone.",
+  "notebook.dropHereRoot": "Drop here to remove from folder",
 
   "common.actions": "Actions",
   "common.loading": "Loading...",
