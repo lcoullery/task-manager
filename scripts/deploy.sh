@@ -20,7 +20,7 @@ echo "=== Building frontend ==="
 npm run build
 
 echo "=== Restarting app ==="
-pm2 restart task-manager
+pm2 reload task-manager --update-env
 
 echo "=== Health check ==="
 sleep 2
