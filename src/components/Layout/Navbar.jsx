@@ -20,9 +20,8 @@ export function Navbar() {
     <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-            {t('nav.appTitle')}
-          </h1>
+          <img src="/logo.PNG" alt="Logo" className="h-8 w-auto hidden dark:block" />
+          <img src="/logo_light.PNG" alt="Logo" className="h-8 w-auto dark:hidden" />
           <div className="flex items-center gap-1">
             {navItems.map(({ to, labelKey, icon: Icon }) => (
               <NavLink
