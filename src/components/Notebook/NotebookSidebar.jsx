@@ -199,7 +199,7 @@ function ProjectView({ project, activeNoteId, onSelectNote, onDeleteProject, onR
         <div className="mx-1 mb-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex gap-1.5">
           <Info className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-[10px] text-amber-700 dark:text-amber-400 leading-tight">
-            {t('notebook.personalNotice', 'Visible uniquement par toi. Les backups ne sont pas chiffrés et peuvent être lus en clair sur le serveur.')}
+            {t('notebook.personalNotice', 'Visible uniquement par toi dans l\'application. Les données restent accessibles non-chiffrées sur le serveur et dans les sauvegardes.')}
           </p>
         </div>
       )}
