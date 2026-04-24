@@ -214,13 +214,12 @@ app.use('/api', apiLimiter);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  const dataFileExists = existsSync(resolveDataPath());
-  res.status(dataFileExists ? 200 : 503).json({
-    status: dataFileExists ? 'healthy' : 'unhealthy',
+  const isHealthy = IS_MIGRATED ? existsSync(DATABASE_PATH) : existsSync(resolveDataPath());
+  res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? 'healthy' : 'unhealthy',
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
     environment: NODE_ENV,
-    dataFileExists,
     databaseMigrated: IS_MIGRATED,
   });
 });
