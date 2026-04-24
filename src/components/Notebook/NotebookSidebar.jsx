@@ -36,7 +36,7 @@ function PageItem({ page, activeNoteId, onSelectNote, onDeletePage, currentUserI
   };
 
   const isDropBefore = dropState?.type === 'page' && dropState.pageId === page.id && dropState.position === 'before';
-  const isDropAfter  = dropState?.type === 'page' && dropState.pageId === page.id && dropState.position === 'after';
+  const isDropAfter = dropState?.type === 'page' && dropState.pageId === page.id && dropState.position === 'after';
 
   return (
     <>
@@ -53,10 +53,9 @@ function PageItem({ page, activeNoteId, onSelectNote, onDeletePage, currentUserI
         onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget)) setDropState(null); }}
         onDrop={e => { e.preventDefault(); e.stopPropagation(); onDrop({ type: 'page', pageId: page.id, position: getPosition(e) }); }}
         onClick={() => onSelectNote(page.id)}
-        className={`group flex items-center gap-2 px-2 py-1.5 rounded transition-colors select-none ${
-          isActive ? 'bg-blue-50 dark:bg-blue-900/30 border-l-2 border-blue-500'
-                   : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 border-l-2 border-transparent'
-        } ${isOwner ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
+        className={`group flex items-center gap-2 px-2 py-1.5 rounded transition-colors select-none ${isActive ? 'bg-blue-50 dark:bg-blue-900/30 border-l-2 border-blue-500'
+            : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 border-l-2 border-transparent'
+          } ${isOwner ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
       >
         <div className="flex-1 min-w-0">
           <span className={`text-sm truncate block ${isActive ? 'text-blue-700 dark:text-blue-300 font-medium' : 'text-gray-700 dark:text-gray-300'}`}>
@@ -99,9 +98,9 @@ function FolderItem({ folder, projectId, activeNoteId, onSelectNote, onDeleteFol
   const commitRename = () => { const v = nameInput.trim(); if (v && v !== folder.name) onRenameFolder(folder.id, v); setRenaming(false); };
   const cancelRename = () => { setNameInput(folder.name); setRenaming(false); };
 
-  const isDropTarget   = dropState?.type === 'folder'         && dropState.folderId === folder.id;
+  const isDropTarget = dropState?.type === 'folder' && dropState.folderId === folder.id;
   const isReorderBefore = dropState?.type === 'folder-reorder' && dropState.folderId === folder.id && dropState.position === 'before';
-  const isReorderAfter  = dropState?.type === 'folder-reorder' && dropState.folderId === folder.id && dropState.position === 'after';
+  const isReorderAfter = dropState?.type === 'folder-reorder' && dropState.folderId === folder.id && dropState.position === 'after';
 
   const getPosition = (e) => {
     const rect = headerRef.current?.getBoundingClientRect();
@@ -133,10 +132,9 @@ function FolderItem({ folder, projectId, activeNoteId, onSelectNote, onDeleteFol
             onDrop({ type: 'folder-reorder', folderId: folder.id, position: getPosition(e), projectId });
           }
         }}
-        className={`group flex items-center gap-1 px-2 py-1 rounded cursor-grab active:cursor-grabbing select-none transition-colors ${
-          isDropTarget ? 'bg-blue-100 dark:bg-blue-900/40 border border-blue-400 border-dashed'
-                       : 'hover:bg-gray-100 dark:hover:bg-gray-700/50'
-        }`}
+        className={`group flex items-center gap-1 px-2 py-1 rounded cursor-grab active:cursor-grabbing select-none transition-colors ${isDropTarget ? 'bg-blue-100 dark:bg-blue-900/40 border border-blue-400 border-dashed'
+            : 'hover:bg-gray-100 dark:hover:bg-gray-700/50'
+          }`}
       >
         <button onClick={() => setExpanded(e => !e)} className="flex items-center gap-1.5 flex-1 min-w-0">
           {expanded ? <ChevronDown className="w-3 h-3 text-gray-400 shrink-0" /> : <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />}
@@ -199,7 +197,7 @@ function ProjectView({ project, activeNoteId, onSelectNote, onDeleteProject, onR
         <div className="mx-1 mb-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex gap-1.5">
           <Info className="w-3 h-3 text-amber-500 shrink-0 mt-0.5" />
           <p className="text-[10px] text-amber-700 dark:text-amber-400 leading-tight">
-            {t('notebook.personalNotice', 'Visible uniquement par toi dans l\'application. Les données restent accessibles non-chiffrées sur le serveur et dans les sauvegardes.')}
+            {t('notebook.personalNotice', 'Visible uniquement par toi dans l\'app. Les données restent accessibles non-chiffrées sur le serveur et dans les sauvegardes.')}
           </p>
         </div>
       )}
@@ -210,10 +208,9 @@ function ProjectView({ project, activeNoteId, onSelectNote, onDeleteProject, onR
           onDragOver={e => { e.preventDefault(); setDropState({ type: 'root', projectId: project.id }); }}
           onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget)) setDropState(null); }}
           onDrop={e => { e.preventDefault(); onDrop({ type: 'root', projectId: project.id }); }}
-          className={`mx-2 mb-1 px-2 py-1 text-xs rounded border border-dashed transition-colors ${
-            isRootDrop ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-500'
-                       : 'border-gray-300 dark:border-gray-600 text-gray-400'
-          }`}
+          className={`mx-2 mb-1 px-2 py-1 text-xs rounded border border-dashed transition-colors ${isRootDrop ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 text-blue-500'
+              : 'border-gray-300 dark:border-gray-600 text-gray-400'
+            }`}
         >
           {t('notebook.dropHereRoot', 'Drop here to remove from folder')}
         </div>
@@ -299,7 +296,7 @@ function ProjectsList({ projects, activeNoteId, onSelectProject, onCreateProject
   const renderProject = (p) => {
     const isShared = p.is_personal === 0;
     const isDropBefore = dropState?.projectId === p.id && dropState.position === 'before';
-    const isDropAfter  = dropState?.projectId === p.id && dropState.position === 'after';
+    const isDropAfter = dropState?.projectId === p.id && dropState.position === 'after';
 
     return (
       <div key={p.id} ref={el => rowRefs.current[p.id] = el}>
@@ -316,11 +313,10 @@ function ProjectsList({ projects, activeNoteId, onSelectProject, onCreateProject
           onDrop={isShared ? e => { e.preventDefault(); e.stopPropagation(); handleDrop(p.id, getPosition(e, p.id)); } : undefined}
           onDragEnd={isShared ? () => { dragRef.current = null; setDropState(null); } : undefined}
           onClick={() => onSelectProject(p)}
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-colors group ${
-            hasActive(p)
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-colors group ${hasActive(p)
               ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
               : 'hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300'
-          } ${isShared ? 'cursor-grab active:cursor-grabbing' : ''}`}
+            } ${isShared ? 'cursor-grab active:cursor-grabbing' : ''}`}
         >
           {p.is_personal === 1
             ? <Lock className="w-4 h-4 shrink-0 text-gray-400" />
