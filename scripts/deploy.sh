@@ -17,6 +17,7 @@ npm install
 npm audit fix 2>/dev/null || true
 
 echo "=== Building frontend ==="
+sudo chown -R ubuntu:ubuntu ./dist 2>/dev/null || true
 npm run build
 
 echo "=== Restarting app ==="
