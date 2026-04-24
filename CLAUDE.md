@@ -12,6 +12,12 @@
   - "create a commit"
   - "git commit"
 
+## Version Bump Policy
+
+Quand l'utilisateur demande de bumper la version :
+1. Mettre à jour `version` dans `package.json`
+2. Mettre à jour `src/whats-new.js` : changer `version` et mettre à jour `changes[]` avec les nouveautés depuis la dernière version — concis, sans trop de détail, en français
+
 ## General Guidelines
 
 - When making changes, explain what you're doing

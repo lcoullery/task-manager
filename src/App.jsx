@@ -10,6 +10,8 @@ import Users from './pages/Users'
 import BugReports from './pages/BugReports'
 import { BugReportButton } from './components/BugReport/BugReportButton'
 import { Toast } from './components/common/Toast'
+import { WhatsNewModal } from './components/common/WhatsNewModal'
+import { WHATS_NEW } from './whats-new'
 import { useApp } from './context/AppContext'
 import { useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/Auth/ProtectedRoute'
@@ -21,7 +23,9 @@ import NotebookPage from './pages/NotebookPage'
 
 function App() {
   const { settings } = useApp()
+  const { user } = useAuth()
   const [toast, setToast] = useState(null)
+  const [showWhatsNew, setShowWhatsNew] = useState(false)
 
   const showToast = useCallback((message, variant = 'success', duration = 5000) => {
     setToast({ message, variant, duration })
@@ -30,6 +34,20 @@ function App() {
   const hideToast = useCallback(() => {
     setToast(null)
   }, [])
+
+  // Show What's New modal once per version per user
+  useEffect(() => {
+    if (!user?.id) return;
+    const key = `whats_new_seen_${user.id}`;
+    if (localStorage.getItem(key) !== WHATS_NEW.version) {
+      setShowWhatsNew(true);
+    }
+  }, [user?.id]);
+
+  const handleCloseWhatsNew = () => {
+    localStorage.setItem(`whats_new_seen_${user.id}`, WHATS_NEW.version);
+    setShowWhatsNew(false);
+  };
 
   // Listen for toast requests from Settings page
   useEffect(() => {
@@ -77,6 +95,13 @@ function App() {
               />
             )}
             {settings.bugReportEnabled && <BugReportButton />}
+            {showWhatsNew && (
+              <WhatsNewModal
+                version={WHATS_NEW.version}
+                changes={WHATS_NEW.changes}
+                onClose={handleCloseWhatsNew}
+              />
+            )}
           </div>
         </ProtectedRoute>
       } />
