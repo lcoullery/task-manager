@@ -20,12 +20,21 @@ export default function NotebookPage() {
     activeNoteIdRef.current = activeNoteId;
   }, [activeNoteId]);
 
-  // Load projects with their pages
+  // Load projects with their pages, then restore last active note
   useEffect(() => {
     async function load() {
       try {
         const data = await api.get('/api/notebooks/projects');
-        setProjects(data.projects || []);
+        const loadedProjects = data.projects || [];
+        setProjects(loadedProjects);
+
+        const lastNoteId = localStorage.getItem(`notebook_last_note_${user?.id}`);
+        if (lastNoteId) {
+          const allPages = loadedProjects.flatMap(p => [...p.pages, ...(p.folders || []).flatMap(f => f.pages)]);
+          if (allPages.some(n => n.id === lastNoteId)) {
+            setActiveNoteId(lastNoteId);
+          }
+        }
       } catch (err) {
         console.error('Failed to load projects:', err);
       } finally {
@@ -34,6 +43,13 @@ export default function NotebookPage() {
     }
     load();
   }, []);
+
+  // Persist last active note per user
+  useEffect(() => {
+    if (activeNoteId && user?.id) {
+      localStorage.setItem(`notebook_last_note_${user.id}`, activeNoteId);
+    }
+  }, [activeNoteId, user?.id]);
 
   // Find active note across all projects and folders
   const allPages = projects.flatMap(p => [...p.pages, ...(p.folders || []).flatMap(f => f.pages)]);

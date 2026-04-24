@@ -2,7 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
+import ImageResize from 'tiptap-extension-resize-image';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -14,6 +14,7 @@ import {
   Undo, Redo, Save, Check, ChevronRight
 } from 'lucide-react';
 import { useState, useCallback, useRef, useEffect } from 'react';
+import api from '../../utils/api';
 
 function ToolbarButton({ onClick, isActive, disabled, title, children }) {
   return (
@@ -33,8 +34,9 @@ function ToolbarButton({ onClick, isActive, disabled, title, children }) {
   );
 }
 
-function Toolbar({ editor, readOnly }) {
+function Toolbar({ editor, readOnly, onImageFileSelected }) {
   const { t } = useTranslation();
+  const fileInputRef = useRef(null);
 
   if (!editor || readOnly) return null;
 
@@ -42,13 +44,6 @@ function Toolbar({ editor, readOnly }) {
     const url = prompt('URL:');
     if (url) {
       editor.chain().focus().setLink({ href: url }).run();
-    }
-  };
-
-  const addImage = () => {
-    const url = prompt('Image URL:');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
     }
   };
 
@@ -107,9 +102,16 @@ function Toolbar({ editor, readOnly }) {
       <ToolbarButton onClick={addLink} isActive={editor.isActive('link')} title="Link">
         <LinkIcon className={iconSize} />
       </ToolbarButton>
-      <ToolbarButton onClick={addImage} title="Image">
+      <ToolbarButton onClick={() => fileInputRef.current?.click()} title="Image">
         <ImageIcon className={iconSize} />
       </ToolbarButton>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={e => { if (e.target.files[0]) { onImageFileSelected(e.target.files[0]); e.target.value = ''; } }}
+      />
 
       <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
 
@@ -128,13 +130,30 @@ export default function NotebookEditor({ note, projectName, folderName, onUpdate
   const [title, setTitle] = useState(note.title);
   const readOnly = note.created_by !== note.currentUserId;
   const titleTimeoutRef = useRef(null);
+  const editorRef = useRef(null);
+
+  const uploadImage = useCallback(async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const res = await fetch('/api/notebooks/images', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${api.getAccessToken()}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) editorRef.current?.chain().focus().setImage({ src: data.url }).run();
+    } catch (err) {
+      console.error('Failed to upload image:', err);
+    }
+  }, []);
 
   const editor = useEditor({
     extensions: [
       StarterKit,
       Underline,
       Link.configure({ openOnClick: false }),
-      Image,
+      ImageResize.extend({ name: 'image' }),
       TaskList,
       TaskItem.configure({ nested: true }),
       Placeholder.configure({ placeholder: t('notebook.placeholder', 'Start writing...') }),
@@ -144,7 +163,32 @@ export default function NotebookEditor({ note, projectName, folderName, onUpdate
     onUpdate: ({ editor }) => {
       onUpdate({ content: JSON.stringify(editor.getJSON()) });
     },
+    editorProps: {
+      handlePaste: (view, event) => {
+        const items = Array.from(event.clipboardData?.items || []);
+        const imageItem = items.find(item => item.type.startsWith('image/'));
+        if (imageItem) {
+          event.preventDefault();
+          const file = imageItem.getAsFile();
+          if (file) uploadImage(file);
+          return true;
+        }
+        return false;
+      },
+      handleDrop: (view, event) => {
+        const files = Array.from(event.dataTransfer?.files || []);
+        const imageFile = files.find(f => f.type.startsWith('image/'));
+        if (imageFile) {
+          event.preventDefault();
+          uploadImage(imageFile);
+          return true;
+        }
+        return false;
+      },
+    },
   });
+
+  useEffect(() => { editorRef.current = editor; }, [editor]);
 
   // Update title state when note changes
   useEffect(() => {
@@ -209,7 +253,7 @@ export default function NotebookEditor({ note, projectName, folderName, onUpdate
       )}
 
       {/* Toolbar */}
-      <Toolbar editor={editor} readOnly={readOnly} />
+      <Toolbar editor={editor} readOnly={readOnly} onImageFileSelected={uploadImage} />
 
       {/* Editor */}
       <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -234,6 +278,7 @@ export default function NotebookEditor({ note, projectName, folderName, onUpdate
             [&_.tiptap_ul[data-type=taskList]_li_label]:mt-0
             [&_.tiptap_ul[data-type=taskList]_li_>div]:flex-1
             [&_.tiptap_ul[data-type=taskList]_li_>div_p]:my-0
+            [&_.tiptap_img]:max-w-full [&_.tiptap_img]:rounded [&_.tiptap_img]:my-2
           "
         />
       </div>
