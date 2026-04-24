@@ -6,7 +6,7 @@ set -e
 cd /home/ubuntu/task-manager
 
 echo "=== Backup before deploy ==="
-./scripts/backup.sh
+bash ./scripts/backup.sh
 
 echo "=== Pulling latest code ==="
 git checkout -- .
