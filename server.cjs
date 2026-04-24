@@ -498,10 +498,49 @@ if (IS_MIGRATED) {
 }
 
 // ============================================================================
+// IMAGE UPLOAD
+// ============================================================================
+
+if (IS_MIGRATED) {
+  const multer = require('multer');
+  const crypto = require('crypto');
+  const { authenticateJWT } = require('./middleware/jwt.cjs');
+
+  const imageStorage = multer.diskStorage({
+    destination: (_req, _file, cb) => {
+      const dir = resolve(__dirname, 'data/images');
+      if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+      cb(null, dir);
+    },
+    filename: (_req, file, cb) => {
+      const ext = file.originalname.split('.').pop().toLowerCase();
+      cb(null, `${crypto.randomUUID()}.${ext}`);
+    }
+  });
+
+  const upload = multer({
+    storage: imageStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (_req, file, cb) => {
+      if (!file.mimetype.startsWith('image/')) return cb(new Error('Images only'));
+      cb(null, true);
+    }
+  });
+
+  app.post('/api/notebooks/images', authenticateJWT, upload.single('image'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    res.json({ url: `/data/images/${req.file.filename}` });
+  });
+
+  console.log('✓ Image upload route enabled');
+}
+
+// ============================================================================
 // STATIC FILES & SPA FALLBACK
 // ============================================================================
 
 const distPath = resolve(__dirname, 'dist');
+app.use('/data/images', express.static(resolve(__dirname, 'data/images')));
 app.use(express.static(distPath));
 
 // SPA fallback: serve index.html for all non-API routes
