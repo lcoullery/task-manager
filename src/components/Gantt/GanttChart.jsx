@@ -1,7 +1,9 @@
 import { useState, useMemo, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
+import { useAuth } from '../../context/AuthContext'
 import { useKeyboard, createShortcuts } from '../../hooks/useKeyboard'
+import { usePersistedFilters } from '../../hooks/usePersistedFilters'
 import { VIEW_CONFIGS, getTimelineRange, getHeaderCells, daysBetween, getTodayStr } from '../../utils/gantt'
 import { GanttHeader } from './GanttHeader'
 import { GanttRow } from './GanttRow'
@@ -11,19 +13,16 @@ import { Filters, ActiveFilterTags } from '../Tasks/Filters'
 const VIEW_MODES = ['week', 'month', 'quarter', 'year']
 const TASK_LIST_WIDTH = 240
 
+const GANTT_DEFAULTS = { search: '', assignee: [], priority: [], labelId: [], showArchived: false }
+
 export function GanttChart() {
   const { tasks, updateTask, getProfile } = useApp()
+  const { user } = useAuth()
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState('month')
   const [selectedTask, setSelectedTask] = useState(null)
   const [showUndated, setShowUndated] = useState(false)
-  const [filters, setFilters] = useState({
-    search: '',
-    assignee: [],
-    priority: [],
-    labelId: [],
-    showArchived: false,
-  })
+  const [filters, setFilters] = usePersistedFilters('gantt', user?.id, GANTT_DEFAULTS)
   const scrollRef = useRef(null)
 
   useKeyboard(
@@ -125,7 +124,7 @@ export function GanttChart() {
   return (
     <div className="flex flex-col h-full">
       {/* Filters */}
-      <Filters filters={filters} onChange={setFilters} />
+      <Filters filters={filters} onChange={setFilters} defaults={GANTT_DEFAULTS} />
       <ActiveFilterTags filters={filters} onChange={setFilters} />
 
       {/* Toolbar */}

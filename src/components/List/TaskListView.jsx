@@ -2,24 +2,23 @@ import { useState, useMemo } from 'react'
 import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
+import { useAuth } from '../../context/AuthContext'
 import { useKeyboard, createShortcuts } from '../../hooks/useKeyboard'
+import { usePersistedFilters } from '../../hooks/usePersistedFilters'
 import { Filters, ActiveFilterTags } from '../Tasks/Filters'
 import { TaskModal, CreateTaskModal } from '../Tasks/TaskModal'
 import { Button } from '../common/Button'
 import { TaskRow } from './TaskRow'
 
+const LIST_DEFAULTS = { search: '', assignee: [], priority: [], labelId: [], showArchived: true }
+
 export function TaskListView() {
   const { tasks } = useApp()
+  const { user } = useAuth()
   const { t } = useTranslation()
   const [selectedTask, setSelectedTask] = useState(null)
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    search: '',
-    assignee: [],
-    priority: [],
-    labelId: [],
-    showArchived: true,
-  })
+  const [filters, setFilters] = usePersistedFilters('list', user?.id, LIST_DEFAULTS)
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
@@ -70,7 +69,7 @@ export function TaskListView() {
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between gap-4 mb-4">
-        <Filters filters={filters} onChange={setFilters} />
+        <Filters filters={filters} onChange={setFilters} defaults={LIST_DEFAULTS} />
         <div className="flex items-center gap-2 flex-shrink-0">
           <Button onClick={() => setCreateModalOpen(true)} icon={Plus}>
             {t('taskListView.newTask')}
