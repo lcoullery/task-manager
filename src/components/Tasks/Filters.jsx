@@ -58,7 +58,7 @@ function MultiSelect({ label, options, selected, onChange }) {
   )
 }
 
-export function Filters({ filters, onChange }) {
+export function Filters({ filters, onChange, defaults = { search: '', assignee: [], priority: [], labelId: [], showArchived: false } }) {
   const { profiles, labels } = useApp()
   const { t } = useTranslation()
 
@@ -67,13 +67,7 @@ export function Filters({ filters, onChange }) {
   }
 
   const clearFilters = () => {
-    onChange({
-      search: '',
-      assignee: [],
-      priority: [],
-      labelId: [],
-      showArchived: false,
-    })
+    onChange(defaults)
   }
 
   const hasActiveFilters =
