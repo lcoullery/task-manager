@@ -1,7 +1,6 @@
 export const WHATS_NEW = {
-  version: '2.3.1',
+  version: '2.3.2',
   changes: [
-    'Notebook : ajout d\'images par collé, glisser-déposer ou bouton',
-    'Notebook : resize des images avec poignées',
+    'Filtres mémorisés par vue entre les navigations et après reconnexion',
   ],
 };

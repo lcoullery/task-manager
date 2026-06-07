@@ -3,26 +3,25 @@ import { DragDropContext } from '@hello-pangea/dnd'
 import { Plus, Archive } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../../context/AppContext'
+import { useAuth } from '../../context/AuthContext'
 import { useKeyboard, createShortcuts } from '../../hooks/useKeyboard'
+import { usePersistedFilters } from '../../hooks/usePersistedFilters'
 import { Column } from './Column'
 import { Filters, ActiveFilterTags } from '../Tasks/Filters'
 import { TaskModal, CreateTaskModal } from '../Tasks/TaskModal'
 import { Button } from '../common/Button'
 import { ConfirmModal } from '../common/Modal'
 
+const KANBAN_DEFAULTS = { search: '', assignee: [], priority: [], labelId: [], showArchived: false }
+
 export function Board() {
   const { columns, tasks, moveTask, archiveAllDone } = useApp()
+  const { user } = useAuth()
   const { t } = useTranslation()
   const [selectedTask, setSelectedTask] = useState(null)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [archiveConfirm, setArchiveConfirm] = useState(false)
-  const [filters, setFilters] = useState({
-    search: '',
-    assignee: [],
-    priority: [],
-    labelId: [],
-    showArchived: false,
-  })
+  const [filters, setFilters] = usePersistedFilters('kanban', user?.id, KANBAN_DEFAULTS)
 
   const searchRef = useRef(null)
 
@@ -118,7 +117,7 @@ export function Board() {
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between gap-4 mb-4">
-        <Filters filters={filters} onChange={setFilters} />
+        <Filters filters={filters} onChange={setFilters} defaults={KANBAN_DEFAULTS} />
         <div className="flex items-center gap-2 flex-shrink-0">
           {doneTasksCount > 0 && (
             <Button
